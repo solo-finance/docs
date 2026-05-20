@@ -1,0 +1,30 @@
+---
+title: 'API Reference'
+description: 'SOLO Network API endpoint reference'
+icon: 'webhook'
+---
+
+The SOLO Network API reference is auto-generated from the [OpenAPI specification](/api-reference/openapi.json). Each endpoint includes request/response schemas, parameter details, and example payloads.
+
+## Authentication
+
+All API endpoints are authenticated using Bearer tokens.
+
+```json
+"security": [
+  {
+    "bearerAuth": []
+  }
+]
+```
+
+## Templates
+
+Template endpoints follow a consistent pattern with two operations per template:
+
+- **Query** — Retrieve data for a given template
+- **Furnish** — Submit/furnish data for a given template
+
+## Use Case Bundles
+
+Use case bundles combine multiple templates into a single workflow for common verification scenarios (e.g., KYC, KYB, income & employment).

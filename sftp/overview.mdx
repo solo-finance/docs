@@ -1,0 +1,119 @@
+---
+title: 'SFTP Overview'
+description: 'Bulk data ingestion via SFTP file uploads'
+icon: 'server'
+---
+
+The SOLO Network supports bulk data ingestion via SFTP. Upload Excel workbooks to your designated SFTP endpoint, and the data is automatically validated, processed, and made available through the network.
+
+## Connecting
+
+Connect to the SFTP server using your organization's email as the username and a WorkOS API key as the password:
+
+```bash
+sftp your-email@yourbank.com@sftp.solo.one
+```
+
+For the sandbox environment, append `+sandbox` to your email:
+
+```bash
+sftp your-email+sandbox@yourbank.com@sftp.solo.one
+```
+
+Or using an SFTP library:
+
+<CodeGroup>
+
+```python Python (paramiko)
+import paramiko
+
+transport = paramiko.Transport(("sftp.solo.one", 22))
+transport.connect(
+    username="alice@yourbank.com",
+    password="sk_live_your_workos_api_key",
+)
+sftp = paramiko.SFTPClient.from_transport(transport)
+
+sftp.put("policies.xlsx", "/kyc_cert_policy/policies.xlsx")
+
+sftp.close()
+transport.close()
+```
+
+```bash SSH config
+# ~/.ssh/config
+Host solo-sftp
+    HostName sftp.solo.one
+    User alice@yourbank.com
+    Port 22
+```
+
+</CodeGroup>
+
+<Note>
+  Authentication uses your organization's **WorkOS API key** as the SFTP password. Your email address serves as the username. Contact your SOLO account manager to provision API keys.
+</Note>
+
+## Upload Path
+
+Files must be uploaded to one of five category directories:
+
+```
+{category}/{filename}.xlsx
+```
+
+For example:
+
+```
+kyc_cert_policy/kyc-policies-2026.xlsx
+kyb_cert_policy/kyb-policies.xlsx
+programs/network-programs.xlsx
+kyc_furnish_data/consumer-batch-jan.xlsx
+kyb_furnish_data/business-batch-jan.xlsx
+```
+
+See [Upload Categories](/sftp/schemas) for details on each category and its expected columns.
+
+## How It Works
+
+1. **Upload** your Excel workbook (`.xlsx`) to the appropriate category directory via SFTP
+2. **Processing** begins automatically — each row is validated and ingested independently
+3. **Data** becomes available through the network once processing completes
+
+Key behaviors:
+
+- **Row-level processing** — Each row is handled independently. A single invalid row does not affect the rest of the file.
+- **Header normalization** — Column headers are lowercased and non-alphanumeric characters are collapsed to underscores, so column order and minor formatting differences are tolerated.
+- **Example row skipping** — Rows whose identifier column starts with `Ex.` are treated as template examples and skipped.
+- **Duplicate detection** — Re-uploading the same file is safely handled.
+
+## Available Categories
+
+| Category | Directory | Description |
+|---|---|---|
+| KYC Certificate Policy | `kyc_cert_policy/` | Define KYC verification policies with operation flags |
+| KYB Certificate Policy | `kyb_cert_policy/` | Define KYB verification policies with operation flags |
+| Programs | `programs/` | Configure network programs linking KYC and KYB policies |
+| KYC Furnish Data | `kyc_furnish_data/` | Upload consumer onboarding records for KYC certificates |
+| KYB Furnish Data | `kyb_furnish_data/` | Upload business onboarding records for KYB certificates |
+
+## File Requirements
+
+- **Format**: Excel workbook (`.xlsx`)
+- **Sheet**: Only the first sheet is read
+- **Row 1**: Banner row (skipped during processing)
+- **Row 2**: Column headers
+- **Row 3+**: Data rows
+
+See [Workbook Format](/sftp/csv-format) for detailed formatting requirements.
+
+## Environments
+
+Use plus-addressing on your email username to target different environments:
+
+| Environment | Username Format | Example |
+|---|---|---|
+| Production | `email@domain.com` | `alice@yourbank.com` |
+| Sandbox | `email+sandbox@domain.com` | `alice+sandbox@yourbank.com` |
+
+Each environment writes to its own isolated storage bucket.

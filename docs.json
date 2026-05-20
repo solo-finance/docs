@@ -1,0 +1,131 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "SOLO Network API",
+  "colors": {
+    "primary": "#18181B",
+    "light": "#18181B",
+    "dark": "#FAFAFA"
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "background": {
+    "color": {
+      "light": "#FFFFFF",
+      "dark": "#09090B"
+    }
+  },
+  "font": {
+    "headings": {
+      "family": "Inter",
+      "weight": 600
+    },
+    "body": {
+      "family": "Inter",
+      "weight": 400
+    }
+  },
+  "rounded": "default",
+  "css": "/custom.css",
+  "favicon": "/favicon.svg",
+  "openapi": [
+    "/api-reference/openapi.json"
+  ],
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "welcome",
+              "quickstart",
+              "authentication",
+              "errors"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/templates",
+              "concepts/use-case-bundles",
+              "concepts/data-model"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SFTP",
+        "groups": [
+          {
+            "group": "SFTP Ingestion",
+            "pages": [
+              "sftp/getting-started",
+              "sftp/overview",
+              "sftp/csv-format",
+              "sftp/schemas"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Other",
+            "pages": [
+              "api-reference/bank-specific-bad-actor-list/query",
+              "api-reference/cross-bank-financial-crimes-watch-list/query",
+              "api-reference/kyb-certificate/query",
+              "api-reference/kyc-certificate/query",
+              "api-reference/business/business",
+              "api-reference/consumer/consumer",
+              "api-reference/consumer/{consent_id}",
+              "api-reference/entities/search",
+              "api-reference/entities/search",
+              "api-reference/file-upload/ingest",
+              "api-reference/furnishing-policies/furnishing",
+              "api-reference/furnishing-policies/{policy_id}",
+              "api-reference/institution-attestation/institution-attestation",
+              "api-reference/kyb-certificate/furnish",
+              "api-reference/kyb-certificate/furnish_via_upload",
+              "api-reference/kyc-certificate/furnish",
+              "api-reference/kyc-certificate/furnish_via_upload",
+              "api-reference/querying-policies/draft",
+              "api-reference/querying-policies/querying"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/solo-finance"
+    }
+  }
+}

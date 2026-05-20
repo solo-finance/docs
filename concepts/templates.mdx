@@ -1,0 +1,99 @@
+---
+title: 'Templates'
+description: 'Standardized schemas for querying and furnishing verification data'
+icon: 'table-layout'
+---
+
+Templates are the core building block of the SOLO Network API. Each template defines a standardized schema for a specific verification domain — such as identity verification, document capture, or credit history.
+
+## The Query / Furnish Pattern
+
+Every template exposes exactly two operations:
+
+<CardGroup cols={2}>
+  <Card title="Query" icon="magnifying-glass">
+    **Read** existing data from the network for a given subject. Queries search across all data previously furnished by authorized network participants.
+  </Card>
+  <Card title="Furnish" icon="arrow-up-to-line">
+    **Write** new data into the network. When you furnish data, it becomes available for future queries by other authorized participants.
+  </Card>
+</CardGroup>
+
+This bidirectional pattern is what makes SOLO a network — participants both contribute and consume data.
+
+## Available Templates
+
+Templates are organized by verification domain:
+
+### Identity & Document Verification
+| Template | Description |
+|---|---|
+| Identity Prefill | Pre-populate known identity data for a consumer |
+| Document Capture | Upload and store identity document images |
+| Document Attribute Review | Review extracted document attributes (name, DOB, etc.) |
+| Biometric Capture | Capture biometric data (facial images) |
+| Biometric Attribute Review | Review biometric match scores and attributes |
+| Liveness Capture | Capture liveness check data |
+| Liveness Evidence Review | Review liveness detection evidence and results |
+
+### Address & Location
+| Template | Description |
+|---|---|
+| Address Verification | Verify consumer address against authoritative sources |
+| Address Data Review | Review and validate address data components |
+
+### Financial
+| Template | Description |
+|---|---|
+| Annual Personal Income | Consumer income verification data |
+| Employment Verification | Employment status, employer, and tenure |
+| Consumer Credit Health Snapshot | Credit score and credit profile summary |
+| Total Consumer Assets | Aggregated consumer asset data |
+| Total Consumer Liabilities | Aggregated consumer liability data |
+| Cashflow Snapshots & Trends | Bank account transaction trends and balances |
+
+### Business Verification
+| Template | Description |
+|---|---|
+| Business Identity Verification | Verify business legal entity information |
+| Business Ownership & Control | Verify beneficial ownership structure |
+| Business Risk & Compliance Assessment | Risk scores and compliance screening |
+
+### Fraud
+| Template | Description |
+|---|---|
+| Confirmed Fraud Attribute List | Known fraudulent identifiers and attributes |
+
+## Request Structure
+
+All template endpoints follow the same pattern:
+
+```
+POST /api/templates/{template_name}/query
+POST /api/templates/{template_name}/furnish
+```
+
+Request and response schemas are specific to each template, but they share common identifier fields for subject matching:
+
+```json
+{
+  "consumer_first_name": "Jane",
+  "consumer_last_name": "Doe",
+  "consumer_date_of_birth": "1990-01-15",
+  "consumer_ssn_last_four": "1234"
+}
+```
+
+For business templates, identifiers include:
+
+```json
+{
+  "business_legal_name": "Acme Corp",
+  "business_tax_identifier_type": "EIN",
+  "business_tax_identifier_value": "12-3456789"
+}
+```
+
+<Tip>
+  Check the [API Reference](/api-reference/introduction) for the full request/response schemas for each template.
+</Tip>

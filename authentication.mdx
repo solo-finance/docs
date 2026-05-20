@@ -1,0 +1,81 @@
+---
+title: 'Authentication'
+description: 'Authenticate with the SOLO Network API using Bearer tokens'
+icon: 'key'
+---
+
+All API requests must include a valid Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer <token>
+```
+
+The SOLO Network API supports two authentication methods depending on your integration type.
+
+## SDK Tokens
+
+SDK tokens are the primary authentication method for API integrations. They are JWT tokens issued by SOLO and signed with a shared secret (HS256).
+
+**When to use:** Server-to-server integrations, backend services, and the SOLO SDK.
+
+SDK tokens include the following claims:
+
+| Claim | Description |
+|---|---|
+| `sub` | The user or service identifier |
+| `permissions` | Array of granted permission scopes |
+| `https://api.solo.one/workflow_id` | The workflow context for the request |
+| `https://api.solo.one/stakeholder_name` | Your organization's stakeholder name |
+| `https://api.solo.one/stakeholder_type` | Stakeholder type classification |
+
+```bash
+curl -X POST https://api.solo.one/api/templates/identity_prefill/query \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## WorkOS Tokens
+
+WorkOS tokens are used for dashboard and frontend authentication. They are verified against WorkOS JWKS endpoints.
+
+**When to use:** The SOLO Network Dashboard and browser-based applications.
+
+WorkOS tokens are standard JWTs signed with RS256 and verified using WorkOS's published JWKS keys at:
+
+```
+https://api.workos.com/sso/jwks/<client_id>
+```
+
+## Permission Scopes
+
+Endpoints may require specific permission scopes. If your token lacks the required scopes, the API returns a `403 Forbidden` response.
+
+Scopes are included in the `permissions` claim of the JWT payload and are checked on each request.
+
+## Error Responses
+
+| Status Code | Description |
+|---|---|
+| `401 Unauthorized` | No token provided or token is malformed |
+| `403 Forbidden` | Token is valid but lacks required permissions |
+
+```json
+{
+  "detail": "Not enough permissions"
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep tokens server-side">
+    Never expose SDK tokens in client-side code. Use them only in backend services or server-side API calls.
+  </Accordion>
+  <Accordion title="Handle token expiry">
+    SDK tokens have an expiration time. Implement token refresh logic in your integration to avoid interruptions.
+  </Accordion>
+  <Accordion title="Use least-privilege scopes">
+    Request only the permission scopes your integration needs. This limits the blast radius if a token is compromised.
+  </Accordion>
+</AccordionGroup>

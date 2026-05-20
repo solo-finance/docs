@@ -1,0 +1,79 @@
+---
+title: 'Workbook Format'
+description: 'File format requirements for SFTP data ingestion'
+icon: 'file-excel'
+---
+
+## File Format
+
+All uploads must be Excel workbooks (`.xlsx`). Only the **first sheet** of the workbook is processed.
+
+## Row Structure
+
+| Row | Purpose |
+|---|---|
+| **Row 1** | Banner row — skipped entirely during processing |
+| **Row 2** | Column headers — defines the field mapping |
+| **Row 3+** | Data rows — each row is processed independently |
+
+<Note>
+  Row 1 is reserved for a human-readable banner (e.g., workbook title, version, or instructions). It is never parsed. Your column headers must be in row 2.
+</Note>
+
+## Header Normalization
+
+Column headers are normalized before matching:
+
+1. Converted to **lowercase**
+2. All non-alphanumeric characters are collapsed to a single **underscore** (`_`)
+
+This means the following headers are all equivalent:
+
+| Raw Header | Normalized |
+|---|---|
+| `KYC Policy Name` | `kyc_policy_name` |
+| `Program #` | `program` |
+| `Date of Birth` | `date_of_birth` |
+| `Business Tax Identifier (Value)` | `business_tax_identifier_value` |
+
+Column order does not matter — fields are matched by normalized header name, not position.
+
+## Data Type Formatting
+
+| Type | Format | Example |
+|---|---|---|
+| **Date** | ISO 8601 date or Excel date cell | `2026-01-15` |
+| **DateTime** | ISO 8601 datetime or Excel datetime cell | `2026-01-15T10:30:00` |
+| **Boolean** | `true`/`false`, `1`/`0`, `yes`/`no` (case-insensitive) | `true` |
+| **Integer** | Whole number, no separators | `12345` |
+| **Decimal** | Period as decimal separator | `1234.56` |
+| **UUID** | Standard UUID format | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` |
+| **String** | Plain text | `Jane Doe` |
+| **Empty** | Leave cell empty for optional null values | |
+
+## Example Rows
+
+Rows whose identifier column (e.g., Policy #, Program #, File #) starts with **`Ex.`** are treated as template examples and skipped during processing. Use these to provide in-workbook guidance without affecting ingestion.
+
+## Common Pitfalls
+
+<AccordionGroup>
+  <Accordion title="Formula cells without cached values">
+    If your workbook uses formulas, ensure the file is saved with cached formula results. The ingestion engine reads with `data_only=True`, meaning it reads the last-computed value, not the formula itself. If a formula cell has never been evaluated (e.g., the file was generated programmatically without opening in Excel), the value will be `None` and the row may be rejected.
+  </Accordion>
+  <Accordion title="Column headers not in row 2">
+    Headers must be exactly in row 2. If your workbook has multiple banner rows or merged cells above the headers, the ingestion will fail to match columns. Move headers to row 2 and consolidate any preamble into row 1.
+  </Accordion>
+  <Accordion title="Multiple sheets">
+    Only the first sheet (`sheetnames[0]`) is processed. If your data is on a different sheet, move it to the first position.
+  </Accordion>
+  <Accordion title="Header spelling mismatches">
+    While normalization handles casing and special characters, the underlying words must still match. For example, `policy_name` and `plicy_name` are not equivalent. Refer to [Upload Categories](/sftp/schemas) for the exact expected header names.
+  </Accordion>
+  <Accordion title="Date format issues">
+    For date columns, prefer using Excel's native date cell formatting. If entering dates as text, use ISO 8601 format (`2026-01-15`). Dates like `01/15/2026` or `Jan 15, 2026` may not be parsed correctly.
+  </Accordion>
+  <Accordion title="File saved as .xls (legacy format)">
+    Only `.xlsx` (Office Open XML) is supported. Legacy `.xls` files must be re-saved as `.xlsx` before uploading.
+  </Accordion>
+</AccordionGroup>
