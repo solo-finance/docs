@@ -63,7 +63,9 @@
             "pages": [
               "concepts/templates",
               "concepts/use-case-bundles",
-              "concepts/data-model"
+              "concepts/data-model",
+              "concepts/networks",
+              "concepts/audit-and-visibility"
             ]
           }
         ]
@@ -111,7 +113,7 @@
               "api-reference/kyb-certificate/furnish_via_upload",
               "api-reference/kyc-certificate/furnish",
               "api-reference/kyc-certificate/furnish_via_upload",
-              "api-reference/querying-policies/draft",
+              "api-reference/querying-policies/configuration",
               "api-reference/querying-policies/querying"
             ]
           }

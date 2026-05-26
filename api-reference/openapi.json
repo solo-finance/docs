@@ -473,7 +473,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/networks/policies/querying": {
@@ -482,7 +487,7 @@
           "Querying Policies"
         ],
         "summary": "Create a querying policy for a (product, network) pair.",
-        "description": "Create a new querying policy for a (product, network) pair.\n\nThe ``(network_id, product_id)`` pair is resolved server-side to its\nnetwork-product association (auto-creating it if missing). Per-model\nand per-field selections for the policy are authored separately via\n``PUT /networks/policies/querying/{policy_id}/draft``.\n\nParameters\n----\n`body` : `CreateQueryingPolicyInput`.\n    Product id, network id, and policy name.\n\nReturns\n----\n`result` : `CreateQueryingPolicyResult`.\n    The newly created policy id, name, owning entity, and the\n    resolved network-product id.\n\nExamples\n-----\n```\nPOST /networks/policies/querying\n{\n  \"product_id\": \"...\",\n  \"network_id\": \"...\",\n  \"name\": \"Auto Loan Policy\"\n}\n```",
+        "description": "Create a new querying policy for a (product, network) pair.\n\nThe ``(network_id, product_id)`` pair is resolved server-side to its\nnetwork-product association (auto-creating it if missing). Per-model\nand per-field selections for the policy are authored separately via\n``PUT /networks/policies/querying/{policy_id}/configuration``.",
         "operationId": "create_querying_policy_networks_policies_querying_post",
         "requestBody": {
           "content": {
@@ -518,14 +523,14 @@
         }
       }
     },
-    "/networks/policies/querying/{policy_id}/draft": {
+    "/networks/policies/querying/{policy_id}/configuration": {
       "put": {
         "tags": [
           "Querying Policies"
         ],
         "summary": "Save per-field selections onto an existing querying policy.",
-        "description": "Persist per-field selections onto an existing querying policy.\n\nReplaces the policy's per-model and per-field selections with the\nsubmitted set: any enabled fields and their selected provenance\noptions become the new state of the policy. The policy can also be\nrenamed and its status updated to ``draft``, ``published``, or\n``archived``.\n\nParameters\n----\n`policy_id` : `UUID`.\n    Identifier of the querying policy to update.\n\n`body` : `SaveQueryingPolicyDraftInput`.\n    New status (``draft`` / ``published`` / ``archived``), optional\n    rename, and the per-model / per-field selection grid.\n\nReturns\n----\n`result` : `SaveQueryingPolicyDraftResult`.\n    The updated policy id, name, and status.\n\nExamples\n-----\n```\nPUT /networks/policies/querying/{policy_id}/draft\n{\n  \"status\": \"draft\",\n  \"name\": \"KYC Standard Policy v2\",\n  \"model_selections\": [\n    {\n      \"product_model_definition_id\": \"...\",\n      \"field_selections\": [\n        {\n          \"product_field_definition_id\": \"...\",\n          \"is_enabled\": true,\n          \"selected_provenance_option_ids\": [\"...\"]\n        }\n      ]\n    }\n  ]\n}\n```",
-        "operationId": "save_querying_policy_draft_networks_policies_querying__policy_id__draft_put",
+        "description": "Persist per-field selections onto an existing querying policy.\n\nReplaces the policy's per-model and per-field selections with the\nsubmitted set. The policy is left in ``published`` status.",
+        "operationId": "save_querying_policy_configuration_networks_policies_querying__policy_id__configuration_put",
         "parameters": [
           {
             "name": "policy_id",
@@ -543,7 +548,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SaveQueryingPolicyDraftInput"
+                "$ref": "#/components/schemas/SaveQueryingPolicyConfigurationInput"
               }
             }
           }
@@ -554,7 +559,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SaveQueryingPolicyDraftResult"
+                  "$ref": "#/components/schemas/SaveQueryingPolicyConfigurationResult"
                 }
               }
             }
@@ -2631,17 +2636,6 @@
             ],
             "title": "Updated At"
           },
-          "cross_reference_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cross Reference Id"
-          },
           "business_legal_name": {
             "anyOf": [
               {
@@ -2820,7 +2814,7 @@
           "consumer_consent_identity": {
             "$ref": "#/components/schemas/ConsumerConsentIdentityInput"
           },
-          "entity_individual_profile_id": {
+          "consumer_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -2830,7 +2824,7 @@
                 "type": "null"
               }
             ],
-            "title": "Entity Individual Profile Id"
+            "title": "Consumer Id"
           }
         },
         "type": "object",
@@ -2951,17 +2945,6 @@
             ],
             "title": "Updated At"
           },
-          "cross_reference_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Cross Reference Id"
-          },
           "first_name": {
             "anyOf": [
               {
@@ -3049,7 +3032,7 @@
           "name"
         ],
         "title": "CreateQueryingPolicyInput",
-        "description": "Body of ``POST /networks/policies/querying``.\n\nThe dialog presents two independent dropdowns \u2014 Product and Network \u2014\nso the REST contract carries those ids directly. The backend resolves\n(or auto-creates) the join ``NetworkProduct`` row and creates the\npolicy via the repo layer in a single GraphQL mutation.\n\nPer-model / per-field selections are authored separately via the\nwizard's ``PUT /networks/policies/querying/{policy_id}/draft`` route,\nso this payload intentionally has no nested ``models`` list."
+        "description": "Body of ``POST /networks/policies/querying``.\n\nThe dialog presents two independent dropdowns \u2014 Product and Network \u2014\nso the REST contract carries those ids directly. The backend resolves\n(or auto-creates) the join ``NetworkProduct`` row and creates the\npolicy via the repo layer in a single GraphQL mutation.\n\nPer-model / per-field selections are authored separately via the\nwizard's ``PUT /networks/policies/querying/{policy_id}/configuration``\nroute, so this payload intentionally has no nested ``models`` list."
       },
       "CreateQueryingPolicyResult": {
         "properties": {
@@ -4297,17 +4280,6 @@
               }
             ],
             "title": "Business Ein"
-          },
-          "business_cross_reference_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Cross Reference Id"
           }
         },
         "type": "object",
@@ -4526,17 +4498,6 @@
           "social_security_number": {
             "type": "string",
             "title": "Social Security Number"
-          },
-          "consumer_cross_reference_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Consumer Cross Reference Id"
           }
         },
         "type": "object",
@@ -5016,12 +4977,8 @@
         ],
         "title": "QueryResolutionMeta"
       },
-      "SaveQueryingPolicyDraftInput": {
+      "SaveQueryingPolicyConfigurationInput": {
         "properties": {
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
           "model_selections": {
             "items": {
               "$ref": "#/components/schemas/ModelSelectionInput"
@@ -5043,13 +5000,12 @@
         },
         "type": "object",
         "required": [
-          "status",
           "model_selections"
         ],
-        "title": "SaveQueryingPolicyDraftInput",
-        "description": "Body of ``PUT /networks/policies/querying/{policy_id}/draft``."
+        "title": "SaveQueryingPolicyConfigurationInput",
+        "description": "Body of ``PUT /networks/policies/querying/{policy_id}/configuration``."
       },
-      "SaveQueryingPolicyDraftResult": {
+      "SaveQueryingPolicyConfigurationResult": {
         "properties": {
           "id": {
             "type": "string",
@@ -5071,8 +5027,8 @@
           "name",
           "status"
         ],
-        "title": "SaveQueryingPolicyDraftResult",
-        "description": "Response for the draft save endpoint."
+        "title": "SaveQueryingPolicyConfigurationResult",
+        "description": "Response for the configuration save endpoint."
       },
       "ValidationError": {
         "properties": {

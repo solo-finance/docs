@@ -1,0 +1,3020 @@
+openapi: 3.1.0
+info:
+  title: SOLO Network API
+  version: v1alpha1
+paths:
+  /consent/business:
+    post:
+      tags:
+      - Business
+      summary: Create a business consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+      description: Create a business consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+      operationId: consent_business_create_consent_business_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentBusinessCreateInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentBusinessCreateOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /consent/consumer:
+    post:
+      tags:
+      - Consumer
+      summary: Create a consumer consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+      description: Create a consumer consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+      operationId: consent_consumer_create_consent_consumer_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentConsumerCreateInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentConsumerCreateOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /consent/consumer/{consent_id}:
+    get:
+      tags:
+      - Consumer
+      summary: Read a consumer consent record by consent_id.
+      description: Read a consumer consent record by consent_id.
+      operationId: consent_consumer_read_consent_consumer__consent_id__get
+      parameters:
+      - name: consent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Consent Id
+      - name: network_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Network scope for the consent lookup
+          title: Network Id
+        description: Network scope for the consent lookup
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentConsumerCreateOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /entities/consumer/search:
+    get:
+      tags:
+      - Entities
+      summary: Search consumer core identities by name, email, SSN, or date of birth.
+      description: "Search consumer core identities using partial or exact field matches.\n\
+        \nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\
+        \n`first_name` : `str`, optional.\n    Case-insensitive partial match on first\
+        \ name.\n\n`last_name` : `str`, optional.\n    Case-insensitive partial match\
+        \ on last name.\n\n`personal_email` : `str`, optional.\n    Case-insensitive\
+        \ partial match on email.\n\n`social_security_number` : `str`, optional.\n\
+        \    Exact match on SSN.\n\n`date_of_birth` : `str`, optional.\n    Exact\
+        \ match on date of birth (``YYYY-MM-DD``).\n\n`limit` : `int`.\n    Maximum\
+        \ number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` :\
+        \ `list[ConsumerSearchResult]`.\n    Matching consumer core identities.\n\n\
+        Examples\n-----\n```\nGET /entities/consumer/search?network_id=...&first_name=John&last_name=Doe&limit=10\n\
+        ```"
+      operationId: search_consumers_entities_consumer_search_get
+      parameters:
+      - name: network_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Network scope for the search
+          title: Network Id
+        description: Network scope for the search
+      - name: first_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match on first name
+          title: First Name
+        description: Partial match on first name
+      - name: last_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match on last name
+          title: Last Name
+        description: Partial match on last name
+      - name: personal_email
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match on email
+          title: Personal Email
+        description: Partial match on email
+      - name: social_security_number
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Exact match on SSN
+          title: Social Security Number
+        description: Exact match on SSN
+      - name: date_of_birth
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Exact match on date of birth (YYYY-MM-DD)
+          title: Date Of Birth
+        description: Exact match on date of birth (YYYY-MM-DD)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Max results
+          default: 20
+          title: Limit
+        description: Max results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsumerSearchResult'
+                title: Response Search Consumers Entities Consumer Search Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /entities/business/search:
+    get:
+      tags:
+      - Entities
+      summary: Search business core identities by name, EIN, or email.
+      description: "Search business core identities using partial or exact field matches.\n\
+        \nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\
+        \n`business_legal_name` : `str`, optional.\n    Case-insensitive partial match\
+        \ on legal name.\n\n`business_dba_name` : `str`, optional.\n    Case-insensitive\
+        \ partial match on DBA name.\n\n`business_email` : `str`, optional.\n    Case-insensitive\
+        \ partial match on email.\n\n`federal_ein` : `int`, optional.\n    Exact match\
+        \ on federal EIN.\n\n`limit` : `int`.\n    Maximum number of results (1-100).\
+        \ Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessSearchResult]`.\n\
+        \    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business/search?network_id=...&business_legal_name=Acme&limit=10\n\
+        ```"
+      operationId: search_businesses_entities_business_search_get
+      parameters:
+      - name: network_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Network scope for the search
+          title: Network Id
+        description: Network scope for the search
+      - name: business_legal_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match on legal name
+          title: Business Legal Name
+        description: Partial match on legal name
+      - name: business_dba_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match on DBA name
+          title: Business Dba Name
+        description: Partial match on DBA name
+      - name: business_email
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match on email
+          title: Business Email
+        description: Partial match on email
+      - name: federal_ein
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Exact match on federal EIN
+          title: Federal Ein
+        description: Exact match on federal EIN
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Max results
+          default: 20
+          title: Limit
+        description: Max results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BusinessSearchResult'
+                title: Response Search Businesses Entities Business Search Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /institution-attestation:
+    post:
+      tags:
+      - Institution Attestation
+      summary: Create or renew an institution attestation for a product.
+      description: "Create a new institution-level attestation scoped to the caller's\
+        \ entity and product.\n\nThe attestation is valid for 12 months from the time\
+        \ it is created.\nCreating a new attestation does not revoke prior ones; the\
+        \ most\nrecently created active attestation for a given product is treated\n\
+        as the current one.\n\nParameters\n----------\n`body` : `InstitutionAttestationCreateRequest`.\n\
+        \    Attestation payload.\n\nReturns\n-------\n`response` : `InstitutionAttestationResponse`.\n\
+        \    The newly created attestation record."
+      operationId: create_institution_attestation_institution_attestation_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstitutionAttestationCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstitutionAttestationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /networks/policies/querying:
+    post:
+      tags:
+      - Querying Policies
+      summary: Create a querying policy for a (product, network) pair.
+      description: 'Create a new querying policy for a (product, network) pair.
+
+
+        The ``(network_id, product_id)`` pair is resolved server-side to its
+
+        network-product association (auto-creating it if missing). Per-model
+
+        and per-field selections for the policy are authored separately via
+
+        ``PUT /networks/policies/querying/{policy_id}/configuration``.'
+      operationId: create_querying_policy_networks_policies_querying_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQueryingPolicyInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateQueryingPolicyResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /networks/policies/querying/{policy_id}/configuration:
+    put:
+      tags:
+      - Querying Policies
+      summary: Save per-field selections onto an existing querying policy.
+      description: 'Persist per-field selections onto an existing querying policy.
+
+
+        Replaces the policy''s per-model and per-field selections with the
+
+        submitted set. The policy is left in ``published`` status.'
+      operationId: save_querying_policy_configuration_networks_policies_querying__policy_id__configuration_put
+      parameters:
+      - name: policy_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Policy Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveQueryingPolicyConfigurationInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveQueryingPolicyConfigurationResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /networks/policies/furnishing:
+    get:
+      tags:
+      - Furnishing Policies
+      summary: List furnishing policies in a network.
+      description: "List furnishing policies visible within a network scope.\n\nResults\
+        \ are paginated with ``limit`` (1-100, default 20) and\n``offset`` (>=0, default\
+        \ 0).\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the\
+        \ listing.\n\n`limit` : `int`.\n    Maximum number of results. Defaults to\
+        \ 20.\n\n`offset` : `int`.\n    Number of results to skip. Defaults to 0.\n\
+        \nReturns\n----\n`results` : `list[FurnishingPolicyResult]`.\n    Page of\
+        \ matching furnishing policies.\n\nExamples\n-----\n```\nGET /networks/policies/furnishing?network_id=...&limit=10\n\
+        ```"
+      operationId: list_furnishing_policies_networks_policies_furnishing_get
+      parameters:
+      - name: network_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Network scope for the listing.
+          title: Network Id
+        description: Network scope for the listing.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Maximum number of results.
+          default: 20
+          title: Limit
+        description: Maximum number of results.
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Number of results to skip.
+          default: 0
+          title: Offset
+        description: Number of results to skip.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FurnishingPolicyResult'
+                title: Response List Furnishing Policies Networks Policies Furnishing
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /networks/policies/furnishing/{policy_id}:
+    get:
+      tags:
+      - Furnishing Policies
+      summary: Get a furnishing policy by id.
+      description: "Fetch a single furnishing policy by id, scoped to a network.\n\
+        \nParameters\n----\n`policy_id` : `UUID`.\n    Identifier of the furnishing\
+        \ policy to fetch.\n\n`network_id` : `UUID`.\n    Network scope for the lookup.\n\
+        \nReturns\n----\n`result` : `FurnishingPolicyResult`.\n    The matching furnishing\
+        \ policy.\n\nRaises\n----\n`NotFoundError`.\n    If no furnishing policy with\
+        \ the given id is visible within the\n    given network scope.\n\nExamples\n\
+        -----\n```\nGET /networks/policies/furnishing/{policy_id}?network_id=...\n\
+        ```"
+      operationId: get_furnishing_policy_networks_policies_furnishing__policy_id__get
+      parameters:
+      - name: policy_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Policy Id
+      - name: network_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Network scope for the lookup.
+          title: Network Id
+        description: Network scope for the lookup.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FurnishingPolicyResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/kyc_certificate/query:
+    post:
+      tags:
+      - KYC Certificate
+      summary: Query consolidated KYC certificate data for a consumer
+      operationId: kyc_certificate_query_products_kyc_certificate_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KycCertificateQueryInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycCertificateQueryOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/kyc_certificate/furnish:
+    post:
+      tags:
+      - KYC Certificate
+      summary: Furnish KYC certificate data via structured JSON
+      operationId: kyc_certificate_furnish_products_kyc_certificate_furnish_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KycCertificateFurnishInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycCertificateFurnishOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/kyc_certificate/furnish_via_upload:
+    post:
+      tags:
+      - KYC Certificate
+      summary: Furnish KYC certificate data via Excel file upload
+      operationId: kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycCertificateFurnishOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/kyb_certificate/query:
+    post:
+      tags:
+      - KYB Certificate
+      summary: Query consolidated KYB certificate data for a business
+      operationId: kyb_certificate_query_products_kyb_certificate_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KybCertificateQueryInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KybCertificateQueryOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/kyb_certificate/furnish:
+    post:
+      tags:
+      - KYB Certificate
+      summary: Furnish KYB certificate data via structured JSON
+      operationId: kyb_certificate_furnish_products_kyb_certificate_furnish_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KybCertificateFurnishInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KybCertificateFurnishOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/kyb_certificate/furnish_via_upload:
+    post:
+      tags:
+      - KYB Certificate
+      summary: Furnish KYB certificate data via Excel file upload
+      operationId: kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KybCertificateFurnishOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/bank_specific_bad_actor_list/query:
+    post:
+      tags:
+      - Bank-Specific Bad Actor List
+      summary: Query the bank-specific bad actor list for a consumer or business
+      operationId: bank_specific_bad_actor_list_query_products_bank_specific_bad_actor_list_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankSpecificBadActorListQueryInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankSpecificBadActorListQueryOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/cross_bank_financial_crimes_watch_list/query:
+    post:
+      tags:
+      - Cross-Bank Financial Crimes Watch List
+      summary: Query the cross-bank financial crimes watch list for a consumer or
+        business
+      operationId: cross_bank_financial_crimes_watch_list_query_products_cross_bank_financial_crimes_watch_list_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrossBankFinancialCrimesWatchListQueryInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrossBankFinancialCrimesWatchListQueryOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /file-upload/ingest:
+    post:
+      tags:
+      - File Upload
+      summary: Upload a CSV file for ingestion
+      description: "Upload a CSV file and queue it for ingestion.\n\nThe file is accepted\
+        \ synchronously and processed asynchronously. The\nresponse contains a record\
+        \ describing the upload; its ``status`` begins\nas ``pending`` and transitions\
+        \ to ``processing`` and then ``completed``\n(or ``failed``) as ingestion proceeds.\n\
+        \nParameters\n----\n`file` : multipart file.\n    The CSV file to upload.\n\
+        \n`slug` : `str`.\n    The data category for this upload (e.g. ``kyc_cert_policy``,\n\
+        \    ``kyb_cert_policy``). Must be one of the categories supported for\n \
+        \   your account.\n\nReturns\n----\n`file_upload` : `FileUpload`.\n    The\
+        \ created upload record, including its ``id`` and current\n    ``status``.\n\
+        \nRaises\n----\n`ValidationError`.\n    If the file name or ``slug`` is invalid.\n\
+        \nExamples\n-----\n```bash\n>>> curl -X POST https://app.solo.one/file-upload/ingest\
+        \ \\\n...   -H \"Authorization: Bearer $TOKEN\" \\\n...   -F \"file=@sample.csv\"\
+        \ \\\n...   -F \"slug=kyc_cert_policy\"\n```"
+      operationId: ingest_csv_file_upload_ingest_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_ingest_csv_file_upload_ingest_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUpload'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /graphql:
+    get:
+      summary: Handle Http Get
+      operationId: handle_http_get_graphql_get
+      responses:
+        '200':
+          description: The GraphiQL integrated development environment.
+          content:
+            application/json:
+              schema: {}
+        '404':
+          description: Not found if GraphiQL or query via GET are not enabled.
+      security:
+      - HTTPBearer: []
+    post:
+      summary: Handle Http Post
+      operationId: handle_http_post_graphql_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /version:
+    get:
+      summary: Version
+      operationId: version_version_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AddressCaptureAssertions:
+      properties:
+        address_capture_assertion:
+          type: boolean
+          title: Address Capture Assertion
+        address_capture_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Address Capture Timestamp
+      type: object
+      required:
+      - address_capture_assertion
+      title: AddressCaptureAssertions
+    AddressCaptureData:
+      properties:
+        address_category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Category
+      type: object
+      title: AddressCaptureData
+    AddressCaptureSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/AddressCaptureAssertions'
+        data:
+          $ref: '#/components/schemas/AddressCaptureData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: AddressCaptureSubProduct
+    AddressVerificationAssertions:
+      properties:
+        address_verification_assertion:
+          type: boolean
+          title: Address Verification Assertion
+        address_verification_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Address Verification Timestamp
+      type: object
+      required:
+      - address_verification_assertion
+      title: AddressVerificationAssertions
+    AddressVerificationData:
+      properties:
+        address_verification_methods:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Address Verification Methods
+        address_verification_outcomes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Address Verification Outcomes
+        total_address_sources_consulted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Address Sources Consulted
+        address_source_count_full_match:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Address Source Count Full Match
+        address_source_count_inconclusive:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Address Source Count Inconclusive
+        address_source_count_no_match:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Address Source Count No Match
+        address_source_count_partial_match_street_and_city_only:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Address Source Count Partial Match Street And City Only
+        address_source_count_partial_match_zip_only:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Address Source Count Partial Match Zip Only
+      type: object
+      title: AddressVerificationData
+    AddressVerificationSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/AddressVerificationAssertions'
+        data:
+          $ref: '#/components/schemas/AddressVerificationData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: AddressVerificationSubProduct
+    BankSpecificBadActorListQueryInput:
+      properties:
+        consent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consent Id
+          description: "Consent token \u2014 system resolves identity + applies field\
+            \ access filtering."
+        consumer_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Entity Id
+          description: Direct consumer entity lookup for permissible-purpose queries.
+        business_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Entity Id
+          description: Direct business entity lookup for permissible-purpose queries.
+      type: object
+      title: BankSpecificBadActorListQueryInput
+    BankSpecificBadActorListQueryOutput:
+      properties:
+        query_event_id:
+          type: string
+          format: uuid
+          title: Query Event Id
+        consumer_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Entity Id
+        business_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Entity Id
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        is_listed:
+          type: boolean
+          title: Is Listed
+        bad_actor_list_placement_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Bad Actor List Placement Date
+        bad_actor_list_reason_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bad Actor List Reason Code
+      type: object
+      required:
+      - query_event_id
+      - is_listed
+      title: BankSpecificBadActorListQueryOutput
+    BiometricCaptureAssertions:
+      properties:
+        biometric_capture_assertion:
+          type: boolean
+          title: Biometric Capture Assertion
+        biometric_capture_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Biometric Capture Timestamp
+      type: object
+      required:
+      - biometric_capture_assertion
+      title: BiometricCaptureAssertions
+    BiometricCaptureData:
+      properties:
+        biometric_artifact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Artifact
+        biometric_capture_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Capture Method
+      type: object
+      title: BiometricCaptureData
+    BiometricCaptureSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/BiometricCaptureAssertions'
+        data:
+          $ref: '#/components/schemas/BiometricCaptureData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: BiometricCaptureSubProduct
+    BiometricReviewAssertions:
+      properties:
+        biometric_review_assertion:
+          type: boolean
+          title: Biometric Review Assertion
+        biometric_review_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Biometric Review Timestamp
+      type: object
+      required:
+      - biometric_review_assertion
+      title: BiometricReviewAssertions
+    BiometricReviewData:
+      properties:
+        biometric_image_quality_sufficient_for_comparison:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Biometric Image Quality Sufficient For Comparison
+        biometric_comparison_reference:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Comparison Reference
+        biometric_comparison_outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Comparison Outcome
+      type: object
+      title: BiometricReviewData
+    BiometricReviewSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/BiometricReviewAssertions'
+        data:
+          $ref: '#/components/schemas/BiometricReviewData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: BiometricReviewSubProduct
+    Body_ingest_csv_file_upload_ingest_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        slug:
+          type: string
+          title: Slug
+      type: object
+      required:
+      - file
+      - slug
+      title: Body_ingest_csv_file_upload_ingest_post
+    Body_kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post
+    Body_kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post
+    BusinessAddressOutput:
+      properties:
+        line_1:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Line 1
+        line_2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Line 2
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+        zip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Zip
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+      type: object
+      title: BusinessAddressOutput
+    BusinessConsentIdentityInput:
+      properties:
+        business_dba_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Dba Name
+        business_jurisdiction_of_formation:
+          type: string
+          title: Business Jurisdiction Of Formation
+        business_legal_name:
+          type: string
+          title: Business Legal Name
+        business_registration_identifier_from_jurisdiction_of_formation:
+          type: integer
+          title: Business Registration Identifier From Jurisdiction Of Formation
+        business_tax_identifier_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Tax Identifier Type
+        business_tax_identifier_value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Tax Identifier Value
+        business_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Website Url
+      type: object
+      required:
+      - business_jurisdiction_of_formation
+      - business_legal_name
+      - business_registration_identifier_from_jurisdiction_of_formation
+      title: BusinessConsentIdentityInput
+    BusinessIdentityVerificationAssertions:
+      properties:
+        business_identity_verification_assertion:
+          type: boolean
+          title: Business Identity Verification Assertion
+        business_identity_verification_performed_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Business Identity Verification Performed Timestamp
+      type: object
+      required:
+      - business_identity_verification_assertion
+      title: BusinessIdentityVerificationAssertions
+    BusinessIdentityVerificationData:
+      properties:
+        business_formation_document_artifact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Formation Document Artifact
+        business_dba_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Dba Name
+        business_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Website Url
+        business_jurisdiction_of_formation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Jurisdiction Of Formation
+        business_registration_identifier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Registration Identifier
+        business_identity_verification_sources:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Business Identity Verification Sources
+        business_entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Entity Type
+        business_registration_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Registration Status
+        business_operational_existence_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Operational Existence Status
+        business_tax_id_validation_result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Tax Id Validation Result
+        business_address_verification_result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Address Verification Result
+        business_registered_address:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessAddressOutput'
+          - type: 'null'
+        business_operating_address:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessAddressOutput'
+          - type: 'null'
+      type: object
+      title: BusinessIdentityVerificationData
+    BusinessIdentityVerificationSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/BusinessIdentityVerificationAssertions'
+        data:
+          $ref: '#/components/schemas/BusinessIdentityVerificationData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: BusinessIdentityVerificationSubProduct
+    BusinessOwnershipControlVerificationAssertions:
+      properties:
+        business_ownership_control_verification_assertion:
+          type: boolean
+          title: Business Ownership Control Verification Assertion
+        business_ownership_control_verification_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Business Ownership Control Verification Timestamp
+      type: object
+      required:
+      - business_ownership_control_verification_assertion
+      title: BusinessOwnershipControlVerificationAssertions
+    BusinessOwnershipControlVerificationData:
+      properties:
+        business_ownership_evidence_artifact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Ownership Evidence Artifact
+        business_dba_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Dba Name
+        business_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Website Url
+        business_jurisdiction_of_formation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Jurisdiction Of Formation
+        business_registration_identifier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Registration Identifier
+        business_ownership_control_verification_overall_primary_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Ownership Control Verification Overall Primary Source
+        business_authority_determination_basis:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Authority Determination Basis
+        business_authorized_representatives_identified_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Business Authorized Representatives Identified Count
+        business_beneficial_owners_identified_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Business Beneficial Owners Identified Count
+        business_beneficial_ownership_determination_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Beneficial Ownership Determination Method
+        business_beneficial_ownership_threshold_applied:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Beneficial Ownership Threshold Applied
+        business_control_authority_evidence_reviewed_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Control Authority Evidence Reviewed Type
+        business_control_determination_basis:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Control Determination Basis
+        business_control_persons_identified_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Business Control Persons Identified Count
+        business_ownership_control_verification_overall_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Ownership Control Verification Overall Status
+        business_ownership_evidence_reviewed_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Ownership Evidence Reviewed Type
+      type: object
+      title: BusinessOwnershipControlVerificationData
+    BusinessOwnershipControlVerificationSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/BusinessOwnershipControlVerificationAssertions'
+        data:
+          $ref: '#/components/schemas/BusinessOwnershipControlVerificationData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: BusinessOwnershipControlVerificationSubProduct
+    BusinessRiskComplianceAssessmentAssertions:
+      properties:
+        business_risk_compliance_verification_assertion:
+          type: boolean
+          title: Business Risk Compliance Verification Assertion
+        business_risk_compliance_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Business Risk Compliance Timestamp
+      type: object
+      required:
+      - business_risk_compliance_verification_assertion
+      title: BusinessRiskComplianceAssessmentAssertions
+    BusinessRiskComplianceAssessmentData:
+      properties:
+        business_dba_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Dba Name
+        business_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Website Url
+        business_jurisdiction_of_formation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Jurisdiction Of Formation
+        business_registration_identifier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Registration Identifier
+        business_primary_activity_classification_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Primary Activity Classification Code
+        business_primary_activity_classification_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Primary Activity Classification System
+        business_activity_risk_level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Activity Risk Level
+        business_adverse_media_assessment_result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Adverse Media Assessment Result
+        business_compliance_screening_scope_applied:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Compliance Screening Scope Applied
+        business_restricted_activity_assessment_result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Restricted Activity Assessment Result
+        business_risk_compliance_assessment_overall_primary_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Risk Compliance Assessment Overall Primary Source
+        business_risk_compliance_assessment_overall_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Risk Compliance Assessment Overall Status
+        business_risk_compliance_assessment_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Business Risk Compliance Assessment Timestamp
+        business_sanctions_screening_result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Sanctions Screening Result
+      type: object
+      title: BusinessRiskComplianceAssessmentData
+    BusinessRiskComplianceAssessmentSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/BusinessRiskComplianceAssessmentAssertions'
+        data:
+          $ref: '#/components/schemas/BusinessRiskComplianceAssessmentData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: BusinessRiskComplianceAssessmentSubProduct
+    BusinessSearchResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        identifier:
+          type: string
+          title: Identifier
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+        business_legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Legal Name
+        business_dba_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Dba Name
+        business_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Email
+        business_entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Entity Type
+        business_date_of_incorporation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Date Of Incorporation
+        business_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Phone
+        business_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Website Url
+        federal_ein:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Federal Ein
+        employee_count:
+          anyOf:
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          - type: 'null'
+          title: Employee Count
+      type: object
+      required:
+      - id
+      - identifier
+      title: BusinessSearchResult
+    ConsentBusinessCreateInput:
+      properties:
+        did_gather_consent_from_business_prior:
+          type: boolean
+          title: Did Gather Consent From Business Prior
+        business_consent_identity:
+          $ref: '#/components/schemas/BusinessConsentIdentityInput'
+        identity:
+          $ref: '#/components/schemas/IdentityInput'
+      type: object
+      required:
+      - did_gather_consent_from_business_prior
+      - business_consent_identity
+      - identity
+      title: ConsentBusinessCreateInput
+      description: Create a business consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+    ConsentBusinessCreateOutput:
+      properties:
+        consent_id:
+          type: string
+          title: Consent Id
+        consented_fields:
+          type: string
+          title: Consented Fields
+        created_at:
+          type: string
+          title: Created At
+        events:
+          type: string
+          title: Events
+        scope:
+          type: string
+          title: Scope
+      type: object
+      required:
+      - consent_id
+      - consented_fields
+      - created_at
+      - events
+      - scope
+      title: ConsentBusinessCreateOutput
+      description: Create a business consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+    ConsentConsumerCreateInput:
+      properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+        did_gather_consent_from_consumer_prior:
+          type: boolean
+          title: Did Gather Consent From Consumer Prior
+        consumer_consent_identity:
+          $ref: '#/components/schemas/ConsumerConsentIdentityInput'
+        consumer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Id
+      type: object
+      required:
+      - network_id
+      - did_gather_consent_from_consumer_prior
+      - consumer_consent_identity
+      title: ConsentConsumerCreateInput
+      description: Create a consumer consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+    ConsentConsumerCreateOutput:
+      properties:
+        consent_id:
+          type: string
+          title: Consent Id
+        field_access_grants:
+          items:
+            $ref: '#/components/schemas/FieldAccessGrantOutput'
+          type: array
+          title: Field Access Grants
+        created_at:
+          type: string
+          title: Created At
+        events:
+          type: string
+          title: Events
+        scope:
+          type: string
+          title: Scope
+      type: object
+      required:
+      - consent_id
+      - field_access_grants
+      - created_at
+      - events
+      - scope
+      title: ConsentConsumerCreateOutput
+      description: Create a consumer consent record (direct, server-to-server). Returns
+        a consent_id used for all subsequent queries.
+    ConsumerConsentIdentityInput:
+      properties:
+        date_of_birth:
+          type: string
+          format: date-time
+          title: Date Of Birth
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        personal_email:
+          type: string
+          title: Personal Email
+        phone_number:
+          type: string
+          title: Phone Number
+        social_security_number:
+          type: string
+          title: Social Security Number
+      type: object
+      required:
+      - date_of_birth
+      - first_name
+      - last_name
+      - personal_email
+      - phone_number
+      - social_security_number
+      title: ConsumerConsentIdentityInput
+    ConsumerSearchResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        identifier:
+          type: string
+          title: Identifier
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        personal_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Personal Email
+        date_of_birth:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date Of Birth
+        social_security_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Social Security Number
+      type: object
+      required:
+      - id
+      - identifier
+      title: ConsumerSearchResult
+    CreateQueryingPolicyInput:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - product_id
+      - network_id
+      - name
+      title: CreateQueryingPolicyInput
+      description: "Body of ``POST /networks/policies/querying``.\n\nThe dialog presents\
+        \ two independent dropdowns \u2014 Product and Network \u2014\nso the REST\
+        \ contract carries those ids directly. The backend resolves\n(or auto-creates)\
+        \ the join ``NetworkProduct`` row and creates the\npolicy via the repo layer\
+        \ in a single GraphQL mutation.\n\nPer-model / per-field selections are authored\
+        \ separately via the\nwizard's ``PUT /networks/policies/querying/{policy_id}/configuration``\n\
+        route, so this payload intentionally has no nested ``models`` list."
+    CreateQueryingPolicyResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        network_product_id:
+          type: string
+          format: uuid
+          title: Network Product Id
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        name:
+          type: string
+          title: Name
+        is_default:
+          type: boolean
+          title: Is Default
+      type: object
+      required:
+      - id
+      - network_product_id
+      - entity_id
+      - name
+      - is_default
+      title: CreateQueryingPolicyResult
+    CrossBankFinancialCrimesWatchListQueryInput:
+      properties:
+        consent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consent Id
+          description: "Consent token \u2014 system resolves identity + applies field\
+            \ access filtering."
+        consumer_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Entity Id
+          description: Direct consumer entity lookup for permissible-purpose queries.
+        business_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Entity Id
+          description: Direct business entity lookup for permissible-purpose queries.
+      type: object
+      title: CrossBankFinancialCrimesWatchListQueryInput
+    CrossBankFinancialCrimesWatchListQueryOutput:
+      properties:
+        query_event_id:
+          type: string
+          format: uuid
+          title: Query Event Id
+        consumer_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Entity Id
+        business_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Entity Id
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        is_listed:
+          type: boolean
+          title: Is Listed
+        entity_level_adverse_action_eligible_indicator:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Entity Level Adverse Action Eligible Indicator
+        watch_list_placement_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Watch List Placement Date
+      type: object
+      required:
+      - query_event_id
+      - is_listed
+      title: CrossBankFinancialCrimesWatchListQueryOutput
+    DocumentCaptureAssertions:
+      properties:
+        document_capture_assertion:
+          type: boolean
+          title: Document Capture Assertion
+        document_capture_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Document Capture Timestamp
+      type: object
+      required:
+      - document_capture_assertion
+      title: DocumentCaptureAssertions
+    DocumentCaptureData:
+      properties:
+        document_artifact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Artifact
+        document_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Type
+        document_issuing_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Issuing State
+        document_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Number
+        document_issue_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Issue Date
+        document_expiration_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Expiration Date
+        document_capture_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Capture Method
+      type: object
+      title: DocumentCaptureData
+    DocumentCaptureSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/DocumentCaptureAssertions'
+        data:
+          $ref: '#/components/schemas/DocumentCaptureData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: DocumentCaptureSubProduct
+    DocumentReviewAssertions:
+      properties:
+        document_attribute_review_assertion:
+          type: boolean
+          title: Document Attribute Review Assertion
+        document_attribute_review_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Document Attribute Review Timestamp
+      type: object
+      required:
+      - document_attribute_review_assertion
+      title: DocumentReviewAssertions
+    DocumentReviewData:
+      properties:
+        document_review_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Review Method
+        document_tamper_review_performed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Document Tamper Review Performed
+        document_tamper_indicators_observed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Document Tamper Indicators Observed
+        is_document_machine_readable_data_validation_performed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Document Machine Readable Data Validation Performed
+        is_document_machine_readable_data_validation_consistent_with_document_face:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Document Machine Readable Data Validation Consistent With Document
+            Face
+      type: object
+      title: DocumentReviewData
+    DocumentReviewSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/DocumentReviewAssertions'
+        data:
+          $ref: '#/components/schemas/DocumentReviewData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: DocumentReviewSubProduct
+    FieldAccessGrantOutput:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Furnishing Entity Id
+        field_definitions:
+          items:
+            type: string
+          type: array
+          title: Field Definitions
+          default: []
+        effective_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective From
+        effective_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective To
+      type: object
+      title: FieldAccessGrantOutput
+    FieldSelectionInput:
+      properties:
+        product_field_definition_id:
+          type: string
+          format: uuid
+          title: Product Field Definition Id
+        is_enabled:
+          type: boolean
+          title: Is Enabled
+        selected_provenance_option_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Selected Provenance Option Ids
+      type: object
+      required:
+      - product_field_definition_id
+      - is_enabled
+      - selected_provenance_option_ids
+      title: FieldSelectionInput
+      description: One row of the wizard's per-field configuration.
+    FileUpload:
+      properties:
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+        id:
+          type: string
+          format: uuid
+          title: Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        account_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Account Id
+        product_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Product Id
+        network_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Network Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        s3_bucket:
+          type: string
+          title: S3 Bucket
+        s3_key:
+          type: string
+          title: S3 Key
+        status:
+          type: string
+          title: Status
+          default: pending
+        slug:
+          type: string
+          title: Slug
+        source:
+          type: string
+          title: Source
+          default: frontend
+        original_filename:
+          type: string
+          title: Original Filename
+        file_format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Format
+        content_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Type
+        declared_byte_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Declared Byte Size
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+      type: object
+      required:
+      - s3_bucket
+      - s3_key
+      - slug
+      - original_filename
+      title: FileUpload
+    FurnishingPolicyResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Entity Id
+        network_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Network Id
+        name:
+          type: string
+          title: Name
+        version:
+          type: integer
+          title: Version
+        schema_version:
+          type: string
+          title: Schema Version
+        source_default_slug:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Default Slug
+        active_on:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Active On
+        deprecated_on:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Deprecated On
+        policy_metadata:
+          additionalProperties: true
+          type: object
+          title: Policy Metadata
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name
+      - version
+      - schema_version
+      title: FurnishingPolicyResult
+      description: A furnishing policy as returned by the REST API.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IdentityCorroborationAssertions:
+      properties:
+        is_identity_corroboration_performed:
+          type: boolean
+          title: Is Identity Corroboration Performed
+        identity_corroboration_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Identity Corroboration Timestamp
+      type: object
+      required:
+      - is_identity_corroboration_performed
+      title: IdentityCorroborationAssertions
+    IdentityCorroborationData:
+      properties:
+        identity_elements_corroborated:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Identity Elements Corroborated
+        identity_corroboration_methods:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Identity Corroboration Methods
+        identity_corroboration_outcomes:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Identity Corroboration Outcomes
+        total_identity_corroboration_sources_consulted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Identity Corroboration Sources Consulted
+        identity_corroboration_source_count_full_match:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Identity Corroboration Source Count Full Match
+        identity_corroboration_source_count_inconclusive:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Identity Corroboration Source Count Inconclusive
+        identity_corroboration_source_count_no_match:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Identity Corroboration Source Count No Match
+        identity_corroboration_source_count_partial_match:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Identity Corroboration Source Count Partial Match
+      type: object
+      title: IdentityCorroborationData
+    IdentityCorroborationSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/IdentityCorroborationAssertions'
+        data:
+          $ref: '#/components/schemas/IdentityCorroborationData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: IdentityCorroborationSubProduct
+    IdentityInput:
+      properties:
+        business_dba_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Dba Name
+        business_jurisdiction_of_formation:
+          type: string
+          title: Business Jurisdiction Of Formation
+        business_legal_name:
+          type: string
+          title: Business Legal Name
+        business_registration_identifier_from_jurisdiction_of_formation:
+          type: integer
+          title: Business Registration Identifier From Jurisdiction Of Formation
+        business_tax_identifier_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Tax Identifier Type
+        business_tax_identifier_value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Tax Identifier Value
+        business_website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Website Url
+      type: object
+      required:
+      - business_jurisdiction_of_formation
+      - business_legal_name
+      - business_registration_identifier_from_jurisdiction_of_formation
+      title: IdentityInput
+    InstitutionAttestationCreateRequest:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        signed_by_name:
+          type: string
+          title: Signed By Name
+        signed_by_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signed By Title
+        attestation_data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attestation Data
+      type: object
+      required:
+      - product_id
+      - signed_by_name
+      title: InstitutionAttestationCreateRequest
+    InstitutionAttestationResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        signed_by_name:
+          type: string
+          title: Signed By Name
+        signed_by_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signed By Title
+        signed_at:
+          type: string
+          format: date-time
+          title: Signed At
+        expires_at:
+          type: string
+          format: date-time
+          title: Expires At
+        status:
+          type: string
+          title: Status
+        attestation_data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attestation Data
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - entity_id
+      - product_id
+      - signed_by_name
+      - signed_by_title
+      - signed_at
+      - expires_at
+      - status
+      - attestation_data
+      - created_at
+      title: InstitutionAttestationResponse
+    KybCertificateFurnishInput:
+      properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+          description: Network scope for the furnishing.
+        program_name:
+          type: string
+          title: Program Name
+          description: Program name for policy resolution.
+        application_date:
+          type: string
+          title: Application Date
+          description: Application date for policy resolution.
+        records:
+          items:
+            $ref: '#/components/schemas/KybCertificateFurnishRecord'
+          type: array
+          title: Records
+          description: One or more business records to furnish.
+      type: object
+      required:
+      - network_id
+      - program_name
+      - application_date
+      - records
+      title: KybCertificateFurnishInput
+    KybCertificateFurnishOutput:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        submission_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Submission Id
+      type: object
+      title: KybCertificateFurnishOutput
+    KybCertificateFurnishRecord:
+      properties:
+        business_legal_name:
+          type: string
+          title: Business Legal Name
+        business_ein:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Business Ein
+      type: object
+      required:
+      - business_legal_name
+      title: KybCertificateFurnishRecord
+    KybCertificateNetworkResult:
+      properties:
+        meta:
+          $ref: '#/components/schemas/QueryResolutionMeta'
+        business_identity_verification:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessIdentityVerificationSubProduct'
+          - type: 'null'
+        business_ownership_control_verification:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessOwnershipControlVerificationSubProduct'
+          - type: 'null'
+        business_risk_compliance_assessment:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessRiskComplianceAssessmentSubProduct'
+          - type: 'null'
+      type: object
+      required:
+      - meta
+      title: KybCertificateNetworkResult
+    KybCertificateQueryInput:
+      properties:
+        network_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Network Id
+          description: Legacy single network scope. Use network_policy instead.
+        network_policy:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/NetworkQueryParameter'
+            type: array
+          - type: 'null'
+          title: Network Policy
+          description: List of network+policy pairs to query across.
+        consent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consent Id
+          description: "Consent token \u2014 system resolves identity + applies field\
+            \ access filtering."
+        business_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Entity Id
+          description: Direct entity lookup for permissible-purpose (FCRA) queries.
+      type: object
+      title: KybCertificateQueryInput
+    KybCertificateQueryOutput:
+      properties:
+        certificate_id:
+          type: string
+          format: uuid
+          title: Certificate Id
+        query_event_id:
+          type: string
+          format: uuid
+          title: Query Event Id
+        business_entity_id:
+          type: string
+          format: uuid
+          title: Business Entity Id
+        results:
+          items:
+            $ref: '#/components/schemas/KybCertificateNetworkResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - certificate_id
+      - query_event_id
+      - business_entity_id
+      title: KybCertificateQueryOutput
+    KycCertificateFurnishInput:
+      properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+          description: Network scope for the furnishing.
+        program_name:
+          type: string
+          title: Program Name
+          description: Program name for policy resolution.
+        application_date:
+          type: string
+          title: Application Date
+          description: Application date for policy resolution.
+        records:
+          items:
+            $ref: '#/components/schemas/KycCertificateFurnishRecord'
+          type: array
+          title: Records
+          description: One or more consumer records to furnish.
+      type: object
+      required:
+      - network_id
+      - program_name
+      - application_date
+      - records
+      title: KycCertificateFurnishInput
+    KycCertificateFurnishOutput:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          default: true
+        submission_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Submission Id
+      type: object
+      title: KycCertificateFurnishOutput
+    KycCertificateFurnishRecord:
+      properties:
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        date_of_birth:
+          type: string
+          title: Date Of Birth
+        social_security_number:
+          type: string
+          title: Social Security Number
+      type: object
+      required:
+      - first_name
+      - last_name
+      - date_of_birth
+      - social_security_number
+      title: KycCertificateFurnishRecord
+    KycCertificateNetworkResult:
+      properties:
+        meta:
+          $ref: '#/components/schemas/QueryResolutionMeta'
+        document_capture:
+          anyOf:
+          - $ref: '#/components/schemas/DocumentCaptureSubProduct'
+          - type: 'null'
+        document_review:
+          anyOf:
+          - $ref: '#/components/schemas/DocumentReviewSubProduct'
+          - type: 'null'
+        biometric_capture:
+          anyOf:
+          - $ref: '#/components/schemas/BiometricCaptureSubProduct'
+          - type: 'null'
+        biometric_review:
+          anyOf:
+          - $ref: '#/components/schemas/BiometricReviewSubProduct'
+          - type: 'null'
+        liveness_capture:
+          anyOf:
+          - $ref: '#/components/schemas/LivenessCaptureSubProduct'
+          - type: 'null'
+        liveness_review:
+          anyOf:
+          - $ref: '#/components/schemas/LivenessReviewSubProduct'
+          - type: 'null'
+        address_capture:
+          anyOf:
+          - $ref: '#/components/schemas/AddressCaptureSubProduct'
+          - type: 'null'
+        address_verification:
+          anyOf:
+          - $ref: '#/components/schemas/AddressVerificationSubProduct'
+          - type: 'null'
+        identity_corroboration:
+          anyOf:
+          - $ref: '#/components/schemas/IdentityCorroborationSubProduct'
+          - type: 'null'
+      type: object
+      required:
+      - meta
+      title: KycCertificateNetworkResult
+    KycCertificateQueryInput:
+      properties:
+        network_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Network Id
+          description: Legacy single network scope. Use network_policy instead.
+        network_policy:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/NetworkQueryParameter'
+            type: array
+          - type: 'null'
+          title: Network Policy
+          description: List of network+policy pairs to query across.
+        consent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consent Id
+          description: "Consent token \u2014 system resolves identity + applies field\
+            \ access filtering."
+        consumer_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Entity Id
+          description: Direct entity lookup for permissible-purpose (FCRA) queries.
+      type: object
+      title: KycCertificateQueryInput
+    KycCertificateQueryOutput:
+      properties:
+        certificate_id:
+          type: string
+          format: uuid
+          title: Certificate Id
+        query_event_id:
+          type: string
+          format: uuid
+          title: Query Event Id
+        consumer_entity_id:
+          type: string
+          format: uuid
+          title: Consumer Entity Id
+        results:
+          items:
+            $ref: '#/components/schemas/KycCertificateNetworkResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - certificate_id
+      - query_event_id
+      - consumer_entity_id
+      title: KycCertificateQueryOutput
+    LivenessCaptureAssertions:
+      properties:
+        liveness_capture_assertion:
+          type: boolean
+          title: Liveness Capture Assertion
+        liveness_capture_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Liveness Capture Timestamp
+      type: object
+      required:
+      - liveness_capture_assertion
+      title: LivenessCaptureAssertions
+    LivenessCaptureData:
+      properties:
+        liveness_artifact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Artifact
+        liveness_capture_environment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Capture Environment
+      type: object
+      title: LivenessCaptureData
+    LivenessCaptureSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/LivenessCaptureAssertions'
+        data:
+          $ref: '#/components/schemas/LivenessCaptureData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: LivenessCaptureSubProduct
+    LivenessReviewAssertions:
+      properties:
+        liveness_review_assertion:
+          type: boolean
+          title: Liveness Review Assertion
+        liveness_review_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Liveness Review Timestamp
+      type: object
+      required:
+      - liveness_review_assertion
+      title: LivenessReviewAssertions
+    LivenessReviewData:
+      properties:
+        liveness_review_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Review Method
+        liveness_review_outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Review Outcome
+        liveness_review_confidence_tier:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Review Confidence Tier
+      type: object
+      title: LivenessReviewData
+    LivenessReviewSubProduct:
+      properties:
+        furnishing_entity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Furnishing Entity Id
+        attestation_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Attestation Id
+        assertions:
+          $ref: '#/components/schemas/LivenessReviewAssertions'
+        data:
+          $ref: '#/components/schemas/LivenessReviewData'
+      type: object
+      required:
+      - assertions
+      - data
+      title: LivenessReviewSubProduct
+    ModelSelectionInput:
+      properties:
+        product_model_definition_id:
+          type: string
+          format: uuid
+          title: Product Model Definition Id
+        field_selections:
+          items:
+            $ref: '#/components/schemas/FieldSelectionInput'
+          type: array
+          title: Field Selections
+      type: object
+      required:
+      - product_model_definition_id
+      - field_selections
+      title: ModelSelectionInput
+      description: Per-model wizard payload.
+    NetworkQueryParameter:
+      properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+          description: Network scope for this query parameter.
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+          description: Explicit querying policy. If omitted, the networks default
+            policy is used.
+      type: object
+      required:
+      - network_id
+      title: NetworkQueryParameter
+    QueryResolutionMeta:
+      properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+      type: object
+      required:
+      - network_id
+      title: QueryResolutionMeta
+    SaveQueryingPolicyConfigurationInput:
+      properties:
+        model_selections:
+          items:
+            $ref: '#/components/schemas/ModelSelectionInput'
+          type: array
+          title: Model Selections
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      type: object
+      required:
+      - model_selections
+      title: SaveQueryingPolicyConfigurationInput
+      description: Body of ``PUT /networks/policies/querying/{policy_id}/configuration``.
+    SaveQueryingPolicyConfigurationResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - id
+      - name
+      - status
+      title: SaveQueryingPolicyConfigurationResult
+      description: Response for the configuration save endpoint.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
