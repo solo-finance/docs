@@ -18,8 +18,8 @@ flowchart LR
     subgraph audit [Audit namespace]
         QE[QueryEvent]
         FE[FurnishEvent]
-        QER[QueryEventRecord]
-        FER[FurnishEventRecord]
+        QER[QueryEventEntitlement]
+        FER[FurnishEventEntitlement]
     end
     subgraph runtime [Network-scoped reads]
         Consumer[Consumer / Business]
@@ -58,7 +58,7 @@ A **query event** is written when your stakeholder runs a product query (REST or
 | `entity_id` / `queryingEntityId` | Who ran the query (always the caller) |
 | `furnishingEntityId` | Who originally furnished the underlying data, when known |
 | `productId` | Product that was queried |
-| `queryEventRecords` | Junction rows linking the event to profiles and every object touched |
+| `queryEventEntitlements` | Junction rows linking the event to profiles and every object touched |
 
 You always see **your own** query history. You do **not** automatically see query events run by other network members against the same profiles.
 
@@ -70,13 +70,13 @@ A **furnish event** is written when your stakeholder ingests data (API, SFTP, or
 |---|---|
 | `entity_id` | The furnishing stakeholder who ran the upload |
 | `network_id` | Which network or program the run targeted |
-| `furnishEventRecords` | Junction rows linking the run to profiles and furnished objects |
+| `furnishEventEntitlements` | Junction rows linking the run to profiles and furnished objects |
 
 You see furnish events where `entity_id` is in your accessible entity set — your entity, or a furnishing entity you hold consent to audit.
 
 ## Entitlement records
 
-`QueryEventRecord` and `FurnishEventRecord` are junction tables that answer: *"this audit event touched this profile / this object."*
+`QueryEventEntitlement` and `FurnishEventEntitlement` are junction tables that answer: *"this audit event touched this profile / this object."*
 
 They power:
 
@@ -145,7 +145,7 @@ Batch lookup: `audit.auditedNodes(ids: [...])`.
 Routes are built from:
 
 1. **Static templates** for types with canonical pages (query events, furnish events, consumers, businesses, products, networks, policies)
-2. **Reverse lookups** through `QueryEventRecord` and `FurnishEventRecord`, filtered to audit events your entity can see
+2. **Reverse lookups** through `QueryEventEntitlement` and `FurnishEventEntitlement`, filtered to audit events your entity can see
 
 Routes respect the same entity scope as audit lists — you will not receive navigation paths through another member's furnish runs without consent.
 

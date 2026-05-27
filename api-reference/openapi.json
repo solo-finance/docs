@@ -1424,7 +1424,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "consumer_entity_id": {
+          "consumer_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -1434,21 +1434,8 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Entity Id",
-            "description": "Direct consumer entity lookup for permissible-purpose queries."
-          },
-          "business_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Entity Id",
-            "description": "Direct business entity lookup for permissible-purpose queries."
+            "title": "Consumer Id",
+            "description": "Consumer profile primary key (Consumer.id) for permissible-purpose queries."
           }
         },
         "type": "object",
@@ -1461,29 +1448,10 @@
             "format": "uuid",
             "title": "Query Event Id"
           },
-          "consumer_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Consumer Entity Id"
-          },
-          "business_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Entity Id"
+          "consumer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consumer Id"
           },
           "furnishing_entity_id": {
             "anyOf": [
@@ -1528,6 +1496,7 @@
         "type": "object",
         "required": [
           "query_event_id",
+          "consumer_id",
           "is_listed"
         ],
         "title": "BankSpecificBadActorListQueryOutput"
@@ -3084,7 +3053,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "consumer_entity_id": {
+          "consumer_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -3094,21 +3063,8 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Entity Id",
-            "description": "Direct consumer entity lookup for permissible-purpose queries."
-          },
-          "business_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Entity Id",
-            "description": "Direct business entity lookup for permissible-purpose queries."
+            "title": "Consumer Id",
+            "description": "Consumer profile primary key (Consumer.id) for permissible-purpose queries."
           }
         },
         "type": "object",
@@ -3121,29 +3077,10 @@
             "format": "uuid",
             "title": "Query Event Id"
           },
-          "consumer_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Consumer Entity Id"
-          },
-          "business_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Entity Id"
+          "consumer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consumer Id"
           },
           "furnishing_entity_id": {
             "anyOf": [
@@ -3188,6 +3125,7 @@
         "type": "object",
         "required": [
           "query_event_id",
+          "consumer_id",
           "is_listed"
         ],
         "title": "CrossBankFinancialCrimesWatchListQueryOutput"
@@ -3531,6 +3469,17 @@
             },
             "type": "array",
             "title": "Selected Provenance Option Ids"
+          },
+          "boolean_choice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boolean Choice"
           }
         },
         "type": "object",
@@ -4372,7 +4321,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "business_entity_id": {
+          "business_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4382,8 +4331,8 @@
                 "type": "null"
               }
             ],
-            "title": "Business Entity Id",
-            "description": "Direct entity lookup for permissible-purpose (FCRA) queries."
+            "title": "Business Id",
+            "description": "Business profile primary key (Business.id) for permissible-purpose (FCRA) queries."
           }
         },
         "type": "object",
@@ -4392,33 +4341,43 @@
       "KybCertificateQueryOutput": {
         "properties": {
           "certificate_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Certificate Id"
           },
           "query_event_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Query Event Id"
           },
-          "business_entity_id": {
+          "business_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Business Entity Id"
+            "title": "Business Id"
           },
-          "results": {
-            "items": {
-              "$ref": "#/components/schemas/KybCertificateNetworkResult"
-            },
-            "type": "array",
-            "title": "Results"
+          "result": {
+            "$ref": "#/components/schemas/KybCertificateNetworkResult",
+            "description": "Consolidated certificate resolution across all queried networks."
           }
         },
         "type": "object",
         "required": [
-          "certificate_id",
-          "query_event_id",
-          "business_entity_id"
+          "business_id",
+          "result"
         ],
         "title": "KybCertificateQueryOutput"
       },
@@ -4653,7 +4612,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "consumer_entity_id": {
+          "consumer_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4663,8 +4622,8 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Entity Id",
-            "description": "Direct entity lookup for permissible-purpose (FCRA) queries."
+            "title": "Consumer Id",
+            "description": "Consumer profile primary key (Consumer.id) for permissible-purpose (FCRA) queries."
           }
         },
         "type": "object",
@@ -4673,33 +4632,43 @@
       "KycCertificateQueryOutput": {
         "properties": {
           "certificate_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Certificate Id"
           },
           "query_event_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Query Event Id"
           },
-          "consumer_entity_id": {
+          "consumer_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Consumer Entity Id"
+            "title": "Consumer Id"
           },
-          "results": {
-            "items": {
-              "$ref": "#/components/schemas/KycCertificateNetworkResult"
-            },
-            "type": "array",
-            "title": "Results"
+          "result": {
+            "$ref": "#/components/schemas/KycCertificateNetworkResult",
+            "description": "Consolidated certificate resolution across all queried networks."
           }
         },
         "type": "object",
         "required": [
-          "certificate_id",
-          "query_event_id",
-          "consumer_entity_id"
+          "consumer_id",
+          "result"
         ],
         "title": "KycCertificateQueryOutput"
       },
