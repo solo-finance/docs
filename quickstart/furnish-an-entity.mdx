@@ -1,0 +1,156 @@
+---
+title: 'Furnishing your first entity'
+description: 'Contribute verified data about a consumer into a network'
+icon: 'arrow-up-from-bracket'
+---
+
+Furnishing contributes data about a [consumer or business](/concepts/entities)
+into a [network](/concepts/networks). In this guide you'll furnish a KYC
+certificate for a consumer.
+
+## Prerequisites
+
+- An SDK token exported as `SOLO_TOKEN` (see [Quickstart](/quickstart)).
+- The **furnisher** role in a network, and your network's `network_id`.
+- The **program name** you furnish under (ask your SOLO account manager if unsure;
+  many setups use a single default program).
+
+## 1. Build your records
+
+Each record identifies one consumer. For a KYC certificate, the minimum is the
+consumer's core identity:
+
+```json
+{
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "date_of_birth": "1990-01-15",
+  "social_security_number": "123-45-6789"
+}
+```
+
+These identifiers tell the network *which* consumer the data belongs to — the
+certificate is associated with that identity. You can furnish many records in a
+single call.
+
+## 2. Furnish
+
+Call the product's furnish endpoint with your network scope and records:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.solo.one/products/kyc_certificate/furnish \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "network_id": "9f1c0c2e-…",
+    "program_name": "default",
+    "application_date": "2026-05-28",
+    "records": [
+      {
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "date_of_birth": "1990-01-15",
+        "social_security_number": "123-45-6789"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests, os
+
+resp = requests.post(
+    "https://api.solo.one/products/kyc_certificate/furnish",
+    headers={"Authorization": f"Bearer {os.environ['SOLO_TOKEN']}"},
+    json={
+        "network_id": "9f1c0c2e-…",
+        "program_name": "default",
+        "application_date": "2026-05-28",
+        "records": [
+            {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "date_of_birth": "1990-01-15",
+                "social_security_number": "123-45-6789",
+            }
+        ],
+    },
+)
+print(resp.json())
+```
+
+```javascript JavaScript
+const resp = await fetch(
+  "https://api.solo.one/products/kyc_certificate/furnish",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SOLO_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      network_id: "9f1c0c2e-…",
+      program_name: "default",
+      application_date: "2026-05-28",
+      records: [
+        {
+          first_name: "Jane",
+          last_name: "Doe",
+          date_of_birth: "1990-01-15",
+          social_security_number: "123-45-6789",
+        },
+      ],
+    }),
+  }
+);
+console.log(await resp.json());
+```
+
+</CodeGroup>
+
+Alongside your `records`, three fields scope the furnish:
+
+- `network_id` — the [network](/concepts/networks) you're furnishing into.
+- `program_name` — the program (partition) within that network.
+- `application_date` — the date this data applies to. The network uses it, along
+  with the network and program, to resolve the right
+  [furnishing policy](/concepts/policies) automatically.
+
+The network then matches each record to a consumer and stores the data under your
+organization.
+
+<Check>
+  A `200 OK` response confirms the records were accepted and a furnish event was
+  recorded.
+</Check>
+
+<Tip>
+  You never pass a policy yourself — the network resolves it from your
+  `network_id`, `program_name`, and `application_date`.
+</Tip>
+
+## 3. You're now entitled
+
+By furnishing this consumer, you've earned [entitlement](/concepts/entitlement) to
+read their data on future queries. Head to
+[Querying your first product](/quickstart/query-a-product) to read it back.
+
+## Furnishing at scale
+
+- Pass **multiple records** in one call.
+- Use **`furnish_via_upload`** to submit an Excel file for products that support
+  it.
+- Use **[SFTP](/sftp/overview)** for automated, recurring bulk ingestion.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Query a product" icon="magnifying-glass" href="/quickstart/query-a-product">
+    Read consolidated data back from the network.
+  </Card>
+  <Card title="How furnishing works" icon="arrow-up-from-bracket" href="/concepts/furnishing">
+    The concepts behind the call.
+  </Card>
+</CardGroup>

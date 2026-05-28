@@ -53,19 +53,31 @@
             "group": "Getting Started",
             "pages": [
               "welcome",
-              "quickstart",
               "authentication",
               "errors"
             ]
           },
           {
-            "group": "Concepts",
+            "group": "Quickstart",
             "pages": [
-              "concepts/templates",
-              "concepts/use-case-bundles",
-              "concepts/data-model",
+              "quickstart",
+              "quickstart/furnish-an-entity",
+              "quickstart/query-a-product",
+              "quickstart/join-a-network"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/overview",
+              "concepts/entities",
+              "concepts/consent",
+              "concepts/products",
+              "concepts/policies",
               "concepts/networks",
-              "concepts/audit-and-visibility"
+              "concepts/entitlement",
+              "concepts/querying",
+              "concepts/furnishing"
             ]
           }
         ]
@@ -94,27 +106,67 @@
             ]
           },
           {
-            "group": "Other",
+            "group": "Consent",
             "pages": [
-              "api-reference/bank-specific-bad-actor-list/query",
-              "api-reference/cross-bank-financial-crimes-watch-list/query",
-              "api-reference/kyb-certificate/query",
-              "api-reference/kyc-certificate/query",
-              "api-reference/business/business",
               "api-reference/consumer/consumer",
               "api-reference/consumer/{consent_id}",
-              "api-reference/entities/search",
-              "api-reference/entities/search",
-              "api-reference/file-upload/ingest",
-              "api-reference/furnishing-policies/furnishing",
-              "api-reference/furnishing-policies/{policy_id}",
-              "api-reference/institution-attestation/institution-attestation",
-              "api-reference/kyb-certificate/furnish",
-              "api-reference/kyb-certificate/furnish_via_upload",
-              "api-reference/kyc-certificate/furnish",
-              "api-reference/kyc-certificate/furnish_via_upload",
+              "api-reference/business/business"
+            ]
+          },
+          {
+            "group": "Entities",
+            "pages": [
+              "api-reference/entities/consumer-search",
+              "api-reference/entities/business-search"
+            ]
+          },
+          {
+            "group": "Products",
+            "pages": [
+              {
+                "group": "KYC Certificate",
+                "pages": [
+                  "api-reference/kyc-certificate/query",
+                  "api-reference/kyc-certificate/furnish",
+                  "api-reference/kyc-certificate/furnish_via_upload"
+                ]
+              },
+              {
+                "group": "KYB Certificate",
+                "pages": [
+                  "api-reference/kyb-certificate/query",
+                  "api-reference/kyb-certificate/furnish",
+                  "api-reference/kyb-certificate/furnish_via_upload"
+                ]
+              },
+              {
+                "group": "Screening Lists",
+                "pages": [
+                  "api-reference/bank-specific-bad-actor-list/query",
+                  "api-reference/cross-bank-financial-crimes-watch-list/query"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Policies",
+            "pages": [
+              "api-reference/querying-policies/querying",
               "api-reference/querying-policies/configuration",
-              "api-reference/querying-policies/querying"
+              "api-reference/furnishing-policies/furnishing",
+              "api-reference/furnishing-policies/{policy_id}"
+            ]
+          },
+          {
+            "group": "Attestations",
+            "pages": [
+              "api-reference/institution-attestation/institution-attestation"
+            ]
+          },
+          {
+            "group": "Bulk Ingestion",
+            "pages": [
+              "api-reference/file-upload/ingest"
             ]
           }
         ]

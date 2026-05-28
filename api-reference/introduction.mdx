@@ -4,27 +4,55 @@ description: 'SOLO Network API endpoint reference'
 icon: 'webhook'
 ---
 
-The SOLO Network API reference is auto-generated from the [OpenAPI specification](/api-reference/openapi.json). Each endpoint includes request/response schemas, parameter details, and example payloads.
+The SOLO Network API reference is auto-generated from the
+[OpenAPI specification](/api-reference/openapi.json). Each endpoint includes
+request/response schemas, parameter details, and example payloads.
+
+New to the platform? Read [High-level concepts](/concepts/overview) first — the
+reference assumes familiarity with entities, products, policies, networks,
+consent, and entitlement.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens.
+All endpoints are authenticated with a Bearer token. See
+[Authentication](/authentication).
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```
+Authorization: Bearer <token>
 ```
 
-## Templates
+## How the reference is organized
 
-Template endpoints follow a consistent pattern with two operations per template:
+<CardGroup cols={2}>
+  <Card title="Consent" icon="file-signature">
+    Create and read [consent](/concepts/consent) records for consumers and
+    businesses. Required before querying.
+  </Card>
+  <Card title="Entities" icon="users">
+    Search consumers and businesses within a [network](/concepts/networks).
+  </Card>
+  <Card title="Products" icon="box">
+    Query and furnish [products](/concepts/products) — KYC/KYB certificates and
+    screening lists.
+  </Card>
+  <Card title="Policies" icon="sliders">
+    Create and configure querying [policies](/concepts/policies), and list
+    furnishing policies.
+  </Card>
+  <Card title="Attestations" icon="stamp">
+    Create or renew an institution attestation for a product.
+  </Card>
+  <Card title="Bulk ingestion" icon="file-import">
+    Upload files for ingestion. See also the [SFTP guide](/sftp/overview).
+  </Card>
+</CardGroup>
 
-- **Query** — Retrieve data for a given template
-- **Furnish** — Submit/furnish data for a given template
+## Conventions
 
-## Use Case Bundles
-
-Use case bundles combine multiple templates into a single workflow for common verification scenarios (e.g., KYC, KYB, income & employment).
+- **Products** expose `query` (read) and `furnish` (write) operations under
+  `/products/{product}/…`. Some also support `furnish_via_upload`.
+- **Querying** a product requires a `consent_id` and one or more `network_policy`
+  pairs. See [Querying](/concepts/querying).
+- **Furnishing** a product requires a `network_id`, `program_name`, and
+  `application_date`. See [Furnishing](/concepts/furnishing).
+- Errors follow a consistent JSON shape — see [Errors](/errors).

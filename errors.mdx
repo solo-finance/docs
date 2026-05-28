@@ -20,7 +20,7 @@ For validation errors, the detail includes the field path:
 
 ```json
 {
-  "detail": "body -> consumer_first_name: field required"
+  "detail": "body -> first_name: field required"
 }
 ```
 
@@ -74,7 +74,7 @@ For validation errors, the detail includes the field path:
     **Status:** `422 Unprocessable Entity`
 
     ```json
-    { "detail": "body -> consumer_date_of_birth: value is not a valid date" }
+    { "detail": "body -> date_of_birth: value is not a valid date" }
     ```
 
     Check the field mentioned in the error detail. The [API Reference](/api-reference/introduction) documents the expected types and formats for each field.
@@ -93,4 +93,4 @@ For validation errors, the detail includes the field path:
 
 ## Rate Limiting
 
-The API does not currently enforce rate limits. However, we recommend keeping request volume reasonable and using [bulk data ingestion](/concepts/data-model#data-ingestion) for high-volume operations.
+The API does not currently enforce rate limits. However, we recommend keeping request volume reasonable and using [bulk furnishing](/concepts/furnishing#bulk-furnishing) for high-volume operations.

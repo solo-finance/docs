@@ -1,0 +1,101 @@
+---
+title: 'Joining a network'
+description: 'Understand membership, roles, and your first calls in a network'
+icon: 'sitemap'
+---
+
+Everything you do on the platform happens inside a [network](/concepts/networks).
+This guide explains how membership works and how to confirm you're set up
+correctly.
+
+## 1. Get added to a network
+
+Network membership and roles are arranged with your SOLO account manager. When
+your organization is added, you receive:
+
+- a **`network_id`** — the network you'll furnish into or query from, and
+- one or more **roles** that define what you can do in it.
+
+| Role | What it lets you do |
+|---|---|
+| **Furnisher** | Contribute data into the network. |
+| **Querier** | Run product queries scoped to the network. |
+| **Governor** | Administer the network's policies and metadata. |
+
+<Note>
+  Roles grant *capabilities*, not *visibility*. Joining a network — even governing
+  one — does not let you read other members' data. That requires
+  [consent](/concepts/consent) and [entitlement](/concepts/entitlement).
+</Note>
+
+## 2. Confirm you can reach the network
+
+A quick way to verify your membership and token is to search for an entity within
+the network:
+
+<CodeGroup>
+
+```bash cURL
+curl -G https://api.solo.one/entities/consumer/search \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  --data-urlencode "network_id=9f1c0c2e-…" \
+  --data-urlencode "last_name=Doe"
+```
+
+```python Python
+import requests, os
+
+resp = requests.get(
+    "https://api.solo.one/entities/consumer/search",
+    headers={"Authorization": f"Bearer {os.environ['SOLO_TOKEN']}"},
+    params={"network_id": "9f1c0c2e-…", "last_name": "Doe"},
+)
+print(resp.json())
+```
+
+```javascript JavaScript
+const params = new URLSearchParams({ network_id: "9f1c0c2e-…", last_name: "Doe" });
+const resp = await fetch(
+  `https://api.solo.one/entities/consumer/search?${params}`,
+  { headers: { Authorization: `Bearer ${process.env.SOLO_TOKEN}` } }
+);
+console.log(await resp.json());
+```
+
+</CodeGroup>
+
+A `200 OK` confirms your token is valid and scoped to the network.
+
+## 3. Start furnishing or querying
+
+With membership in place, pick the workflow that matches your role:
+
+<CardGroup cols={2}>
+  <Card title="Furnish your first entity" icon="arrow-up-from-bracket" href="/quickstart/furnish-an-entity">
+    For furnishers — contribute data into the network.
+  </Card>
+  <Card title="Query your first product" icon="magnifying-glass" href="/quickstart/query-a-product">
+    For queriers — record consent and read data back.
+  </Card>
+</CardGroup>
+
+## Networks, programs, and subnetworks
+
+As you scale, you may encounter:
+
+- **Programs** — partitions inside a network that separate furnishers (you name
+  the program when furnishing).
+- **Subnetworks** — narrower trust boundaries nested under a parent network.
+
+Both are explained in [Networks](/concepts/networks).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Networks" icon="sitemap" href="/concepts/networks">
+    Roles, subnetworks, programs, and policy usage.
+  </Card>
+  <Card title="High-level concepts" icon="shapes" href="/concepts/overview">
+    How everything fits together.
+  </Card>
+</CardGroup>

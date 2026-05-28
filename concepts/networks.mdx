@@ -1,86 +1,120 @@
 ---
 title: 'Networks'
-description: 'How networks, programs, membership, and governance organize data in the SOLO Network'
+description: 'The trust boundary that groups participants, roles, products, and policies'
 icon: 'sitemap'
 ---
 
-The SOLO Network is organized as a **hierarchy of networks**. Each participant (stakeholder) interacts with the network through **membership** and **consent** — not by inheriting visibility from a "governor" role alone.
+A **network** is the trust boundary of the SOLO platform. It groups the
+participants who have agreed to share data, the **products** they can use, the
+**policies** that govern those products, and the data that gets furnished.
 
-## Networks and programs
+Everything you do — furnishing, querying, applying policies — happens *within* a
+network you belong to.
 
-A **network** is the top-level container for policies, products, and furnished data. Networks can have **child programs** — sub-partitions used in production to separate furnishers inside a shared network (for example, a sponsor bank and its fintech programs).
+## Permissions & roles
+
+Your organization joins a network with one or more **roles**. Roles describe what
+you can do, not what data you can see.
+
+| Role | What it allows |
+|---|---|
+| **Governor** | Administer the network — configure policies and directory metadata. A governor seat is **not** a backdoor to other members' data. |
+| **Furnisher** | Contribute data into the network for a product. |
+| **Querier** | Run product queries scoped to the network. |
+
+A single organization can hold several roles at once (for example, both furnisher
+and querier).
+
+<Warning>
+  Governing a network does **not** automatically let you read what other members
+  have furnished. Reading another participant's data still requires
+  [consent](/concepts/consent) and [entitlement](/concepts/entitlement). Roles
+  grant *capabilities*, not *visibility*.
+</Warning>
+
+## Subnetworks
+
+Networks form a shallow hierarchy. A parent network can contain **subnetworks** —
+narrower trust boundaries nested beneath it. This lets a large network organize
+participants into groups while keeping shared rules at the top.
 
 ```mermaid
 graph TD
-    Parent[Parent network] --> ProgramA[Child program A]
-    Parent --> ProgramB[Child program B]
-    Parent --> Governor[Governor entity]
-    ProgramA --> FurnisherA[Furnisher member]
-    ProgramB --> FurnisherB[Furnisher member]
+    Parent[Parent network] --> SubA[Subnetwork A]
+    Parent --> SubB[Subnetwork B]
+    SubA --> ProgA[Program]
+    SubB --> ProgB[Program]
 ```
 
-When data is furnished into a **child program**, rows are stamped with:
+Subnetworks let a single arrangement — such as a sponsor bank and the fintechs it
+sponsors — share a parent network while keeping each participant's data within its
+own boundary.
 
-- `network_id` — the program where the data was written
-- `network_ids` — typically `[program_id, parent_network_id]` so parent-scoped queries can match on network containment
+## Programs
 
-Programs are intentionally shallow: the platform currently supports at most **two tiers** (parent network → program child).
+A **program** is a partition *inside* a network used to separate furnishers that
+share the same network. A common example is a sponsor bank running several fintech
+programs: each program furnishes into the shared network, but its data is tagged
+to that program.
 
-## Membership
+When you furnish, you name the **program** so the network can route the data and
+resolve the right [furnishing policy](/concepts/policies):
 
-Each stakeholder holds one or more **network memberships** that define what they can do in a network:
+```json
+{
+  "network_id": "9f1c0c2e-…",
+  "program_name": "acme-lending",
+  "application_date": "2026-05-28",
+  "records": [ /* … */ ]
+}
+```
 
-| Permission | Meaning |
-|---|---|
-| **Governor** | Administrative seat on a network (policy configuration, directory metadata). Does **not** automatically grant read access to other members' furnished data. |
-| **Furnisher** | Can submit data into the network or program. |
-| **Querier** | Can scope queries to the network and run products against entitled profiles. |
+<Note>
+  Programs are intentionally shallow. They organize furnishing within a network —
+  they are not a substitute for the network's roles, policies, and consent rules.
+</Note>
 
-Opening a query scope with `networks(ids: [...])` checks membership (and governance rules) for each requested network id. Unauthorized ids raise an error before any data is returned.
+## Policy usage within a network
 
-## Governance rules
+A network ties products to participants through [policies](/concepts/policies):
 
-Networks can carry governance metadata that controls **cross-network scoping** — which network ids are included when you open a query against a given network:
+- A **querying policy** binds a product to the network and defines, field by
+  field, what queriers may read.
+- A **furnishing policy** defines how furnished data for a product is accepted and
+  routed.
 
-| Rule | Effect |
-|---|---|
-| `ancestor_query` | A member of an ancestor network can scope queries to a descendant network. |
-| `cousin` | Members of sibling networks under a common ancestor can scope to each other's networks when the common ancestor allows it. |
-| `auto_include_descendants` | Scoping to a network automatically expands the row filter to include descendant program ids. |
+When you query, you pass a `(network_id, policy_id)` pair so the network knows both
+*where* to read and *which* reading rules apply. When you furnish, the network
+resolves the applicable furnishing policy from the network, program, and
+application date automatically.
 
-Governance controls **where you can point a query**, not **whose data you can read**. Entity scope and consent still apply.
+```mermaid
+flowchart LR
+    M[Your organization] -->|querier| QP[Querying policy]
+    M -->|furnisher| FP[Furnishing policy]
+    QP --> Prod[Product]
+    FP --> Prod
+    Prod --> Net[(Network data)]
+```
 
-## Governor vs. member data
+## Joining a network
 
-**Governing a network is not a data-access backdoor.**
+Membership and roles are arranged with your SOLO account manager. Once you're a
+member, you can:
 
-- A parent-network governor **cannot** read rows furnished by a subnetwork member solely because the row's `network_ids` includes the parent id.
-- Entity scope (`entity_id` on each row) is the second line of defense after network containment.
-- A governor **can** read member data when an explicit **consent grant** widens their accessible entity set, or when they run their own queries/furnish operations that create entitlement links.
+- **search** for entities within the network,
+- **furnish** products into it (as a furnisher), and
+- **query** products from it (as a querier, with [consent](/concepts/consent)).
 
-Changing `governor_entity_id` on a network does **not** retroactively grant access to previously furnished rows.
-
-## Consent and cross-participant access
-
-When participant A wants to query data furnished by participant B, a **consent grant** links:
-
-- The **accessor** (A) — the querying stakeholder
-- The **furnishing entity** (B) — who originally supplied the data
-- A **consumer or business profile** — the subject of the grant
-
-Active consents expand the accessor's **accessible entity ids** for the request. Without consent, sharing a network membership is **not** equivalent to sharing data.
-
-<Tip>
-  See [Audit & visibility](/concepts/audit-and-visibility) for how query/furnish telemetry and dashboard navigation respect these same boundaries.
-</Tip>
+See the [quickstart](/quickstart/join-a-network) for a walkthrough.
 
 ## Related concepts
 
 <CardGroup cols={2}>
-  <Card title="Data model" icon="diagram-project" href="/concepts/data-model">
-    Core entities: consumers, businesses, stakeholders, and data flow.
+  <Card title="Policies" icon="sliders" href="/concepts/policies">
+    The rules a network applies to each product.
   </Card>
-  <Card title="Audit & visibility" icon="clock-rotate-left" href="/concepts/audit-and-visibility">
-    Query/furnish history, entitlements, and AuditedNode routes.
+  <Card title="Entitlement" icon="key" href="/concepts/entitlement">
+    Why network membership alone doesn't grant data access.
   </Card>
 </CardGroup>

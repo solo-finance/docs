@@ -1,36 +1,55 @@
 ---
 title: 'Overview'
-description: 'The SOLO Network API — a unified interface for identity, compliance, and financial verification'
+description: 'The SOLO Network API — a shared network for furnishing and querying consumer and business data'
 icon: 'globe'
 ---
 
-The SOLO Network API provides a single integration point for accessing identity verification, compliance screening, and financial data across multiple data providers. Rather than integrating with dozens of vendors individually, you connect to SOLO and access standardized **templates** that normalize data from upstream sources.
+The SOLO Network is a shared data network for identity, compliance, and financial
+verification. Participants **furnish** verified data about consumers and
+businesses and **query** that data back — under clear, auditable rules about who
+can read what, and why.
+
+Instead of integrating with dozens of vendors individually, you connect to SOLO
+and work with standardized **products** inside a **network** you belong to.
 
 ## What you can do
 
 <CardGroup cols={2}>
-  <Card title="Verify Identities" icon="id-card">
-    KYC and KYB verification including document capture, biometric checks, liveness detection, and address verification.
+  <Card title="Verify identities" icon="id-card">
+    KYC and KYB certificates consolidating identity, document, biometric, address,
+    ownership, and risk signals.
   </Card>
-  <Card title="Assess Risk & Compliance" icon="shield-check">
-    Business risk assessments, fraud screening, and regulatory compliance checks.
+  <Card title="Screen for risk" icon="shield-check">
+    Query bad-actor and cross-bank financial-crimes watch lists for consumers and
+    businesses.
   </Card>
-  <Card title="Access Financial Data" icon="chart-line">
-    Consumer credit snapshots, income verification, asset/liability data, and cashflow trends.
+  <Card title="Contribute data" icon="arrow-up-from-bracket">
+    Furnish verified data into a network so entitled participants can query it.
   </Card>
-  <Card title="Ingest Data at Scale" icon="file-import">
-    Bulk data ingestion via SFTP/S3 with automated schema detection and record-level processing.
+  <Card title="Ingest at scale" icon="file-import">
+    Bulk furnish via spreadsheet upload or automated SFTP ingestion.
   </Card>
 </CardGroup>
 
 ## How it works
 
-Every verification in SOLO follows the same two-step pattern:
+Every interaction is one of two operations on a **product**:
 
-1. **Query** — Retrieve existing data for a subject (consumer or business) from the network.
-2. **Furnish** — Submit new data into the network for a subject.
+1. **Query** — read consolidated data about a [consumer or business](/concepts/entities)
+   from the network. Requires [consent](/concepts/consent).
+2. **Furnish** — contribute new data about a subject into the network.
 
-These operations are exposed through **templates** — standardized schemas for each data domain (e.g., Address Verification, Document Capture, Employment Verification). Templates can be composed into **use case bundles** for common workflows like KYC or KYB.
+Both happen inside a [network](/concepts/networks) you've joined, governed by its
+[policies](/concepts/policies), and shaped by what you're
+[entitled](/concepts/entitlement) to read.
+
+```mermaid
+flowchart LR
+    You[Your system] -->|furnish| N[(SOLO Network)]
+    You -->|query + consent| N
+    Others[Other participants] -->|furnish| N
+    N -->|consolidated result| You
+```
 
 ## Base URL
 
@@ -41,14 +60,14 @@ https://api.solo.one
 ## Next steps
 
 <CardGroup cols={2}>
+  <Card title="High-level concepts" icon="shapes" href="/concepts/overview">
+    Entities, products, policies, networks, consent, and entitlement.
+  </Card>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Make your first API call in under 5 minutes.
+    Furnish an entity, query a product, and join a network.
   </Card>
   <Card title="Authentication" icon="key" href="/authentication">
     Set up Bearer token authentication.
-  </Card>
-  <Card title="Concepts" icon="book" href="/concepts/templates">
-    Templates, bundles, networks, audit, and the data model.
   </Card>
   <Card title="API Reference" icon="webhook" href="/api-reference/introduction">
     Browse the full endpoint reference.
