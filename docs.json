@@ -79,6 +79,14 @@
               "concepts/querying",
               "concepts/furnishing"
             ]
+          },
+          {
+            "group": "Permissioning",
+            "pages": [
+              "permissioning/networks",
+              "permissioning/network-roles",
+              "permissioning/network-governance"
+            ]
           }
         ]
       },
