@@ -47,59 +47,74 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Home",
         "groups": [
           {
             "group": "Getting Started",
             "pages": [
-              "welcome",
-              "authentication",
-              "errors"
+              "home/welcome",
+              "home/overview",
+              "home/authentication",
+              "home/errors"
             ]
           },
           {
             "group": "Quickstart",
             "pages": [
-              "quickstart",
-              "quickstart/furnish-an-entity",
-              "quickstart/query-a-product",
-              "quickstart/join-a-network"
-            ]
-          },
-          {
-            "group": "Core Concepts",
-            "pages": [
-              "concepts/overview",
-              "concepts/entities",
-              "concepts/consent",
-              "concepts/products",
-              "concepts/policies",
-              "concepts/networks",
-              "concepts/entitlement",
-              "concepts/querying",
-              "concepts/furnishing"
-            ]
-          },
-          {
-            "group": "Permissioning",
-            "pages": [
-              "permissioning/networks",
-              "permissioning/network-roles",
-              "permissioning/network-governance"
+              "home/quickstart",
+              "home/quickstart/furnish-an-entity",
+              "home/quickstart/query-a-product",
+              "home/quickstart/join-a-network"
             ]
           }
         ]
       },
       {
-        "tab": "SFTP",
+        "tab": "Concepts",
         "groups": [
           {
-            "group": "SFTP Ingestion",
+            "group": "Networks & Governance",
             "pages": [
-              "sftp/getting-started",
-              "sftp/overview",
-              "sftp/csv-format",
-              "sftp/schemas"
+              "concepts/governance/networks",
+              "concepts/governance/network-roles",
+              "concepts/governance/network-governance",
+              "concepts/governance/entitlement",
+              "concepts/governance/querying-policies",
+              "concepts/governance/furnishing-policies"
+            ]
+          },
+          {
+            "group": "Entities & Consent",
+            "pages": [
+              "concepts/identity/entities",
+              "concepts/identity/consent"
+            ]
+          },
+          {
+            "group": "Furnishing Data",
+            "pages": [
+              "concepts/furnishing/overview",
+              "concepts/furnishing/file-upload",
+              {
+                "group": "SFTP Ingestion",
+                "pages": [
+                  "concepts/sftp/getting-started",
+                  "concepts/sftp/overview",
+                  "concepts/sftp/csv-format",
+                  "concepts/sftp/schemas"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Querying Data",
+            "pages": [
+              "concepts/querying/overview",
+              "concepts/querying/products",
+              "concepts/querying/kyc-certificate",
+              "concepts/querying/kyb-certificate",
+              "concepts/querying/screening-lists",
+              "concepts/querying/coverage-check"
             ]
           }
         ]
@@ -118,6 +133,7 @@
             "pages": [
               "api-reference/consumer/consumer",
               "api-reference/consumer/{consent_id}",
+              "api-reference/consumer/update",
               "api-reference/business/business"
             ]
           },
@@ -135,16 +151,14 @@
                 "group": "KYC Certificate",
                 "pages": [
                   "api-reference/kyc-certificate/query",
-                  "api-reference/kyc-certificate/furnish",
-                  "api-reference/kyc-certificate/furnish_via_upload"
+                  "api-reference/kyc-certificate/furnish"
                 ]
               },
               {
                 "group": "KYB Certificate",
                 "pages": [
                   "api-reference/kyb-certificate/query",
-                  "api-reference/kyb-certificate/furnish",
-                  "api-reference/kyb-certificate/furnish_via_upload"
+                  "api-reference/kyb-certificate/furnish"
                 ]
               },
               {
@@ -153,7 +167,8 @@
                   "api-reference/bank-specific-bad-actor-list/query",
                   "api-reference/cross-bank-financial-crimes-watch-list/query"
                 ]
-              }
+              },
+              "api-reference/products/check"
             ]
           },
           {
@@ -162,7 +177,9 @@
               "api-reference/querying-policies/querying",
               "api-reference/querying-policies/configuration",
               "api-reference/furnishing-policies/furnishing",
-              "api-reference/furnishing-policies/{policy_id}"
+              "api-reference/furnishing-policies/{policy_id}",
+              "api-reference/furnishing-policies/create",
+              "api-reference/furnishing-policies/configuration"
             ]
           },
           {

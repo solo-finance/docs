@@ -1,0 +1,229 @@
+---
+title: 'Authentication'
+description: 'Authenticate with the SOLO Network API using WorkOS-issued bearer JWTs verified over JWKS'
+icon: 'key'
+---
+
+Every public endpoint under `/v1` requires a bearer token in the
+`Authorization` header. The token is a JWT issued by **WorkOS**, SOLO's
+identity provider, when you sign in to the SOLO dashboard. The API verifies it
+cryptographically on every request — there are no API keys and no shared
+secrets to manage on your side.
+
+```bash
+Authorization: Bearer <token>
+```
+
+Only `GET /health` and `GET /version` are exempt; everything else returns
+`401 Unauthorized` without a valid token.
+
+## Getting a token
+
+Access to the API starts with your organization being provisioned by SOLO.
+Once that's done, tokens are minted through authentication with the SOLO
+dashboard.
+
+<Steps>
+  <Step title="Get your organization provisioned">
+    SOLO onboards your organization into WorkOS and associates it with your
+    entity on the network. If you don't have access yet, contact your SOLO
+    account manager.
+  </Step>
+  <Step title="Sign in">
+    Authenticate through the SOLO dashboard sign-in flow. On success, WorkOS
+    issues an access token — a JWT signed with RS256 — bound to your user and
+    organization.
+  </Step>
+  <Step title="Send the token with every request">
+    Pass the access token in the `Authorization` header using the `Bearer`
+    scheme. The same token works for both the dashboard and direct API calls
+    against that environment.
+  </Step>
+</Steps>
+
+<Warning>
+  Treat tokens as secrets. Never commit them to source control, embed them in
+  client-side code you don't control, or log them. Anyone holding the token can
+  act as your organization until it expires.
+</Warning>
+
+## What the server verifies
+
+When a request arrives, the API verifies the token before any handler runs:
+
+1. **Signature.** The token's key ID (`kid`) is looked up in WorkOS's published
+   JWKS endpoint (`https://api.workos.com/sso/jwks/<client_id>`), and the
+   RS256 signature is verified against that public key. Tokens signed by
+   anything other than WorkOS — or minted for a different environment's client
+   — fail here, because their signing key isn't in the key set.
+2. **Standard claims.** The decoded payload is validated, including expiry
+   (`exp`). An expired token is rejected.
+3. **Identity resolution.** The verified claims (your user ID, organization,
+   and role) are used to resolve your account and entity on the network. If
+   the token is valid but no matching account exists, the request is rejected
+   with a 401.
+
+Endpoints that demand specific permissions additionally check the token's
+`permissions` (or `role`) claim; a valid token without the required permission
+receives a `403 Forbidden`.
+
+<Note>
+  Verification happens against WorkOS's public keys — the API never sees or
+  stores your password, and tokens cannot be forged without WorkOS's private
+  key.
+</Note>
+
+## Token lifetime and refresh
+
+WorkOS access tokens are short-lived. Don't cache one and reuse it
+indefinitely:
+
+- **Refresh proactively.** Re-authenticate (or use your sign-in session's
+  refresh mechanism) before the token's `exp` claim passes, rather than waiting
+  for failures.
+- **Handle 401 as a refresh signal.** If a previously working request starts
+  returning `401` with `"Invalid or expired token"`, obtain a fresh token and
+  retry the request once. Do not retry in a loop with the same token.
+- **Don't share tokens across environments.** A token is bound to one
+  environment's WorkOS client. Sandbox tokens fail signature lookup in
+  production and vice versa.
+
+## Environments
+
+Use the base URL for the environment your credentials were issued in:
+
+| Environment | Base URL                       |
+| ----------- | ------------------------------ |
+| Development | `https://api.dev.solo.one`     |
+| Sandbox     | `https://api.sandbox.solo.one` |
+| Production  | `https://api.prod.solo.one`    |
+
+## Example request
+
+A complete authenticated call — searching for a consumer by name within a
+network using `GET /v1/entities/consumer/search`:
+
+```bash
+curl -G "https://api.sandbox.solo.one/v1/entities/consumer/search" \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  --data-urlencode "network_id=2f6f6a3e-9d6b-4a4e-8a6f-3a1d1f2b9c10" \
+  --data-urlencode "first_name=Ada" \
+  --data-urlencode "last_name=Lovelace" \
+  --data-urlencode "limit=10"
+```
+
+A successful response returns matching consumer identities:
+
+```json
+[
+  {
+    "id": "7c0b6e2a-1f4d-4f7e-9b2a-5e8c3d1a6f90",
+    "identifier": "consumer-7c0b6e2a",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "personal_email": "ada@example.com",
+    "date_of_birth": "1990-12-10",
+    "created_at": "2026-05-01T12:00:00Z"
+  }
+]
+```
+
+The same header works on every endpoint — swap the path and method:
+
+```bash
+curl -X POST "https://api.sandbox.solo.one/v1/consent/consumer" \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## 401 vs 403
+
+The two failure modes mean different things, and you should handle them
+differently.
+
+**`401 Unauthorized` — the API doesn't know who you are.** The token is
+missing, malformed, expired, or doesn't resolve to an account. Fix the token
+and retry.
+
+```json
+{ "detail": "Requires authentication" }
+```
+
+```json
+{ "detail": "Invalid or expired token" }
+```
+
+```json
+{ "detail": "Could not validate credentials or find account" }
+```
+
+**`403 Forbidden` — the API knows who you are, and the answer is no.** The
+token verified successfully, but it lacks a required permission, or your
+account isn't allowed to perform this operation on this resource. A retry with
+the same credentials will fail the same way; this is a provisioning or
+authorization problem, not a token problem.
+
+```json
+{ "detail": "Not enough permissions" }
+```
+
+Domain-level authorization failures (for example, operating on a network you
+don't belong to) also return `403`, with the full error envelope described in
+[Errors](/home/errors):
+
+```json
+{
+  "detail": "Permission denied",
+  "error_code": "PERMISSION_DENIED",
+  "request_id": "a1b2c3d4-..."
+}
+```
+
+<Tip>
+  Rule of thumb: on `401`, refresh the token and retry once. On `403`, stop and
+  check your roles and network membership — retrying won't help.
+</Tip>
+
+## Troubleshooting
+
+| Symptom | Status and body | Cause | Fix |
+| --- | --- | --- | --- |
+| No `Authorization` header sent | `401` — `"Requires authentication"` | Header missing entirely | Add `Authorization: Bearer $SOLO_TOKEN` to the request |
+| Wrong scheme (e.g. `Authorization: Token …` or a bare token) | `401` — `"Requires authentication"` | The header isn't a valid `Bearer` credential, so it's treated as absent | Use exactly `Bearer <token>` — capital B, single space |
+| Expired token | `401` — `"Invalid or expired token"` | The `exp` claim has passed | Obtain a fresh token and retry once |
+| Token from the wrong environment | `401` — `"Invalid or expired token"` | The signing key isn't in this environment's JWKS | Use a token issued for the environment you're calling |
+| Garbled or truncated token | `401` — `"Invalid or expired token"` | The JWT can't be decoded or its key can't be resolved | Re-copy the token; check for whitespace or truncation in your env var |
+| Valid token, unknown account | `401` — `"Could not validate credentials or find account"` | Your user verified but no account/entity exists for it yet | Usually first-time setup — contact SOLO support |
+| Valid token, missing permission | `403` — `"Not enough permissions"` | The `permissions`/`role` claim lacks what the endpoint requires | Ask your administrator to update your role |
+| Persistent `500` — `"Authentication service is unavailable"` | `500` | Server-side identity configuration problem (not your token) | Report to SOLO support with your `request_id` |
+
+If you're stuck, capture the full response body — including the `request_id`
+when present — and quote it to support. See
+[Errors](/home/errors#request-ids) for how request IDs are correlated.
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Keep tokens server-side">
+    Make API calls from your backend and keep tokens out of code you don't
+    control. A bearer token carries your organization's full standing on the
+    network for as long as it's valid.
+  </Accordion>
+  <Accordion title="Store the token in an environment variable">
+    The examples on this site use `$SOLO_TOKEN` for a reason: keeping the token
+    in an environment variable (or a secrets manager) keeps it out of shell
+    history, scripts, and version control.
+  </Accordion>
+  <Accordion title="Build refresh in from day one">
+    Because tokens are short-lived, an integration that fetches one token at
+    startup will start failing mid-run. Centralize token acquisition behind a
+    helper that refreshes on expiry, and treat a `401` anywhere as a signal to
+    refresh once and retry.
+  </Accordion>
+  <Accordion title="Use least-privilege roles">
+    Request only the roles and permissions your integration needs. A
+    furnish-only service doesn't need querying permissions — limiting the
+    token's reach limits the blast radius if it leaks.
+  </Accordion>
+</AccordionGroup>

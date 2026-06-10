@@ -1,0 +1,284 @@
+---
+title: 'Errors'
+description: 'The error response envelope, every HTTP status the API returns, and how to handle each one'
+icon: 'triangle-exclamation'
+---
+
+The SOLO Network API uses standard HTTP status codes and returns structured
+JSON error bodies. This page documents the exact response shapes, real examples
+of each status, and what your integration should do in response.
+
+## The error envelope
+
+Application errors — anything the API's domain logic rejects — return a
+consistent envelope:
+
+```json
+{
+  "detail": "Consent record not found",
+  "error_code": "RESOURCE_NOT_FOUND",
+  "request_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+}
+```
+
+| Field | Type | Presence | Meaning |
+| --- | --- | --- | --- |
+| `detail` | string | always | Human-readable description of what went wrong. Safe to log and show to operators; not guaranteed stable, so don't branch on its text. |
+| `error_code` | string | always | Machine-readable category (see table below). Stable — branch on this. |
+| `request_id` | string | when available | Unique ID for this request, assigned by the API. Quote it to support. |
+| `errors` | array | occasionally | Itemized sub-errors for operations that validate many things at once (for example, rows in a file upload). |
+
+Two kinds of responses use a **shorter shape** — just `{"detail": "..."}` with
+no `error_code`:
+
+- **`422` request-shape validation**, where FastAPI rejects the request before
+  it reaches domain logic.
+- **Authentication-layer `401`/`403`**, raised while verifying the bearer
+  token (see [Authentication](/home/authentication#401-vs-403)).
+
+```json
+{ "detail": "body -> first_name: Field required" }
+```
+
+### Error codes
+
+| `error_code` | Status | Raised when |
+| --- | --- | --- |
+| `VALIDATION_ERROR` | `400` | The request was well-formed but violates a domain rule |
+| `AUTHENTICATION_REQUIRED` | `401` | Domain logic could not establish who you are |
+| `PERMISSION_DENIED` | `403` | You're authenticated but not allowed to do this |
+| `RESOURCE_NOT_FOUND` | `404` | The referenced resource doesn't exist (or isn't visible to you) |
+| `RESOURCE_CONFLICT` | `409` | The operation conflicts with existing state (duplicate, version mismatch) |
+| `OPERATION_FAILED` | `500` | A known internal operation failed |
+| `INTERNAL_ERROR` | `500` | An unexpected, unhandled error |
+
+## HTTP status codes
+
+| Code | Meaning on this API |
+| --- | --- |
+| `200 OK` | Success. The body contains the requested data. |
+| `204 No Content` | A product query resolved successfully but produced **no result** — the available data did not satisfy the policy's requirements. The body is empty; the `X-Ref-Id` response header carries the query's reference ID. |
+| `400 Bad Request` | Domain validation failed: the request was structurally valid but violates a business rule (e.g. consent not gathered, no updatable fields provided). |
+| `401 Unauthorized` | Missing, malformed, expired, or unresolvable bearer token. |
+| `403 Forbidden` | Valid token, but the operation isn't permitted for your account or role. |
+| `404 Not Found` | The resource doesn't exist within your network scope. |
+| `409 Conflict` | The resource already exists or the operation conflicts with current state. |
+| `422 Unprocessable Entity` | Request-shape validation failed: a missing, mistyped, or malformed field. The `detail` string names the field path. |
+| `500 Internal Server Error` | Something went wrong on SOLO's side. Logged and monitored automatically. |
+
+<Note>
+  A `204` is not an error. It means the query ran — and is accounted for —
+  but the network could not assemble a result that meets the policy's
+  requirements for this entity. Capture the `X-Ref-Id` header before treating
+  the response as "no data": it's the reference for that specific query if you
+  need to follow up.
+</Note>
+
+## Examples by status
+
+Each example below is a real response produced by the API's handlers.
+
+<AccordionGroup>
+  <Accordion title="400 — domain validation failed">
+    Creating a consumer consent without affirming consent was gathered:
+
+    ```json
+    {
+      "detail": "Consent cannot be created without prior consumer consent gathering",
+      "error_code": "VALIDATION_ERROR",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+
+    Updating a consent record with an empty change set:
+
+    ```json
+    {
+      "detail": "At least one of scope, expires_at, or consented_fields must be provided",
+      "error_code": "VALIDATION_ERROR",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+
+    Querying a product without identifying the subject:
+
+    ```json
+    {
+      "detail": "Either consent_id or consumer_id must be provided",
+      "error_code": "VALIDATION_ERROR",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="401 — authentication failed">
+    Authentication-layer rejections use the short shape:
+
+    ```json
+    { "detail": "Requires authentication" }
+    ```
+
+    ```json
+    { "detail": "Invalid or expired token" }
+    ```
+
+    A valid token whose user has no account on the network yet:
+
+    ```json
+    { "detail": "Could not validate credentials or find account" }
+    ```
+  </Accordion>
+
+  <Accordion title="403 — permission denied">
+    A token lacking a required permission (short shape, from the auth layer):
+
+    ```json
+    { "detail": "Not enough permissions" }
+    ```
+
+    A domain-level authorization failure (full envelope):
+
+    ```json
+    {
+      "detail": "Permission denied",
+      "error_code": "PERMISSION_DENIED",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="404 — resource not found">
+    Reading a consent that doesn't exist in the given network scope:
+
+    ```json
+    {
+      "detail": "Consent record not found",
+      "error_code": "RESOURCE_NOT_FOUND",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+
+    Configuring a furnishing policy by an unknown ID:
+
+    ```json
+    {
+      "detail": "FurnishingPolicy with id 4f6e2a90-... not found",
+      "error_code": "RESOURCE_NOT_FOUND",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+
+    <Note>
+      `404` also covers resources that exist but are outside your network
+      scope — the API does not distinguish "doesn't exist" from "not visible
+      to you".
+    </Note>
+  </Accordion>
+
+  <Accordion title="409 — conflict">
+    Creating something that already exists, or modifying state that has moved
+    underneath you:
+
+    ```json
+    {
+      "detail": "Resource conflict",
+      "error_code": "RESOURCE_CONFLICT",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+
+    Re-read the current state before deciding whether to retry — a `409` on a
+    create often means the resource is already there and your work is done.
+  </Accordion>
+
+  <Accordion title="422 — request-shape validation">
+    The `detail` is a single string in the form `<field path>: <message>`,
+    where the path walks from the request part (`body`, `query`, `path`) down
+    to the offending field. Only the **first** validation error is reported.
+
+    ```json
+    { "detail": "body -> first_name: Field required" }
+    ```
+
+    ```json
+    { "detail": "body -> date_of_birth: Input should be a valid date" }
+    ```
+
+    ```json
+    { "detail": "query -> network_id: Field required" }
+    ```
+
+    Fix the named field and resend. The
+    [API Reference](/api-reference/introduction) documents the expected type
+    and format of every field.
+  </Accordion>
+
+  <Accordion title="500 — server error">
+    Unexpected failures never leak internals:
+
+    ```json
+    {
+      "detail": "An unexpected error occurred",
+      "error_code": "INTERNAL_ERROR",
+      "request_id": "a1b2c3d4-..."
+    }
+    ```
+
+    Known-but-failed internal operations return `OPERATION_FAILED` instead.
+    Both are logged and monitored on SOLO's side; include the `request_id`
+    when reporting one.
+  </Accordion>
+</AccordionGroup>
+
+## Validation errors vs domain errors
+
+The API draws a sharp line between two kinds of "bad request", and the status
+code tells you which side you're on:
+
+- **`422` — the request itself is malformed.** A required field is missing, a
+  date doesn't parse, a UUID is garbled. The request never reached business
+  logic. This is a bug in the calling code: fix the payload. The body is the
+  short shape with a `field path: message` detail.
+- **`400` — the request is well-formed but the *operation* is invalid.** Every
+  field parsed, but a business rule said no: consent wasn't gathered, an update
+  contained nothing updatable, a required identifier was absent given the
+  combination of inputs. The body is the full envelope with
+  `"error_code": "VALIDATION_ERROR"`. Fixing this usually means changing what
+  you're asking for, not how you're serializing it.
+
+Treat `422` as a build-time problem (your integration is constructing requests
+wrong) and `400` as a run-time problem (this particular operation isn't
+allowed right now, or needs different inputs).
+
+## Request IDs
+
+Every request is assigned a `request_id` as it enters the API, and error
+envelopes include it whenever it's available. The same ID is attached to SOLO's
+internal logs and traces for that request.
+
+When contacting support about a failed call, always include:
+
+1. The `request_id` from the error body (or the `X-Ref-Id` header for `204`
+   product-query responses).
+2. The full response body and status code.
+3. The endpoint, method, and approximate timestamp (with timezone).
+
+With a `request_id`, support can jump directly to the exact request; without
+one, they're searching by time window.
+
+## Retry guidance
+
+| Status | Retry? | How |
+| --- | --- | --- |
+| `500` | Yes | Retry with exponential backoff and jitter. If it persists, stop and report the `request_id`. |
+| `401` | Once | Refresh your token first, then retry a single time. Never loop with the same token. |
+| `409` | Maybe | Re-read current state first; retry only if the conflict has been resolved. |
+| `400`, `403`, `404`, `422` | No | The same request will fail the same way. Fix the request, your permissions, or the referenced resource. |
+| `204` | No | Not an error — the query succeeded with no result. Re-query only when you expect the underlying data to have changed. |
+
+<Warning>
+  Product query endpoints are billable. Build retry logic carefully so a
+  transient failure doesn't turn into a loop of repeated billable queries —
+  cap attempts, and use the non-billable `POST /v1/products/check` coverage
+  check when you only need to know whether data exists.
+</Warning>

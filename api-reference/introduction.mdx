@@ -8,14 +8,14 @@ The SOLO Network API reference is auto-generated from the
 [OpenAPI specification](/api-reference/openapi.json). Each endpoint includes
 request/response schemas, parameter details, and example payloads.
 
-New to the platform? Read [High-level concepts](/concepts/overview) first — the
+New to the platform? Read [High-level concepts](/home/overview) first — the
 reference assumes familiarity with entities, products, policies, networks,
 consent, and entitlement.
 
 ## Authentication
 
 All endpoints are authenticated with a Bearer token. See
-[Authentication](/authentication).
+[Authentication](/home/authentication).
 
 ```
 Authorization: Bearer <token>
@@ -25,34 +25,34 @@ Authorization: Bearer <token>
 
 <CardGroup cols={2}>
   <Card title="Consent" icon="file-signature">
-    Create and read [consent](/concepts/consent) records for consumers and
+    Create and read [consent](/concepts/identity/consent) records for consumers and
     businesses. Required before querying.
   </Card>
   <Card title="Entities" icon="users">
-    Search consumers and businesses within a [network](/concepts/networks).
+    Search consumers and businesses within a [network](/concepts/governance/networks).
   </Card>
   <Card title="Products" icon="box">
-    Query and furnish [products](/concepts/products) — KYC/KYB certificates and
+    Query and furnish [products](/concepts/querying/products) — KYC/KYB certificates and
     screening lists.
   </Card>
   <Card title="Policies" icon="sliders">
-    Create and configure querying [policies](/concepts/policies), and list
+    Create and configure querying [policies](/concepts/governance/querying-policies), and list
     furnishing policies.
   </Card>
   <Card title="Attestations" icon="stamp">
     Create or renew an institution attestation for a product.
   </Card>
   <Card title="Bulk ingestion" icon="file-import">
-    Upload files for ingestion. See also the [SFTP guide](/sftp/overview).
+    Upload files for ingestion. See also the [SFTP guide](/concepts/sftp/overview).
   </Card>
 </CardGroup>
 
 ## Conventions
 
 - **Products** expose `query` (read) and `furnish` (write) operations under
-  `/products/{product}/…`. Some also support `furnish_via_upload`.
+  `/v1/products/{product}/…`.
 - **Querying** a product requires a `consent_id` and one or more `network_policy`
-  pairs. See [Querying](/concepts/querying).
+  pairs. See [Querying](/concepts/querying/overview).
 - **Furnishing** a product requires a `network_id`, `program_name`, and
-  `application_date`. See [Furnishing](/concepts/furnishing).
-- Errors follow a consistent JSON shape — see [Errors](/errors).
+  `application_date`. See [Furnishing](/concepts/furnishing/overview).
+- Errors follow a consistent JSON shape — see [Errors](/home/errors).

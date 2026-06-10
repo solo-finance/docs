@@ -1,0 +1,286 @@
+---
+title: 'Upload Categories'
+description: 'All upload categories available for SFTP ingestion'
+icon: 'list'
+---
+
+Each category corresponds to a directory name in the upload path:
+
+```
+{category}/{filename}.xlsx
+```
+
+The tables below are the column-by-column reference for every category. Column
+names are given in **normalized form** — headers in your workbook are matched
+after [normalization](/concepts/sftp/csv-format#header-normalization), so
+`KYC Policy Name`, `kyc policy name`, and `kyc_policy_name` are all the same
+column, and column order never matters.
+
+Two kinds of "required" apply:
+
+- **Required header** — the column must exist in row 2, or the whole workbook
+  is rejected.
+- **Required value** — the cell must be non-blank on each data row, or that
+  row is rejected (or skipped, for identifier columns that mark blank rows).
+
+<Note>
+  Upload order matters across categories: **policies → programs → data**.
+  Programs reference policies by name, and data rows reference programs by
+  name. A reference to something not yet ingested fails at the row level.
+</Note>
+
+---
+
+## KYC Certificate Policy
+
+**Directory**: `kyc_cert_policy/`
+
+Defines Know Your Customer verification policies. Each row configures a named
+policy whose operation flags control which verification steps are active.
+Policy workbooks configure the network, so they are accepted only from the
+network's [governor](/concepts/governance/network-governance).
+
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyc-cert-policy-template.xlsx">
+  KYC Certificate Policy Template (.xlsx)
+</Card>
+
+### Required columns
+
+| Column | Type | Value required | Description |
+|---|---|---|---|
+| `kyc_policy_name` | string | Yes | Name of the KYC policy. Rows with a blank name are skipped. Must be unique within the network. |
+| `start_date` | date | No | When the policy becomes active. Excel date cell or ISO text. |
+| `entity_type` | string | No | When present, must be exactly `Consumer` — any other value rejects the row. |
+
+### Operation flag columns (headers required)
+
+Each flag enables or disables a verification step in the policy. Accepted
+values: `true`/`false`, `yes`/`no`, `y`/`n`, `1`/`0` (case-insensitive).
+**A blank cell is read as `false`.** All nine headers must be present.
+
+| Column | Description |
+|---|---|
+| `document_capture` | Require document image capture |
+| `document_review` | Require document attribute review |
+| `biometric_capture` | Require biometric capture |
+| `biometric_review` | Require biometric attribute review |
+| `liveness_capture` | Require liveness check capture |
+| `liveness_review` | Require liveness evidence review |
+| `address_capture` | Require address capture |
+| `address_verification` | Require address verification |
+| `identity_corroboration` | Require identity corroboration |
+
+### Optional columns
+
+| Column | Type | Description |
+|---|---|---|
+| `kyc_policy` | string | Policy number (the template's `KYC Policy` column). Values starting with `Ex.` mark the row as a skipped template example. |
+| `end_date_if_applicable` | date | When the policy is deprecated |
+| `data_source` | string | Source of verification data |
+| `name_of_furnisher_storage_system_used` | string | Storage system identifier |
+| `name_of_storage_system_other_only` | string | If storage system is "Other" |
+| `entity_consent_level` | string | Level of consumer consent obtained |
+| `entity_consent_mechanism_type` | string | How consent was collected |
+| `name_of_entity_consent_mechanism_other_only` | string | If consent mechanism is "Other" |
+| `permitted_purpose_scope_s` | string | Permitted purpose scopes (template header: `Permitted Purpose Scope(s)`) |
+
+---
+
+## KYB Certificate Policy
+
+**Directory**: `kyb_cert_policy/`
+
+Defines Know Your Business verification policies. Same structure as KYC
+policies, with business-specific operation flags. Governor-only, like all
+configuration categories.
+
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyb-cert-policy-template.xlsx">
+  KYB Certificate Policy Template (.xlsx)
+</Card>
+
+### Required columns
+
+| Column | Type | Value required | Description |
+|---|---|---|---|
+| `kyb_policy_name` | string | Yes | Name of the KYB policy. Rows with a blank name are skipped. |
+| `start_date` | date | No | When the policy becomes active |
+| `entity_type` | string | No | When present, must be exactly `Business` |
+
+### Operation flag columns (headers required)
+
+Same value rules as the KYC flags (blank reads as `false`):
+
+| Column | Description |
+|---|---|
+| `business_identity_verification` | Require business identity verification |
+| `business_ownership_control_verification` | Require ownership and control verification |
+| `business_risk_compliance_verification` | Require risk and compliance assessment |
+
+<Tip>
+  The trailing `_verification` may be omitted in these three headers —
+  `business_identity`, `business_ownership_control`, and
+  `business_risk_compliance` map to the same flags.
+</Tip>
+
+### Optional columns
+
+`kyb_policy` (policy number; `Ex.` prefix marks example rows) plus the same
+optional metadata columns as the KYC Certificate Policy category
+(`end_date_if_applicable`, data source, storage system, consent fields,
+permitted purpose scopes).
+
+---
+
+## Programs
+
+**Directory**: `programs/`
+
+Configures network programs that link KYC and KYB policies together with
+effective date windows. One spreadsheet row becomes one program plus one
+program–policy link per filled slot. The template provides **5 KYC slots and
+5 KYB slots** per row. Governor-only.
+
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/programs-template.xlsx">
+  Programs Template (.xlsx)
+</Card>
+
+### Required columns
+
+| Column | Type | Value required | Description |
+|---|---|---|---|
+| `program_number` | string | No | Program identifier. The template header `Program #` normalizes to `program`, which is also accepted. Values starting with `Ex.` mark example rows. |
+| `program_name` | string | Yes | Display name of the program; rows with a blank name are skipped. Must be unique within the network. |
+| `kyc_policy_1_name` | string | No | First KYC slot's policy name (header must exist; the slot may be left blank) |
+| `kyb_policy_1_name` | string | No | First KYB slot's policy name (header must exist; the slot may be left blank) |
+
+### Policy slot columns
+
+Each slot follows the pattern below, where `{n}` is the slot number (1–5 in
+the template):
+
+| Column pattern | Type | Description |
+|---|---|---|
+| `kyc_policy_{n}_name` | string | KYC policy name for slot *n* |
+| `kyc_policy_{n}_start` | date | Effective start date for slot *n* |
+| `kyc_policy_{n}_end_if_applicable` | date | Effective end date for slot *n* (optional) |
+| `kyb_policy_{n}_name` | string | KYB policy name for slot *n* |
+| `kyb_policy_{n}_start` | date | Effective start date for slot *n* |
+| `kyb_policy_{n}_end_if_applicable` | date | Effective end date for slot *n* (optional) |
+
+Per-slot rules, enforced row by row:
+
+- A slot whose name, start, and end are **all blank** is skipped silently.
+- A slot with a **name but no start date** rejects the row.
+- A slot with a **date but no name** rejects the row.
+- The end date is always optional — leave it blank for open-ended links.
+
+<Tip>
+  Policy names must match policies already ingested via the KYC or KYB
+  Certificate Policy categories. Upload policies before programs. These slot
+  date windows are what later decide which policy applies to a furnished
+  record's `application_date` — see
+  [furnishing policies](/concepts/governance/furnishing-policies).
+</Tip>
+
+---
+
+## KYC Furnish Data
+
+**Directory**: `kyc_furnish_data/`
+
+Consumer onboarding records furnished toward KYC certificates. Each row is one
+consumer tied to a program; at ingest the row is matched against the program's
+linked policies by `application_date`, and runs once per policy whose window
+covers it (rows outside every window are filtered, not errored).
+
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyc-furnish-data-template.xlsx">
+  KYC Furnish Data Template (.xlsx)
+</Card>
+
+### Required columns
+
+| Column | Type | Description |
+|---|---|---|
+| `file` | string | Furnisher file number (the template's `File #` column). Unique row identifier; `Ex.` prefix marks skipped example rows. |
+| `social_security_number` | string | Consumer SSN — the upsert key that matches the row to a consumer [entity](/concepts/identity/entities). **Format the column as Text** so leading zeros survive. |
+| `date_of_birth` | date | Consumer date of birth |
+| `program_name` | string | Program this record belongs to (must exist in the network) |
+| `application_date` | date | When the consumer applied. Drives policy resolution; time-of-day is not preserved. |
+
+### Optional columns
+
+| Column | Type | Description |
+|---|---|---|
+| `first_name` | string | Consumer first name |
+| `last_name` | string | Consumer last name |
+| `phone_number` | string | Consumer phone number |
+| `email` | string | Consumer personal email address |
+| `furnisher_id` | string | Your external identifier for the record, carried through as opaque metadata |
+| `furnisher_federation_id` | string | Your external federation identifier, carried through as opaque metadata |
+
+<Warning>
+  `social_security_number` is a **string**, not a number. An SSN placed in a
+  numeric Excel cell loses its leading zeros before SOLO ever sees it, which
+  changes the matching key and can attach the record to the wrong consumer.
+</Warning>
+
+---
+
+## KYB Furnish Data
+
+**Directory**: `kyb_furnish_data/`
+
+Business onboarding records furnished toward KYB certificates. Each row is one
+business tied to a program, with the same program/policy resolution behavior
+as KYC data.
+
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyb-furnish-data-template.xlsx">
+  KYB Furnish Data Template (.xlsx)
+</Card>
+
+### Required columns
+
+| Column | Type | Description |
+|---|---|---|
+| `file` | string | Furnisher file number (`File #`). Unique row identifier; `Ex.` prefix marks skipped example rows. |
+| `business_tax_identifier_value` | string | Tax identifier (e.g. EIN). Read as a string so leading zeros are preserved — format as Text. |
+| `business_tax_identifier_type` | string | Identifier kind, e.g. `EIN`. Only `EIN` rows proceed through the pipeline today; rows with other types are filtered out. |
+| `business_jurisdiction_of_formation` | string | Jurisdiction where the business is formed — part of the business's matching key alongside the EIN. |
+| `program_name` | string | Program this record belongs to |
+| `application_date` | date | When the business applied; drives policy resolution |
+
+### Optional columns
+
+| Column | Type | Description |
+|---|---|---|
+| `business_legal_name` | string | Official legal name |
+| `business_dba_name` | string | Doing-business-as name |
+| `business_website_url` | string | Business website |
+| `business_registration_identifier_from_jurisdiction_of_formation` | string | Registration number from the jurisdiction of formation |
+| `identity_verification_timestamp` | date | When business identity verification was performed (header `identity_verification_ts` also accepted) |
+| `ownership_control_verification_timestamp` | date | When ownership/control verification was performed (`ownership_control_verification_ts` also accepted) |
+| `risk_compliance_assessment_timestamp` | date | When the risk/compliance assessment was performed (`risk_compliance_ts` also accepted) |
+| `furnisher_id` | string | Your external identifier, carried through as opaque metadata |
+| `furnisher_federation_id` | string | Your external federation identifier, carried through as opaque metadata |
+
+<Note>
+  When the three verification timestamps are omitted, the furnish pipeline
+  falls back to the calendar date of `application_date` for each one. Provide
+  them when you have the real dates — they become the evidence timestamps on
+  the resulting certificates.
+</Note>
+
+---
+
+## Quick reference
+
+| Category | Identifier column (`Ex.` detector) | Row key for upserts | Who may upload |
+|---|---|---|---|
+| `kyc_cert_policy` | `kyc_policy` (Policy #) | Policy name (conflicts error per row) | Governor |
+| `kyb_cert_policy` | `kyb_policy` (Policy #) | Policy name (conflicts error per row) | Governor |
+| `programs` | `program` (`Program #`) | Program name (conflicts error per row) | Governor |
+| `kyc_furnish_data` | `file` (`File #`) | `social_security_number` | Furnisher |
+| `kyb_furnish_data` | `file` (`File #`) | `business_tax_identifier_value` + `business_jurisdiction_of_formation` | Furnisher |
+
+For layout, header normalization, and cell-type rules shared by every
+category, see [Workbook Format](/concepts/sftp/csv-format).

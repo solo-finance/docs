@@ -1,0 +1,192 @@
+---
+title: 'Screening Lists'
+description: 'Bank-specific bad actor and cross-bank financial crimes watch lists'
+icon: 'list-check'
+---
+
+SOLO offers two **screening list** products in the Fraud & Financial Crime
+category. Both answer a narrow question — *is this consumer on a list?* — and
+return a listing indicator plus a small set of context fields. Unlike
+[certificates](/concepts/querying/kyc-certificate), screening list queries never
+issue a reusable artifact; they are point-in-time checks.
+
+| | Bank-Specific Bad Actor List | Cross-Bank Financial Crimes Watch List |
+|---|---|---|
+| **What it is** | A sponsor-bank-scoped list of specific individuals who, as prior customers of one or more of the bank's fintech partners, violated one or more specific documented bank policies. | A cross-bank shared consortium that extends beyond one sponsor-bank network and focuses on sharing suspicious financial-crimes activity. Governed by banks as defined by 31 CFR 1020.100(d) under 314(b) permissible purpose. |
+| **Scope** | Your sponsor bank's network only — results never cross network boundaries. | All participating banks — visibility spans the consortium. |
+| **Use case** | Bad Actor Screening — catching repeat offenders re-applying within the same bank's programs. | Watch List Screening — surfacing inter-bank financial-crimes signals. |
+| **Subject** | Consumer | Consumer |
+| **Query path** | `POST /v1/products/bank_specific_bad_actor_list/query` | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
+
+The key difference is **who can see what**. The bad actor list is scoped to one
+sponsor bank: a consumer flagged in Bank A's program is invisible to Bank B.
+The watch list is the opposite by design — it exists so that suspicious
+financial-crimes activity observed at one bank is visible to the others, under
+the 314(b) information-sharing framework.
+
+Both lists are **query-only** over the API. The events behind them are
+contributed by network participants through governed furnishing flows.
+
+## Querying
+
+Both endpoints take the standard [query request](/concepts/querying/overview):
+a `consent_id` (or `consumer_id` for permissible-purpose lookups) plus the
+`network_ids` scope, with optional `policy_id` and `furnishing_entity_ids`.
+
+### Bank-Specific Bad Actor List
+
+```bash
+curl -X POST https://api.solo.one/v1/products/bank_specific_bad_actor_list/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+```json
+{
+  "query_event_id": "7b2d9c4e-…",
+  "consumer_id": "c2a4e8d0-…",
+  "furnishing_entity_id": null,
+  "is_listed": false,
+  "bad_actor_list_placement_date": null,
+  "bad_actor_list_reason_code": null
+}
+```
+
+| Response field | Type | Meaning |
+|---|---|---|
+| `query_event_id` | UUID | The billable query event id — also in the `X-Ref-Id` header. |
+| `consumer_id` | UUID | The resolved subject. |
+| `furnishing_entity_id` | UUID, nullable | The participant whose listing backed the result, when listed. |
+| `is_listed` | boolean | Whether the consumer appears on the list. |
+| `bad_actor_list_placement_date` | date, nullable | When the consumer was placed on the list. |
+| `bad_actor_list_reason_code` | string, nullable | The documented policy-violation reason (e.g. `account_abuse`, `fraud`, `policy_violation`). |
+
+When the consumer is listed, the context fields are populated:
+
+```json
+{
+  "query_event_id": "7b2d9c4e-…",
+  "consumer_id": "c2a4e8d0-…",
+  "furnishing_entity_id": "e1d2c3b4-…",
+  "is_listed": true,
+  "bad_actor_list_placement_date": "2025-11-04",
+  "bad_actor_list_reason_code": "account_abuse"
+}
+```
+
+### Cross-Bank Financial Crimes Watch List
+
+```bash
+curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_list/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+```json
+{
+  "query_event_id": "7b2d9c4e-…",
+  "consumer_id": "c2a4e8d0-…",
+  "furnishing_entity_id": null,
+  "is_listed": false,
+  "entity_level_adverse_action_eligible_indicator": null,
+  "watch_list_placement_date": null
+}
+```
+
+| Response field | Type | Meaning |
+|---|---|---|
+| `query_event_id` | UUID | The billable query event id — also in the `X-Ref-Id` header. |
+| `consumer_id` | UUID | The resolved subject. |
+| `furnishing_entity_id` | UUID, nullable | The participant whose listing backed the result, when listed. |
+| `is_listed` | boolean | Whether the consumer appears on the watch list. |
+| `entity_level_adverse_action_eligible_indicator` | boolean, nullable | Whether the signal is eligible to support adverse action at the entity level. |
+| `watch_list_placement_date` | date, nullable | When the consumer was placed on the watch list. |
+
+<Note>
+  Screening list queries always return `200 OK` — a clean result is expressed as
+  `"is_listed": false`, not as a `204`. (The `204` semantics on the
+  [certificate endpoints](/concepts/querying/kyc-certificate#when-you-get-a-204)
+  signal that *no certificate could be created*; a list check always produces a
+  usable answer.) Both queries are billable events and carry the
+  [`X-Ref-Id` header](/concepts/querying/overview#the-x-ref-id-header).
+</Note>
+
+## How matching works
+
+Subjects are matched against the lists using the consumer identity behind your
+[consent](/concepts/identity/consent) record. Each list defines its match
+inputs — SSN and date of birth are mandatory; name, phone, and email refine the
+match:
+
+| Match input | API name | Type | Required |
+|---|---|---|---|
+| Social Security Number | `social_security_number` | String | Yes |
+| Date of Birth | `date_of_birth` | Date | Yes |
+| First Name | `first_name` | String | No |
+| Last Name | `last_name` | String | No |
+| Phone Number | `phone_number` | String | No |
+| Email | `personal_email` | String | No |
+
+These inputs are identical for both lists.
+
+## Field reference
+
+The list events behind each product, as defined in the product schema. *Field*
+is the display name, *API name* is the `field_name` used in policies, and
+*Source model* is the underlying table.
+
+### Bank-Specific Bad Actor List — BadActorEvent
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Bad Actor Reason Code | `bad_actor_reason_code` | String | `bad_actor_event` |
+| Bad Actor Reason Definition | `bad_actor_reason_definition` | String | `bad_actor_event` |
+| Bad Actor List Placement Date | `bad_actor_list_placement_date` | Date | `bad_actor_event` |
+
+Reason codes are drawn from a documented set — `account_abuse`, `fraud`, and
+`policy_violation` — and each listing carries the bank's definition of the
+violated policy in `bad_actor_reason_definition`.
+
+### Cross-Bank Financial Crimes Watch List — FinancialCrimesWatchEvent
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Event Date | `event_date` | Date | `financial_crimes_watch_event` |
+| Event Category | `event_category` | String | `financial_crimes_watch_event` |
+| Signal Level | `signal_level` | String | `financial_crimes_watch_event` |
+
+Event categories include `money_laundering`, `terrorist_financing`, and
+`fraud`; signal levels are `high`, `medium`, or `low`. A network's
+[querying policy](/concepts/governance/querying-policies) can restrict which
+categories and signal levels a query considers — for example, only
+`high`-signal events.
+
+## Compliance posture
+
+<Warning>
+  Watch-list signals are screening inputs, not adjudications. Whether a listing
+  can support adverse action depends on your program's compliance framework —
+  the cross-bank list operates under 314(b) permissible purpose, and the
+  `entity_level_adverse_action_eligible_indicator` field exists precisely
+  because not every signal qualifies. Route hits to your compliance review
+  process.
+</Warning>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+    Request anatomy, billing, and the X-Ref-Id header.
+  </Card>
+  <Card title="Products" icon="box" href="/concepts/querying/products">
+    The full product catalog.
+  </Card>
+</CardGroup>

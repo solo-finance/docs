@@ -1,0 +1,307 @@
+---
+title: 'KYB Certificate'
+description: 'Business-verification certificate for business onboarding'
+icon: 'building'
+---
+
+The **KYB Certificate** is a reusable Know Your Business attestation that
+packages UBO (ultimate beneficial owner), incorporation, and business-identity
+evidence into a single certificate. Rather than each institution repeating
+registry lookups, ownership tracing, and risk screening for the same business,
+a query assembles the verification work already furnished by network
+participants into one network-issued result.
+
+| | |
+|---|---|
+| **Category** | Identity Verification |
+| **Use case** | Customer Onboarding |
+| **Subject** | Business |
+| **Operations** | `POST /v1/products/kyb_certificate/query`, `POST /v1/products/kyb_certificate/furnish` |
+
+## What's in the certificate
+
+A KYB certificate consolidates three **sub-products**, each a block in the query
+response with its own `assertions` (what was attested, and when) and `data`
+(the supporting attributes):
+
+| Sub-product | Response key | What it attests |
+|---|---|---|
+| Business identity verification | `business_identity_verification` | The legal entity exists and is what it claims — registration, jurisdiction, tax ID validation, operational existence. |
+| Ownership & control verification | `business_ownership_control_verification` | Beneficial owners, control persons, and authorized representatives were identified and evidenced. |
+| Risk & compliance assessment | `business_risk_compliance_assessment` | Sanctions, adverse media, restricted-activity, and activity-risk screening were performed. |
+
+Every populated sub-product carries the `furnishing_entity_id` of the
+participant whose data backed it and the `attestation_id` of their attestation.
+Shared business descriptors — DBA name, website, jurisdiction of formation,
+registration identifier — are repeated in each sub-product's `data` block so
+each block stands alone.
+
+## Querying
+
+```bash
+curl -X POST https://api.solo.one/v1/products/kyb_certificate/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "policy_id": "5e7d2a14-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+The request follows the standard [query anatomy](/concepts/querying/overview):
+identify the subject with `consent_id` (or `business_id` for direct
+permissible-purpose lookups), and scope the read with `network_ids` plus an
+optional `policy_id` and `furnishing_entity_ids`.
+
+A `200 OK` means a certificate was issued:
+
+```json
+{
+  "certificate_id": "8d4b2f6a-…",
+  "query_event_id": "7b2d9c4e-…",
+  "business_id": "b9e1f7c3-…",
+  "result": {
+    "meta": {
+      "network_id": "9f1c0c2e-…",
+      "policy_id": "5e7d2a14-…"
+    },
+    "business_identity_verification": {
+      "furnishing_entity_id": "e1d2c3b4-…",
+      "attestation_id": "f0a1b2c3-…",
+      "assertions": {
+        "business_identity_verification_assertion": true,
+        "business_identity_verification_performed_timestamp": "2026-05-02T00:00:00Z"
+      },
+      "data": {
+        "business_formation_document_artifact": "articles_of_organization.pdf",
+        "business_dba_name": "Acme Coffee",
+        "business_website_url": "https://acme.example",
+        "business_jurisdiction_of_formation": "DE",
+        "business_registration_identifier": "7423918",
+        "business_identity_verification_sources": ["state_registry"],
+        "business_entity_type": "llc",
+        "business_registration_status": "active",
+        "business_operational_existence_status": "verified",
+        "business_tax_id_validation_result": "match",
+        "business_address_verification_result": "match",
+        "business_registered_address": null,
+        "business_operating_address": null
+      }
+    },
+    "business_ownership_control_verification": {
+      "furnishing_entity_id": "e1d2c3b4-…",
+      "attestation_id": "f0a1b2c3-…",
+      "assertions": {
+        "business_ownership_control_verification_assertion": true,
+        "business_ownership_control_verification_timestamp": "2026-05-03T00:00:00Z"
+      },
+      "data": {
+        "business_ownership_evidence_artifact": "cap_table.pdf",
+        "business_dba_name": "Acme Coffee",
+        "business_website_url": "https://acme.example",
+        "business_jurisdiction_of_formation": "DE",
+        "business_registration_identifier": "7423918",
+        "business_ownership_control_verification_overall_status": "complete",
+        "business_ownership_control_verification_overall_primary_source": "state_registry",
+        "business_authority_determination_basis": "operating_agreement",
+        "business_authorized_representatives_identified_count": 2,
+        "business_beneficial_owners_identified_count": 1,
+        "business_beneficial_ownership_determination_method": "ownership_percentage",
+        "business_beneficial_ownership_threshold_applied": "25_percent",
+        "business_control_authority_evidence_reviewed_type": "operating_agreement",
+        "business_control_determination_basis": "managing_member",
+        "business_control_persons_identified_count": 1,
+        "business_ownership_evidence_reviewed_type": "cap_table"
+      }
+    },
+    "business_risk_compliance_assessment": {
+      "furnishing_entity_id": "e1d2c3b4-…",
+      "attestation_id": "f0a1b2c3-…",
+      "assertions": {
+        "business_risk_compliance_verification_assertion": true,
+        "business_risk_compliance_timestamp": "2026-05-03T00:00:00Z"
+      },
+      "data": {
+        "business_dba_name": "Acme Coffee",
+        "business_website_url": "https://acme.example",
+        "business_jurisdiction_of_formation": "DE",
+        "business_registration_identifier": "7423918",
+        "business_primary_activity_classification_code": "722515",
+        "business_primary_activity_classification_system": "NAICS",
+        "business_activity_risk_level": "low",
+        "business_sanctions_screening_result": "clear",
+        "business_adverse_media_assessment_result": "none_found",
+        "business_compliance_screening_scope_applied": "standard",
+        "business_restricted_activity_assessment_result": "clear",
+        "business_risk_compliance_assessment_overall_primary_source": "third_party",
+        "business_risk_compliance_assessment_overall_status": "verified",
+        "business_risk_compliance_assessment_timestamp": "2026-05-03T00:00:00Z"
+      }
+    }
+  }
+}
+```
+
+- `certificate_id` — the issued certificate, recording its as-of date,
+  attestation timestamp, and the network + policy pairs it was resolved under.
+- `query_event_id` — the billable query event id, also returned in the
+  `X-Ref-Id` response header.
+- `result` — the consolidated certificate. Sub-products without qualifying data
+  are `null`.
+
+## How the certificate resolves per network
+
+The query gathers furnished business events across every network in
+`network_ids`, applies the querying policy's filters uniformly, and selects the
+**oldest matching event** from any allowed network for each sub-product. The
+result's `meta.network_id` is anchored to the **first** network in your request
+— list your primary network first. Which fields you ultimately see is shaped by
+the [querying policy](/concepts/governance/querying-policies) and your
+[entitlement](/concepts/governance/entitlement).
+
+## When you get a 204
+
+The endpoint declares a `204 No Content` response: *no certificate could be
+created — the available data did not satisfy the policy requirements*. You'll
+receive a `204` when:
+
+- a required sub-product (identity, ownership & control, or risk/compliance)
+  was never furnished for this business in the queried networks, or
+- furnished events exist but fail the policy's filters (e.g. verification older
+  than the policy's freshness window), or
+- the policy selected specific data fields that the resolved certificate could
+  not populate.
+
+The body is empty; the `X-Ref-Id` header is still present and the query event
+is still recorded. Run a [coverage check](/concepts/querying/coverage-check)
+first to anticipate `204`s without spending a billable query.
+
+## Furnishing
+
+Participants contribute KYB data with
+`POST /v1/products/kyb_certificate/furnish`:
+
+```json
+{
+  "network_id": "9f1c0c2e-…",
+  "program_name": "default",
+  "application_date": "2026-05-28",
+  "records": [
+    {
+      "business_legal_name": "Acme Coffee LLC",
+      "business_ein": "12-3456789"
+    }
+  ]
+}
+```
+
+The response is `{"success": true, "submission_id": "…"}`. Bulk contribution is
+also available via [file upload](/concepts/furnishing/file-upload) and
+[SFTP](/concepts/sftp/overview); see [Furnishing](/concepts/furnishing/overview)
+for the full model.
+
+## Field reference
+
+The KYB certificate's data dictionary, model by model. *Field* is the display
+name, *API name* is the `field_name` used in policies and coverage checks, and
+*Source model* is the underlying table the value is drawn from.
+
+### Business
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Business Legal Name | `business_legal_name` | String | `business` |
+
+### BusinessIdentityVerificationEvent
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Attestation ID | `attestation_id` | UUID | `business_identity_verification_event` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Is Identity Verified | `is_identity_verified` | Boolean | `business_identity_verification_event` |
+| Identity Verification Timestamp | `identity_verification_timestamp` | Date | `business_identity_verification_event` |
+| Identity Verification Overall Status | `identity_verification_overall_status` | String | `business_identity_verification_event` |
+| Identity Verification Overall Primary Source | `identity_verification_overall_primary_source` | String | `business_identity_verification_event` |
+| Is Secretary Of State Match | `is_secretary_of_state_match` | Boolean | `business_identity_verification_event` |
+| Operational Existence Status | `operational_existence_status` | String | `business_identity_verification_event` |
+| Tax ID Validation Result | `tax_id_validation_result` | String | `business_identity_verification_event` |
+| Tax Identifier Type | `tax_identifier_type` | String | `business_identity_verification_event` |
+| Tax Identifier Value | `tax_identifier_value` | String | `business_identity_verification_event` |
+| Address Verification Result | `address_verification_result` | String | `business_identity_verification_event` |
+| DBA Name | `dba_name` | String | `business_identity_verification_event` |
+| Entity Type | `entity_type` | String | `business_identity_verification_event` |
+| Formation Document Artifact | `formation_document_artifact` | String | `business_identity_verification_event` |
+| Jurisdiction Of Formation | `jurisdiction_of_formation` | String | `business_identity_verification_event` |
+| Registration Identifier | `registration_identifier` | String | `business_identity_verification_event` |
+| Registration Status | `registration_status` | String | `business_identity_verification_event` |
+| Website URL | `website_url` | String | `business_identity_verification_event` |
+
+### BusinessOwnershipControlVerificationEvent
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Attestation ID | `attestation_id` | UUID | `business_ownership_control_verification_event` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Is Ownership Control Verified | `is_ownership_control_verified` | Boolean | `business_ownership_control_verification_event` |
+| Ownership Control Verification Timestamp | `ownership_control_verification_timestamp` | Date | `business_ownership_control_verification_event` |
+| Ownership Control Verification Overall Status | `ownership_control_verification_overall_status` | String | `business_ownership_control_verification_event` |
+| Ownership Control Verification Overall Primary Source | `ownership_control_verification_overall_primary_source` | String | `business_ownership_control_verification_event` |
+| Authority Determination Basis | `authority_determination_basis` | String | `business_ownership_control_verification_event` |
+| Authorized Representatives Identified Count | `authorized_representatives_identified_count` | Integer | `business_ownership_control_verification_event` |
+| Beneficial Owners Identified Count | `beneficial_owners_identified_count` | Integer | `business_ownership_control_verification_event` |
+| Beneficial Ownership Determination Method | `beneficial_ownership_determination_method` | String | `business_ownership_control_verification_event` |
+| Beneficial Ownership Threshold Applied | `beneficial_ownership_threshold_applied` | String | `business_ownership_control_verification_event` |
+| Control Authority Evidence Reviewed Type | `control_authority_evidence_reviewed_type` | String | `business_ownership_control_verification_event` |
+| Control Determination Basis | `control_determination_basis` | String | `business_ownership_control_verification_event` |
+| Control Persons Identified Count | `control_persons_identified_count` | Integer | `business_ownership_control_verification_event` |
+| Is Personally Guaranteed | `is_personally_guaranteed` | Boolean | `business_ownership_control_verification_event` |
+| Ownership Evidence Artifact | `ownership_evidence_artifact` | String | `business_ownership_control_verification_event` |
+| Ownership Evidence Reviewed Type | `ownership_evidence_reviewed_type` | String | `business_ownership_control_verification_event` |
+
+### BusinessRiskComplianceEvent
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Attestation ID | `attestation_id` | UUID | `business_risk_compliance_event` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Is Risk Compliance Assessed | `is_risk_compliance_assessed` | Boolean | `business_risk_compliance_event` |
+| Risk Compliance Assessment Timestamp | `risk_compliance_assessment_timestamp` | Date | `business_risk_compliance_event` |
+| Risk Compliance Assessment Overall Status | `risk_compliance_assessment_overall_status` | String | `business_risk_compliance_event` |
+| Risk Compliance Assessment Overall Primary Source | `risk_compliance_assessment_overall_primary_source` | String | `business_risk_compliance_event` |
+| Activity Risk Level | `activity_risk_level` | String | `business_risk_compliance_event` |
+| Sanctions Screening Result | `sanctions_screening_result` | String | `business_risk_compliance_event` |
+| Adverse Media Assessment Result | `adverse_media_assessment_result` | String | `business_risk_compliance_event` |
+| Compliance Screening Scope Applied | `compliance_screening_scope_applied` | String | `business_risk_compliance_event` |
+| Restricted Activity Assessment Result | `restricted_activity_assessment_result` | String | `business_risk_compliance_event` |
+| Address Verification Result | `address_verification_result` | String | `business_risk_compliance_event` |
+| Is On AML Watchlist | `is_on_aml_watchlist` | Boolean | `business_risk_compliance_event` |
+| Is On OFAC Watchlist | `is_on_ofac_watchlist` | Boolean | `business_risk_compliance_event` |
+| Primary Activity Classification Code | `primary_activity_classification_code` | String | `business_risk_compliance_event` |
+| Primary Activity Classification System | `primary_activity_classification_system` | String | `business_risk_compliance_event` |
+
+### KybCertificate (policy configuration only)
+
+These certificate-level fields are used when configuring a
+[querying policy](/concepts/governance/querying-policies) — filters over issued
+certificates, not data projected into the query response.
+
+| Field | API name | Type | Source model |
+|---|---|---|---|
+| Certificate As Of Date | `certificate_as_of_date` | Date | `kyb_certificate` |
+| Certificate Attestation Timestamp | `certificate_attestation_timestamp` | Datetime | `kyb_certificate` |
+| Days Since Certificate As Of Date | `days_since_certificate_as_of_date` | Integer | `kyb_certificate` |
+| Is Business Identity Verification Performed | `is_business_identity_verification_performed` | Boolean | `kyb_certificate` |
+| Is Business Ownership Control Performed | `is_business_ownership_control_performed` | Boolean | `kyb_certificate` |
+| Is Business Risk Compliance Assessed | `is_business_risk_compliance_assessed` | Boolean | `kyb_certificate` |
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+    Request anatomy, 200 vs 204, billing, and the X-Ref-Id header.
+  </Card>
+  <Card title="Coverage check" icon="list-radio" href="/concepts/querying/coverage-check">
+    Check field coverage before running a billable query.
+  </Card>
+</CardGroup>

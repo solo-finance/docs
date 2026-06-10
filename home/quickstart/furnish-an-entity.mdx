@@ -1,0 +1,320 @@
+---
+title: 'Furnishing your first entity'
+description: 'Contribute verified data about a consumer into a network'
+icon: 'arrow-up-from-bracket'
+---
+
+Furnishing contributes data about a
+[consumer or business](/concepts/identity/entities) into a
+[network](/concepts/governance/networks). In this guide you'll record a
+consumer's [consent](/concepts/identity/consent), then furnish KYC certificate
+data for them. Furnishing is also how you earn
+[entitlement](/concepts/governance/entitlement) — once you've contributed data
+about a consumer, you can read that consumer's data back on future queries.
+
+## Prerequisites
+
+<Note>
+  Before you start, you need:
+
+  - **Network membership with the furnisher role** — arranged with your SOLO
+    account manager (see
+    [Joining a network](/home/quickstart/join-a-network)).
+  - **A bearer token** (SDK token) exported as `SOLO_TOKEN`. See
+    [Authentication](/home/authentication).
+  - **Your `network_id`**, plus the **program name** you furnish under (many
+    setups use a single default program — ask your account manager if unsure).
+</Note>
+
+## Record consent and furnish
+
+<Steps>
+  <Step title="Record the consumer's consent">
+    Create a consent record with the consumer's identity, attesting that you
+    gathered their permission before contributing their data:
+
+    ```bash
+    curl -X POST https://api.solo.one/v1/consent/consumer \
+      -H "Authorization: Bearer $SOLO_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
+        "did_gather_consent_from_consumer_prior": true,
+        "consumer_consent_identity": {
+          "first_name": "Jane",
+          "last_name": "Doe",
+          "date_of_birth": "1990-01-15T00:00:00",
+          "personal_email": "jane.doe@example.com",
+          "phone_number": "5551234567",
+          "social_security_number": "123-45-6789"
+        }
+      }'
+    ```
+
+    ```json Response
+    {
+      "consent_id": "5f3a8c21-09d4-4b7a-9d52-6e8b1f4c2a30",
+      "field_access_grants": [
+        {
+          "furnishing_entity_id": null,
+          "field_definitions": [
+            "fraud_verification_event.confirmed_fraud_indicator",
+            "fraud_verification_event.fraud_attribute_label",
+            "fraud_verification_event.fraud_event_date",
+            "fraud_verification_event.fraud_loss_event_category"
+          ],
+          "effective_from": "2026-06-09",
+          "effective_to": null
+        }
+      ],
+      "created_at": "2026-06-09T22:04:11+00:00",
+      "events": "",
+      "scope": "",
+      "expires_at": null,
+      "consented_fields": null
+    }
+    ```
+
+    All six identity fields are required. If you already know the consumer's
+    UUID (for example from an
+    [entity search](/home/quickstart/join-a-network)), pass it as the optional
+    `consumer_id` to link the consent to that existing profile.
+
+    <Warning>
+      `did_gather_consent_from_consumer_prior` is an attestation, not a flag.
+      Only set it to `true` if you have actually obtained the consumer's
+      permission — the API rejects the request with a `400` otherwise.
+    </Warning>
+
+    You can re-fetch the consent at any time — the response body is identical
+    to the create response:
+
+    ```bash
+    curl -G https://api.solo.one/v1/consent/consumer/5f3a8c21-09d4-4b7a-9d52-6e8b1f4c2a30 \
+      -H "Authorization: Bearer $SOLO_TOKEN" \
+      --data-urlencode "network_id=9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21"
+    ```
+  </Step>
+
+  <Step title="Build your records">
+    Each furnish record identifies one consumer by their core identity. All
+    four fields are required:
+
+    ```json
+    {
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "date_of_birth": "1990-01-15",
+      "social_security_number": "123-45-6789"
+    }
+    ```
+
+    These identifiers tell the network *which* consumer the data belongs to —
+    the certificate data is associated with that identity. The network matches
+    each record to a consumer (creating one if no match exists) and stores the
+    data under your organization, attributed to you as the furnisher.
+
+    `records` is a list, so batch as many consumers as you like into one call:
+
+    ```json
+    {
+      "records": [
+        { "first_name": "Jane", "last_name": "Doe", "date_of_birth": "1990-01-15", "social_security_number": "123-45-6789" },
+        { "first_name": "John", "last_name": "Smith", "date_of_birth": "1987-09-02", "social_security_number": "987-65-4321" }
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="Furnish into the network">
+    Call the product's furnish endpoint with your network scope, program, and
+    records:
+
+    ```bash
+    curl -X POST https://api.solo.one/v1/products/kyc_certificate/furnish \
+      -H "Authorization: Bearer $SOLO_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
+        "program_name": "default",
+        "application_date": "2026-06-09",
+        "records": [
+          {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "date_of_birth": "1990-01-15",
+            "social_security_number": "123-45-6789"
+          }
+        ]
+      }'
+    ```
+
+    ```json Response
+    {
+      "success": true,
+      "submission_id": "1d4f7a92-c3e5-48b0-a6d1-2b9c8e0f5a47"
+    }
+    ```
+
+    Three fields route the furnish — this is **program routing**:
+
+    - `network_id` — the network you're furnishing into.
+    - `program_name` — the program (partition) within that network that
+      separates your submissions from other furnishers'.
+    - `application_date` — the date the data applies to.
+
+    Together they resolve the right furnishing policy automatically; you never
+    pass a policy yourself. See
+    [How furnishing works](/concepts/furnishing/overview) for the resolution
+    rules and [Furnishing policies](/concepts/governance/furnishing-policies)
+    for how governors configure them.
+  </Step>
+
+  <Step title="Confirm the consumer is visible">
+    The furnished consumer now appears in network-scoped entity search:
+
+    ```bash
+    curl -G https://api.solo.one/v1/entities/consumer/search \
+      -H "Authorization: Bearer $SOLO_TOKEN" \
+      --data-urlencode "network_id=9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21" \
+      --data-urlencode "social_security_number=123-45-6789"
+    ```
+
+    A `200` with a matching record confirms the furnish landed. You've also
+    earned [entitlement](/concepts/governance/entitlement) to this consumer's
+    data on future queries.
+  </Step>
+</Steps>
+
+## Inspect the result
+
+**Consent response** (step 1):
+
+| Field | Meaning |
+|---|---|
+| `consent_id` | The token you'll pass on every subsequent query of this consumer. Store it. |
+| `field_access_grants` | The access grants attached to the consent. Each grant lists its `field_definitions` (as `table.column` strings), the `furnishing_entity_id` it's scoped to (`null` = not furnisher-specific), and its `effective_from` / `effective_to` window. |
+| `created_at` | When the consent record was created. |
+| `events` | The consent's event log reference (empty for a brand-new consent). |
+| `scope` | The consent's scope label. Starts unset; updatable later via `PUT /v1/consent/consumer/{consent_id}`. |
+| `expires_at` | When the consent lapses. `null` means no expiry has been set. |
+| `consented_fields` | An optional comma-separated restriction of consented fields. `null` means no field-level restriction. |
+
+**Furnish response** (step 3):
+
+| Field | Meaning |
+|---|---|
+| `success` | `true` — the records were accepted and a furnish event was recorded. |
+| `submission_id` | The UUID of this submission. Reference it when reconciling with your SOLO account manager. |
+
+<Tip>
+  Identity fields on a consent are immutable — a consent record is an audit
+  artifact of who consented and when. To consent with different identity data,
+  create a new consent record. `scope`, `expires_at`, and `consented_fields`
+  are the only updatable attributes.
+</Tip>
+
+## Why consent comes first
+
+Furnishing contributes data *about* a person, and the consent record is the
+audit artifact proving they agreed: who consented, when, and through which
+identity. Creating it before you furnish keeps your contribution defensible,
+and the same `consent_id` is what you'll pass when you later
+[query this consumer back](/home/quickstart/query-a-product) — one consent
+covers both sides of your participation while it remains valid. The full
+model, including field access grants and expiry, is covered in
+[Consent](/concepts/identity/consent).
+
+## Furnishing at scale
+
+A JSON furnish accepts multiple `records` per call, which covers most
+integration patterns. For recurring volume:
+
+- **SFTP ingestion** — drop CSV files on a schedule and let the platform ingest
+  them automatically. Start with
+  [SFTP getting started](/concepts/sftp/getting-started).
+- **Bulk file workflows** — formats, templates, and validation behavior are
+  covered in [File upload](/concepts/furnishing/file-upload).
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="401 — token expired or invalid">
+    ```json
+    {
+      "detail": "Authentication required",
+      "error_code": "AUTHENTICATION_REQUIRED"
+    }
+    ```
+
+    Your bearer token is missing, malformed, or expired. Re-export `SOLO_TOKEN`
+    with a fresh token from your SOLO account manager. See
+    [Authentication](/home/authentication).
+  </Accordion>
+  <Accordion title="400 — consent not gathered">
+    ```json
+    {
+      "detail": "Consent cannot be created without prior consumer consent gathering",
+      "error_code": "VALIDATION_ERROR"
+    }
+    ```
+
+    You sent `did_gather_consent_from_consumer_prior: false`. The platform will
+    not create a consent record without your attestation that the consumer
+    agreed first. Gather consent, then retry with `true`.
+  </Accordion>
+  <Accordion title="404 — consent not found in this network">
+    ```json
+    {
+      "detail": "Consent record not found",
+      "error_code": "RESOURCE_NOT_FOUND"
+    }
+    ```
+
+    Returned by `GET /v1/consent/consumer/{consent_id}` when the `network_id`
+    query parameter doesn't match the network the consent was created in.
+    Consents are network-scoped — look them up with the same `network_id` you
+    created them under.
+  </Accordion>
+  <Accordion title="403 — missing the furnisher role">
+    ```json
+    {
+      "detail": "Permission denied",
+      "error_code": "PERMISSION_DENIED"
+    }
+    ```
+
+    Your token is valid and the network exists, but your membership doesn't
+    carry the furnisher role. Roles are arranged with your SOLO account
+    manager — see [Network roles](/concepts/governance/network-roles).
+  </Accordion>
+  <Accordion title="422 — missing or malformed field">
+    ```json
+    {
+      "detail": "body -> records: Field required"
+    }
+    ```
+
+    A required field is missing or the wrong type. The `detail` string names
+    the first failing field as `location -> field: message` — common culprits
+    are omitting `program_name` or `application_date`, or leaving an identity
+    field out of `consumer_consent_identity`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Query a product" icon="magnifying-glass" href="/home/quickstart/query-a-product">
+    Reuse the `consent_id` and read this consumer's data back.
+  </Card>
+  <Card title="How furnishing works" icon="arrow-up-from-bracket" href="/concepts/furnishing/overview">
+    Program routing and policy resolution in depth.
+  </Card>
+  <Card title="SFTP getting started" icon="folder-arrow-up" href="/concepts/sftp/getting-started">
+    Automated, recurring bulk ingestion.
+  </Card>
+  <Card title="Why consent is needed" icon="file-signature" href="/concepts/identity/consent">
+    The permission layer behind every read.
+  </Card>
+</CardGroup>

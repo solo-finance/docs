@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
   title: SOLO Network API
-  version: v1alpha1
+  version: v1
 paths:
-  /consent/business:
+  /v1/consent/business:
     post:
       tags:
       - Business
@@ -11,7 +11,7 @@ paths:
         a consent_id used for all subsequent queries.
       description: Create a business consent record (direct, server-to-server). Returns
         a consent_id used for all subsequent queries.
-      operationId: consent_business_create_consent_business_post
+      operationId: consent_business_create_v1_consent_business_post
       requestBody:
         content:
           application/json:
@@ -31,7 +31,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /consent/consumer:
+      security:
+      - HTTPBearer: []
+  /v1/consent/consumer:
     post:
       tags:
       - Consumer
@@ -39,7 +41,7 @@ paths:
         a consent_id used for all subsequent queries.
       description: Create a consumer consent record (direct, server-to-server). Returns
         a consent_id used for all subsequent queries.
-      operationId: consent_consumer_create_consent_consumer_post
+      operationId: consent_consumer_create_v1_consent_consumer_post
       requestBody:
         content:
           application/json:
@@ -59,13 +61,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /consent/consumer/{consent_id}:
+      security:
+      - HTTPBearer: []
+  /v1/consent/consumer/{consent_id}:
     get:
       tags:
       - Consumer
       summary: Read a consumer consent record by consent_id.
       description: Read a consumer consent record by consent_id.
-      operationId: consent_consumer_read_consent_consumer__consent_id__get
+      operationId: consent_consumer_read_v1_consent_consumer__consent_id__get
+      security:
+      - HTTPBearer: []
       parameters:
       - name: consent_id
         in: path
@@ -95,7 +101,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /entities/consumer/search:
+    put:
+      tags:
+      - Consumer
+      summary: Update a consumer consent record's scope, expiry, or consented fields.
+        Identity fields are immutable.
+      description: Update a consumer consent record's scope, expiry, or consented
+        fields. Identity fields are immutable.
+      operationId: consent_consumer_update_v1_consent_consumer__consent_id__put
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: consent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Consent Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentConsumerUpdateInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentConsumerCreateOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/entities/consumer/search:
     get:
       tags:
       - Entities
@@ -112,7 +154,9 @@ paths:
         \ `list[ConsumerSearchResult]`.\n    Matching consumer core identities.\n\n\
         Examples\n-----\n```\nGET /entities/consumer/search?network_id=...&first_name=John&last_name=Doe&limit=10\n\
         ```"
-      operationId: search_consumers_entities_consumer_search_get
+      operationId: search_consumers_v1_entities_consumer_search_get
+      security:
+      - HTTPBearer: []
       parameters:
       - name: network_id
         in: query
@@ -193,14 +237,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ConsumerSearchResult'
-                title: Response Search Consumers Entities Consumer Search Get
+                title: Response Search Consumers V1 Entities Consumer Search Get
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /entities/business/search:
+  /v1/entities/business/search:
     get:
       tags:
       - Entities
@@ -215,7 +259,9 @@ paths:
         \ Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessSearchResult]`.\n\
         \    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business/search?network_id=...&business_legal_name=Acme&limit=10\n\
         ```"
-      operationId: search_businesses_entities_business_search_get
+      operationId: search_businesses_v1_entities_business_search_get
+      security:
+      - HTTPBearer: []
       parameters:
       - name: network_id
         in: query
@@ -286,14 +332,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BusinessSearchResult'
-                title: Response Search Businesses Entities Business Search Get
+                title: Response Search Businesses V1 Entities Business Search Get
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /institution-attestation:
+  /v1/institution-attestation:
     post:
       tags:
       - Institution Attestation
@@ -305,7 +351,7 @@ paths:
         as the current one.\n\nParameters\n----------\n`body` : `InstitutionAttestationCreateRequest`.\n\
         \    Attestation payload.\n\nReturns\n-------\n`response` : `InstitutionAttestationResponse`.\n\
         \    The newly created attestation record."
-      operationId: create_institution_attestation_institution_attestation_post
+      operationId: create_institution_attestation_v1_institution_attestation_post
       requestBody:
         content:
           application/json:
@@ -327,7 +373,7 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
       security:
       - HTTPBearer: []
-  /networks/policies/querying:
+  /v1/networks/policies/querying:
     post:
       tags:
       - Querying Policies
@@ -342,7 +388,7 @@ paths:
         and per-field selections for the policy are authored separately via
 
         ``PUT /networks/policies/querying/{policy_id}/configuration``.'
-      operationId: create_querying_policy_networks_policies_querying_post
+      operationId: create_querying_policy_v1_networks_policies_querying_post
       requestBody:
         content:
           application/json:
@@ -362,7 +408,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /networks/policies/querying/{policy_id}/configuration:
+      security:
+      - HTTPBearer: []
+  /v1/networks/policies/querying/{policy_id}/configuration:
     put:
       tags:
       - Querying Policies
@@ -373,7 +421,9 @@ paths:
         Replaces the policy''s per-model and per-field selections with the
 
         submitted set. The policy is left in ``published`` status.'
-      operationId: save_querying_policy_configuration_networks_policies_querying__policy_id__configuration_put
+      operationId: save_querying_policy_configuration_v1_networks_policies_querying__policy_id__configuration_put
+      security:
+      - HTTPBearer: []
       parameters:
       - name: policy_id
         in: path
@@ -401,7 +451,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /networks/policies/furnishing:
+  /v1/networks/policies/furnishing:
+    post:
+      tags:
+      - Furnishing Policies
+      summary: Create a furnishing policy for a (product, network) pair.
+      description: 'Create a new furnishing policy shell for a (product, network)
+        pair.
+
+
+        The ``(network_id, product_id)`` pair determines ``source_default_slug``
+
+        from the product catalogue path. Pipeline steps and runtime entries are
+
+        added later via workbook ingest or ``persistFurnishingPolicy``.'
+      operationId: create_furnishing_policy_v1_networks_policies_furnishing_post
+      security:
+      - HTTPBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFurnishingPolicyInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFurnishingPolicyResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
     get:
       tags:
       - Furnishing Policies
@@ -414,7 +499,9 @@ paths:
         \nReturns\n----\n`results` : `list[FurnishingPolicyResult]`.\n    Page of\
         \ matching furnishing policies.\n\nExamples\n-----\n```\nGET /networks/policies/furnishing?network_id=...&limit=10\n\
         ```"
-      operationId: list_furnishing_policies_networks_policies_furnishing_get
+      operationId: list_furnishing_policies_v1_networks_policies_furnishing_get
+      security:
+      - HTTPBearer: []
       parameters:
       - name: network_id
         in: query
@@ -455,7 +542,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FurnishingPolicyResult'
-                title: Response List Furnishing Policies Networks Policies Furnishing
+                title: Response List Furnishing Policies V1 Networks Policies Furnishing
                   Get
         '422':
           description: Validation Error
@@ -463,7 +550,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /networks/policies/furnishing/{policy_id}:
+  /v1/networks/policies/furnishing/{policy_id}/configuration:
+    put:
+      tags:
+      - Furnishing Policies
+      summary: Save pipeline step selection onto an existing furnishing policy.
+      description: Replace child pipeline rows on a draft furnishing policy.
+      operationId: save_furnishing_policy_configuration_v1_networks_policies_furnishing__policy_id__configuration_put
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: policy_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Policy Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveFurnishingPolicyConfigurationInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveFurnishingPolicyConfigurationResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/networks/policies/furnishing/{policy_id}:
     get:
       tags:
       - Furnishing Policies
@@ -476,7 +599,9 @@ paths:
         \ the given id is visible within the\n    given network scope.\n\nExamples\n\
         -----\n```\nGET /networks/policies/furnishing/{policy_id}?network_id=...\n\
         ```"
-      operationId: get_furnishing_policy_networks_policies_furnishing__policy_id__get
+      operationId: get_furnishing_policy_v1_networks_policies_furnishing__policy_id__get
+      security:
+      - HTTPBearer: []
       parameters:
       - name: policy_id
         in: path
@@ -507,12 +632,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /products/kyc_certificate/query:
+  /v1/products/kyc_certificate/query:
     post:
       tags:
       - KYC Certificate
       summary: Query consolidated KYC certificate data for a consumer
-      operationId: kyc_certificate_query_products_kyc_certificate_query_post
+      operationId: kyc_certificate_query_v1_products_kyc_certificate_query_post
       requestBody:
         content:
           application/json:
@@ -526,18 +651,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/KycCertificateQueryOutput'
+        '204':
+          description: No certificate could be created — the available data did not
+            satisfy the policy requirements.
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /products/kyc_certificate/furnish:
+      security:
+      - HTTPBearer: []
+  /v1/products/kyc_certificate/furnish:
     post:
       tags:
       - KYC Certificate
       summary: Furnish KYC certificate data via structured JSON
-      operationId: kyc_certificate_furnish_products_kyc_certificate_furnish_post
+      operationId: kyc_certificate_furnish_v1_products_kyc_certificate_furnish_post
       requestBody:
         content:
           application/json:
@@ -557,37 +687,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /products/kyc_certificate/furnish_via_upload:
-    post:
-      tags:
-      - KYC Certificate
-      summary: Furnish KYC certificate data via Excel file upload
-      operationId: kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Body_kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/KycCertificateFurnishOutput'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /products/kyb_certificate/query:
+      security:
+      - HTTPBearer: []
+  /v1/products/kyb_certificate/query:
     post:
       tags:
       - KYB Certificate
       summary: Query consolidated KYB certificate data for a business
-      operationId: kyb_certificate_query_products_kyb_certificate_query_post
+      operationId: kyb_certificate_query_v1_products_kyb_certificate_query_post
       requestBody:
         content:
           application/json:
@@ -601,18 +708,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/KybCertificateQueryOutput'
+        '204':
+          description: No certificate could be created — the available data did not
+            satisfy the policy requirements.
         '422':
           description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /products/kyb_certificate/furnish:
+      security:
+      - HTTPBearer: []
+  /v1/products/kyb_certificate/furnish:
     post:
       tags:
       - KYB Certificate
       summary: Furnish KYB certificate data via structured JSON
-      operationId: kyb_certificate_furnish_products_kyb_certificate_furnish_post
+      operationId: kyb_certificate_furnish_v1_products_kyb_certificate_furnish_post
       requestBody:
         content:
           application/json:
@@ -632,37 +744,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /products/kyb_certificate/furnish_via_upload:
-    post:
-      tags:
-      - KYB Certificate
-      summary: Furnish KYB certificate data via Excel file upload
-      operationId: kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Body_kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/KybCertificateFurnishOutput'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /products/bank_specific_bad_actor_list/query:
+      security:
+      - HTTPBearer: []
+  /v1/products/bank_specific_bad_actor_list/query:
     post:
       tags:
       - Bank-Specific Bad Actor List
       summary: Query the bank-specific bad actor list for a consumer or business
-      operationId: bank_specific_bad_actor_list_query_products_bank_specific_bad_actor_list_query_post
+      operationId: bank_specific_bad_actor_list_query_v1_products_bank_specific_bad_actor_list_query_post
       requestBody:
         content:
           application/json:
@@ -682,13 +771,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /products/cross_bank_financial_crimes_watch_list/query:
+      security:
+      - HTTPBearer: []
+  /v1/products/cross_bank_financial_crimes_watch_list/query:
     post:
       tags:
       - Cross-Bank Financial Crimes Watch List
       summary: Query the cross-bank financial crimes watch list for a consumer or
         business
-      operationId: cross_bank_financial_crimes_watch_list_query_products_cross_bank_financial_crimes_watch_list_query_post
+      operationId: cross_bank_financial_crimes_watch_list_query_v1_products_cross_bank_financial_crimes_watch_list_query_post
       requestBody:
         content:
           application/json:
@@ -708,7 +799,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /file-upload/ingest:
+      security:
+      - HTTPBearer: []
+  /v1/products/check:
+    post:
+      tags:
+      - Product Coverage Check
+      summary: 'Soft check: per-furnisher field coverage for a product and profile'
+      operationId: product_coverage_check_v1_products_check_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverageCheckInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageCheckOutput'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/file-upload/ingest:
     post:
       tags:
       - File Upload
@@ -726,12 +846,12 @@ paths:
         \nExamples\n-----\n```bash\n>>> curl -X POST https://app.solo.one/file-upload/ingest\
         \ \\\n...   -H \"Authorization: Bearer $TOKEN\" \\\n...   -F \"file=@sample.csv\"\
         \ \\\n...   -F \"slug=kyc_cert_policy\"\n```"
-      operationId: ingest_csv_file_upload_ingest_post
+      operationId: ingest_csv_v1_file_upload_ingest_post
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Body_ingest_csv_file_upload_ingest_post'
+              $ref: '#/components/schemas/Body_ingest_csv_v1_file_upload_ingest_post'
         required: true
       responses:
         '200':
@@ -930,13 +1050,40 @@ components:
       title: AddressVerificationSubProduct
     BankSpecificBadActorListQueryInput:
       properties:
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, each network's default policy is used.
+        network_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: Network Ids
+          description: Networks to query across; the single policy is applied to all
+            of them.
+        furnishing_entity_ids:
+          anyOf:
+          - items:
+              type: string
+              format: uuid
+            type: array
+          - type: 'null'
+          title: Furnishing Entity Ids
+          description: Optional furnishing-entity scope. When omitted or empty, data
+            from all furnishers is considered.
         consent_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         consumer_id:
           anyOf:
           - type: string
@@ -946,6 +1093,8 @@ components:
           description: Consumer profile primary key (Consumer.id) for permissible-purpose
             queries.
       type: object
+      required:
+      - network_ids
       title: BankSpecificBadActorListQueryInput
     BankSpecificBadActorListQueryOutput:
       properties:
@@ -1092,7 +1241,7 @@ components:
       - assertions
       - data
       title: BiometricReviewSubProduct
-    Body_ingest_csv_file_upload_ingest_post:
+    Body_ingest_csv_v1_file_upload_ingest_post:
       properties:
         file:
           type: string
@@ -1105,27 +1254,7 @@ components:
       required:
       - file
       - slug
-      title: Body_ingest_csv_file_upload_ingest_post
-    Body_kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post:
-      properties:
-        file:
-          type: string
-          contentMediaType: application/octet-stream
-          title: File
-      type: object
-      required:
-      - file
-      title: Body_kyb_certificate_furnish_via_upload_products_kyb_certificate_furnish_via_upload_post
-    Body_kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post:
-      properties:
-        file:
-          type: string
-          contentMediaType: application/octet-stream
-          title: File
-      type: object
-      required:
-      - file
-      title: Body_kyc_certificate_furnish_via_upload_products_kyc_certificate_furnish_via_upload_post
+      title: Body_ingest_csv_v1_file_upload_ingest_post
     BusinessAddressOutput:
       properties:
         line_1:
@@ -1697,6 +1826,16 @@ components:
         scope:
           type: string
           title: Scope
+        expires_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expires At
+        consented_fields:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consented Fields
       type: object
       required:
       - consent_id
@@ -1707,6 +1846,41 @@ components:
       title: ConsentConsumerCreateOutput
       description: Create a consumer consent record (direct, server-to-server). Returns
         a consent_id used for all subsequent queries.
+    ConsentConsumerUpdateInput:
+      properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+        scope:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+        consented_fields:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consented Fields
+      type: object
+      required:
+      - network_id
+      title: ConsentConsumerUpdateInput
+      description: 'Update a consumer consent record (scope, expiry, or consented
+        fields).
+
+
+        Identity fields are immutable: a consent record is an audit artifact of
+
+        who consented and when. To consent with different identity data, create
+
+        a new consent record instead.'
     ConsumerConsentIdentityInput:
       properties:
         date_of_birth:
@@ -1786,6 +1960,218 @@ components:
       - id
       - identifier
       title: ConsumerSearchResult
+    CoverageCheckEntityOutput:
+      properties:
+        furnishing_entity_id:
+          type: string
+          format: uuid
+          title: Furnishing Entity Id
+        furnishing_entity_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Furnishing Entity Name
+        network_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Network Id
+        complete:
+          type: boolean
+          title: Complete
+        models:
+          items:
+            $ref: '#/components/schemas/CoverageCheckModelOutput'
+          type: array
+          title: Models
+      type: object
+      required:
+      - furnishing_entity_id
+      - complete
+      - models
+      title: CoverageCheckEntityOutput
+    CoverageCheckFieldOutput:
+      properties:
+        field_name:
+          type: string
+          title: Field Name
+        met:
+          type: boolean
+          title: Met
+      type: object
+      required:
+      - field_name
+      - met
+      title: CoverageCheckFieldOutput
+    CoverageCheckInput:
+      properties:
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, each network's default policy is used.
+        network_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: Network Ids
+          description: Networks to query across; the single policy is applied to all
+            of them.
+        furnishing_entity_ids:
+          anyOf:
+          - items:
+              type: string
+              format: uuid
+            type: array
+          - type: 'null'
+          title: Furnishing Entity Ids
+          description: Optional furnishing-entity scope. When omitted or empty, data
+            from all furnishers is considered.
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+          description: Product to coverage-check.
+        consent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Consent Id
+          description: Consent token — system resolves identity.
+        consumer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Id
+          description: Consumer profile primary key (Consumer.id).
+        business_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Id
+          description: Business profile primary key (Business.id).
+      type: object
+      required:
+      - network_ids
+      - product_id
+      title: CoverageCheckInput
+    CoverageCheckModelOutput:
+      properties:
+        model_name:
+          type: string
+          title: Model Name
+        met_count:
+          type: integer
+          title: Met Count
+        total_count:
+          type: integer
+          title: Total Count
+        fields:
+          items:
+            $ref: '#/components/schemas/CoverageCheckFieldOutput'
+          type: array
+          title: Fields
+      type: object
+      required:
+      - model_name
+      - met_count
+      - total_count
+      - fields
+      title: CoverageCheckModelOutput
+    CoverageCheckOutput:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        consumer_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Consumer Id
+        business_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Id
+        entities:
+          items:
+            $ref: '#/components/schemas/CoverageCheckEntityOutput'
+          type: array
+          title: Entities
+      type: object
+      required:
+      - product_id
+      - entities
+      title: CoverageCheckOutput
+    CreateFurnishingPolicyInput:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - product_id
+      - network_id
+      - name
+      title: CreateFurnishingPolicyInput
+      description: 'Body of ``POST /networks/policies/furnishing``.
+
+
+        The dialog presents Product and Network independently; the backend
+
+        resolves ``source_default_slug`` from the product catalogue path and
+
+        creates an empty policy shell (steps and runtime entries are added
+
+        later via workbook ingest or pipeline persistence).'
+    CreateFurnishingPolicyResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        entity_id:
+          type: string
+          format: uuid
+          title: Entity Id
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
+        name:
+          type: string
+          title: Name
+        source_default_slug:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Default Slug
+      type: object
+      required:
+      - id
+      - entity_id
+      - network_id
+      - name
+      title: CreateFurnishingPolicyResult
     CreateQueryingPolicyInput:
       properties:
         product_id:
@@ -1805,13 +2191,23 @@ components:
       - network_id
       - name
       title: CreateQueryingPolicyInput
-      description: "Body of ``POST /networks/policies/querying``.\n\nThe dialog presents\
-        \ two independent dropdowns \u2014 Product and Network \u2014\nso the REST\
-        \ contract carries those ids directly. The backend resolves\n(or auto-creates)\
-        \ the join ``NetworkProduct`` row and creates the\npolicy via the repo layer\
-        \ in a single GraphQL mutation.\n\nPer-model / per-field selections are authored\
-        \ separately via the\nwizard's ``PUT /networks/policies/querying/{policy_id}/configuration``\n\
-        route, so this payload intentionally has no nested ``models`` list."
+      description: 'Body of ``POST /networks/policies/querying``.
+
+
+        The dialog presents two independent dropdowns — Product and Network —
+
+        so the REST contract carries those ids directly. The backend resolves
+
+        (or auto-creates) the join ``NetworkProduct`` row and creates the
+
+        policy via the repo layer in a single GraphQL mutation.
+
+
+        Per-model / per-field selections are authored separately via the
+
+        wizard''s ``PUT /networks/policies/querying/{policy_id}/configuration``
+
+        route, so this payload intentionally has no nested ``models`` list.'
     CreateQueryingPolicyResult:
       properties:
         id:
@@ -1842,13 +2238,40 @@ components:
       title: CreateQueryingPolicyResult
     CrossBankFinancialCrimesWatchListQueryInput:
       properties:
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, each network's default policy is used.
+        network_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: Network Ids
+          description: Networks to query across; the single policy is applied to all
+            of them.
+        furnishing_entity_ids:
+          anyOf:
+          - items:
+              type: string
+              format: uuid
+            type: array
+          - type: 'null'
+          title: Furnishing Entity Ids
+          description: Optional furnishing-entity scope. When omitted or empty, data
+            from all furnishers is considered.
         consent_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         consumer_id:
           anyOf:
           - type: string
@@ -1858,6 +2281,8 @@ components:
           description: Consumer profile primary key (Consumer.id) for permissible-purpose
             queries.
       type: object
+      required:
+      - network_ids
       title: CrossBankFinancialCrimesWatchListQueryInput
     CrossBankFinancialCrimesWatchListQueryOutput:
       properties:
@@ -2549,28 +2974,40 @@ components:
       title: KybCertificateNetworkResult
     KybCertificateQueryInput:
       properties:
-        network_id:
+        policy_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
-          title: Network Id
-          description: Legacy single network scope. Use network_policy instead.
-        network_policy:
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, each network's default policy is used.
+        network_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: Network Ids
+          description: Networks to query across; the single policy is applied to all
+            of them.
+        furnishing_entity_ids:
           anyOf:
           - items:
-              $ref: '#/components/schemas/NetworkQueryParameter'
+              type: string
+              format: uuid
             type: array
           - type: 'null'
-          title: Network Policy
-          description: List of network+policy pairs to query across.
+          title: Furnishing Entity Ids
+          description: Optional furnishing-entity scope. When omitted or empty, data
+            from all furnishers is considered.
         consent_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         business_id:
           anyOf:
           - type: string
@@ -2580,6 +3017,8 @@ components:
           description: Business profile primary key (Business.id) for permissible-purpose
             (FCRA) queries.
       type: object
+      required:
+      - network_ids
       title: KybCertificateQueryInput
     KybCertificateQueryOutput:
       properties:
@@ -2716,28 +3155,40 @@ components:
       title: KycCertificateNetworkResult
     KycCertificateQueryInput:
       properties:
-        network_id:
+        policy_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
-          title: Network Id
-          description: Legacy single network scope. Use network_policy instead.
-        network_policy:
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, each network's default policy is used.
+        network_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: Network Ids
+          description: Networks to query across; the single policy is applied to all
+            of them.
+        furnishing_entity_ids:
           anyOf:
           - items:
-              $ref: '#/components/schemas/NetworkQueryParameter'
+              type: string
+              format: uuid
             type: array
           - type: 'null'
-          title: Network Policy
-          description: List of network+policy pairs to query across.
+          title: Furnishing Entity Ids
+          description: Optional furnishing-entity scope. When omitted or empty, data
+            from all furnishers is considered.
         consent_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         consumer_id:
           anyOf:
           - type: string
@@ -2747,6 +3198,8 @@ components:
           description: Consumer profile primary key (Consumer.id) for permissible-purpose
             (FCRA) queries.
       type: object
+      required:
+      - network_ids
       title: KycCertificateQueryInput
     KycCertificateQueryOutput:
       properties:
@@ -2900,25 +3353,6 @@ components:
       - field_selections
       title: ModelSelectionInput
       description: Per-model wizard payload.
-    NetworkQueryParameter:
-      properties:
-        network_id:
-          type: string
-          format: uuid
-          title: Network Id
-          description: Network scope for this query parameter.
-        policy_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Policy Id
-          description: Explicit querying policy. If omitted, the networks default
-            policy is used.
-      type: object
-      required:
-      - network_id
-      title: NetworkQueryParameter
     QueryResolutionMeta:
       properties:
         network_id:
@@ -2935,6 +3369,67 @@ components:
       required:
       - network_id
       title: QueryResolutionMeta
+    SaveFurnishingPolicyConfigurationInput:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        active_on:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Active On
+        deprecated_on:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Deprecated On
+        enabled_step_names:
+          items:
+            type: string
+          type: array
+          title: Enabled Step Names
+        step_model_defaults:
+          anyOf:
+          - additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          - type: 'null'
+          title: Step Model Defaults
+        step_field_configuration:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Step Field Configuration
+      type: object
+      required:
+      - enabled_step_names
+      title: SaveFurnishingPolicyConfigurationInput
+      description: Body of ``PUT /networks/policies/furnishing/{policy_id}/configuration``.
+    SaveFurnishingPolicyConfigurationResult:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        step_count:
+          type: integer
+          title: Step Count
+      type: object
+      required:
+      - id
+      - name
+      - step_count
+      title: SaveFurnishingPolicyConfigurationResult
     SaveQueryingPolicyConfigurationInput:
       properties:
         model_selections:

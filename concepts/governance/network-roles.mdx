@@ -1,0 +1,202 @@
+---
+title: 'Network Roles'
+description: 'The three ways an entity can participate in a network'
+icon: 'users'
+---
+
+Every entity that participates in a [network](/concepts/governance/networks) does
+so in one or more **roles**. The role determines what the entity is allowed to do
+on that network — administer it, supply data to it, or query data from it.
+
+## The three roles
+
+<CardGroup cols={3}>
+  <Card title="Governor" icon="gavel">
+    Administers the network. Governors manage settings, add and remove participants, and configure how data is allowed to flow between this network and others.
+  </Card>
+  <Card title="Furnisher" icon="arrow-up-to-line">
+    Supplies data into the network. Furnishers write records that other participants can later query, subject to the network's governance rules.
+  </Card>
+  <Card title="Querier" icon="magnifying-glass">
+    Reads data from the network. Queriers retrieve records that have been furnished by other participants in the network.
+  </Card>
+</CardGroup>
+
+## What each role is responsible for
+
+### Governor
+
+The governor is the network's administrator and the accountable party for its
+configuration. In practice a governor:
+
+- **Manages the participant roster** — adds entities to the network with the
+  roles they need, and removes them when an arrangement ends.
+- **Owns the policy surface** — creates and configures the
+  [querying policies](/concepts/governance/querying-policies) and
+  [furnishing policies](/concepts/governance/furnishing-policies) that govern
+  each product in the network.
+- **Sets governance rules** — decides whether related networks may query this
+  one (see [Network Governance](/concepts/governance/network-governance)).
+- **Introduces programs** — program definitions furnished through bulk
+  ingestion are accepted only when the caller governs the target network.
+
+A governor seat is **not** a window into other members' data. Reading data
+still requires the querier role plus [consent](/concepts/identity/consent) and
+[entitlement](/concepts/governance/entitlement), like any other participant.
+
+### Furnisher
+
+The furnisher contributes data. A furnisher:
+
+- **Furnishes product records** — calls `POST /v1/products/{product}/furnish`
+  (or bulk paths like [SFTP](/concepts/sftp/overview) and
+  [file upload](/concepts/furnishing/file-upload)) naming the network,
+  program, and application date.
+- **Earns entitlement by contributing** — each entity a furnisher contributes
+  data about becomes an entity whose consolidated data the furnisher may read
+  back on future queries. See [Entitlement](/concepts/governance/entitlement).
+
+A furnisher does not need to know which furnishing policy applies — the network
+resolves it automatically from the program and application date.
+
+### Querier
+
+The querier consumes data. A querier:
+
+- **Creates consent records** — querying a consumer or business requires a
+  valid [consent](/concepts/identity/consent), so the consent endpoints are part
+  of the querier's day-to-day surface.
+- **Runs product queries** — calls `POST /v1/products/{product}/query` scoped
+  to the networks it participates in (or networks reachable through
+  [governance rules](/concepts/governance/network-governance)).
+- **Searches entities** — looks up consumers and businesses within the
+  network before querying.
+
+What a query returns is never determined by the role alone: the
+[querying policy](/concepts/governance/querying-policies) caps what the product
+may expose in that network, and [entitlement](/concepts/governance/entitlement)
+narrows it to what the caller has earned.
+
+## Role-to-endpoint capability matrix
+
+The table below maps the public `/v1` API surface to the role that exercises
+it. ✓ marks the role an operation belongs to; — means the operation is not
+part of that role's job.
+
+| Endpoint | Governor | Furnisher | Querier |
+|---|:---:|:---:|:---:|
+| `POST /v1/consent/consumer` | — | — | ✓ |
+| `GET /v1/consent/consumer/{consent_id}` | — | — | ✓ |
+| `PUT /v1/consent/consumer/{consent_id}` | — | — | ✓ |
+| `POST /v1/consent/business` | — | — | ✓ |
+| `GET /v1/entities/consumer/search` | ✓ | ✓ | ✓ |
+| `GET /v1/entities/business/search` | ✓ | ✓ | ✓ |
+| `POST /v1/products/{product}/query` | — | — | ✓ |
+| `POST /v1/products/check` (coverage check) | — | — | ✓ |
+| `POST /v1/products/{product}/furnish` | — | ✓ | — |
+| `POST /v1/file-upload/ingest` (data workbooks) | — | ✓ | — |
+| `POST /v1/file-upload/ingest` (program / policy workbooks) | ✓ | — | — |
+| `POST /v1/networks/policies/querying` | ✓ | — | — |
+| `PUT /v1/networks/policies/querying/{policy_id}/configuration` | ✓ | — | — |
+| `POST /v1/networks/policies/furnishing` | ✓ | — | — |
+| `PUT /v1/networks/policies/furnishing/{policy_id}/configuration` | ✓ | — | — |
+| `GET /v1/networks/policies/furnishing` | ✓ | ✓ | ✓ |
+| `GET /v1/networks/policies/furnishing/{policy_id}` | ✓ | ✓ | ✓ |
+| `POST /v1/institution-attestation` | ✓ | ✓ | ✓ |
+
+<Note>
+**How to read this matrix.** It describes the *operational model* — which role
+each operation belongs to in a well-run network. Enforcement happens at
+different layers depending on the operation. Network administration (managing
+memberships, accepting program and policy definitions) is hard-enforced
+against the network's governor. Reads are enforced through network scoping,
+[consent](/concepts/identity/consent), and
+[entitlement](/concepts/governance/entitlement) — so calling a query endpoint
+without the underlying permissions yields an authorization error or an empty
+result rather than data. Don't treat a missing per-endpoint role check as a
+grant of access; SOLO may tighten per-endpoint enforcement over time.
+</Note>
+
+Rows marked for all three roles are member-level operations: any participant
+can search the directory of entities within its network scope, read the
+furnishing policies visible in a network it belongs to, or attest for its own
+institution.
+
+## What each role gates
+
+Each role gates a specific kind of action on the network, and the three gates
+are independent of one another:
+
+| Role | Gates |
+|---|---|
+| **Governor** | Editing the network's settings, adding and removing participants, configuring governance rules, authoring policies, introducing programs |
+| **Furnisher** | Writing data into the network |
+| **Querier** | Reading data from the network |
+
+The gates do not overlap. An entity holding only the furnisher role can write
+data but cannot read it back out — reading requires the querier role on the
+same network (or, via
+[Network Governance](/concepts/governance/network-governance), on a related
+one). The same is true in reverse: a querier cannot furnish data.
+
+This is why most operators who both supply and consume data on a network hold
+both the furnisher and querier roles.
+
+## Roles are additive
+
+An entity can hold more than one role on the same network. A bank that operates
+a network it also furnishes into and queries from will typically hold all three
+roles. SOLO records each role as a separate participation, so revoking one role
+does not affect the others.
+
+The same entity cannot be granted the same role twice on the same network —
+each combination of network, entity, and role is unique.
+
+## Roles are network-specific
+
+Roles do not transfer between networks. An entity that is a governor of one
+network has no automatic role on its parent, child, or cousin networks. To
+participate elsewhere, the entity must be added explicitly to each network it
+operates on.
+
+What *does* transfer is **query access** — a querier on one network may,
+depending on governance rules, be allowed to query data scoped to a related
+network. See [Network Governance](/concepts/governance/network-governance) for
+the full rules.
+
+## Who can change roles
+
+Only a governor of a network can add or remove participants on that network. A
+governor of a parent network cannot directly add or remove roles on a child
+network — they would need to be a governor of the child as well.
+
+Two safety rules apply, and both are enforced server-side:
+
+- **A network must always have at least one governor.** SOLO rejects any
+  change — demotion, reassignment, or removal — that would leave a network with
+  zero governors.
+- **An entity can always remove its own participation** in a network (as long
+  as doing so wouldn't violate the rule above).
+
+Attempts that violate these rules fail with an authorization error in the
+standard envelope (see [Errors](/home/errors)):
+
+```json
+{
+  "detail": "Permission denied",
+  "error_code": "PERMISSION_DENIED"
+}
+```
+
+## What's next
+
+- See [Network Governance](/concepts/governance/network-governance) for how
+  participation translates into query access across the network tree.
+- See [Entitlement](/concepts/governance/entitlement) for why holding a role is
+  necessary but not sufficient to read data.
+
+---
+
+<Note>
+**A note on governors.** SOLO currently distinguishes between a network's *governor entity* (a single entity recorded on the network itself, set when the network is created) and entities holding the *governor role* (which can be more than one). In practice these are kept in sync — the entity that creates a network is recorded as the governor entity and is also granted the governor role automatically. Today, only the entity recorded as the governor entity can edit the network's settings, even if other entities hold the governor role. This distinction is under review and may be removed in a future release; we will update this page when the decision is final.
+</Note>

@@ -1,0 +1,153 @@
+---
+title: 'Workbook Format'
+description: 'File format requirements for SFTP data ingestion'
+icon: 'file-excel'
+---
+
+Every file ingested through the SFTP channel is an Excel workbook (`.xlsx`)
+with the same physical layout, regardless of
+[category](/concepts/sftp/schemas). This page is the authoritative reference
+for that layout: row structure, header matching, cell types, and the
+formatting mistakes that account for nearly all rejected rows.
+
+## File format
+
+- **`.xlsx` only** — the Office Open XML format. Legacy `.xls` and plain CSV
+  files cannot be parsed by the workbook readers; re-save them as `.xlsx`.
+- **First sheet only** — the ingester reads the workbook's first sheet and
+  ignores all others. If your data lives on another tab, move it to position
+  one.
+
+## Row structure
+
+| Row | Purpose |
+|---|---|
+| **Row 1** | Banner row — skipped entirely during processing |
+| **Row 2** | Column headers — defines the field mapping |
+| **Row 3+** | Data rows — each row is processed independently |
+
+<Note>
+  Row 1 is reserved for a human-readable banner (workbook title, version,
+  instructions). It is never parsed — but it must *exist*. Headers in row 1
+  with data starting at row 2 is the single most common formatting error: the
+  ingester will read your headers as a banner and your first data row as
+  headers.
+</Note>
+
+A workbook with no header row at all (fewer than two rows) is rejected
+outright.
+
+## Header normalization
+
+Column headers in row 2 are normalized before matching:
+
+1. Leading and trailing whitespace is stripped.
+2. The text is converted to **lowercase**.
+3. Every run of non-alphanumeric characters (spaces, punctuation, symbols —
+   however many in a row) is collapsed to a single **underscore** (`_`).
+4. Leading and trailing underscores are stripped.
+
+This means the following headers are all equivalent:
+
+| Raw Header | Normalized |
+|---|---|
+| `KYC Policy Name` | `kyc_policy_name` |
+| `Program #` | `program` |
+| `Date of Birth` | `date_of_birth` |
+| `End Date (if Applicable)` | `end_date_if_applicable` |
+| `Business Tax Identifier (Value)` | `business_tax_identifier_value` |
+| `Permitted Purpose Scope(s)` | `permitted_purpose_scope_s` |
+
+Fields are matched by normalized header name, **never by position** — you can
+reorder columns freely. Three consequences of name-based matching:
+
+- **Unknown headers are ignored with a warning.** Extra columns don't break
+  ingestion; they're simply skipped. But note this cuts both ways — a
+  *misspelled* required header is an unknown header, and the workbook will be
+  rejected for the missing required one.
+- **Duplicate headers reject the whole workbook.** Two columns that normalize
+  to the same field (e.g. `First Name` and `first_name`) are ambiguous; the
+  error names both column positions.
+- **Missing required headers reject the whole workbook.** The error lists
+  every missing header. This is a file-level failure — fix the header row and
+  re-upload. See [Upload Categories](/concepts/sftp/schemas) for which headers
+  each category requires.
+
+<Tip>
+  "Required column" means the **header** must be present in row 2. Whether an
+  individual *cell* may be blank is a per-field rule — see the
+  required/optional markers in the [category reference](/concepts/sftp/schemas).
+</Tip>
+
+## Cell types and formats
+
+| Type | Accepted input | Recommended | Notes |
+|---|---|---|---|
+| **String** | Text cells; numeric cells are coerced | Text-formatted cells | A numeric cell like `123.0` is read as `"123"`. **Excel drops leading zeros in numeric cells** — format identifier columns (SSN, tax IDs) as Text. |
+| **Date** | Excel date/datetime cells, or ISO 8601 text (`2026-01-15`) | Native Excel date cells | Text in other formats (`01/15/2026`, `Jan 15, 2026`) is rejected. Only the date portion is used — `2026-01-15T10:30:00` parses, but the time is discarded. |
+| **Application date** | Same as Date | Native Excel date cells | Parsed as a calendar date and normalized; time-of-day is not preserved. Drives [policy resolution](/concepts/governance/furnishing-policies), so use the real application date. |
+| **Boolean** (policy operation flags) | `true`/`false`, `yes`/`no`, `y`/`n`, `1`/`0` (case-insensitive), or numeric `1`/`0` cells | `true` / `false` | A **blank flag cell is read as `false`**. Anything else (e.g. `enabled`) rejects the row. |
+| **Empty** | Leave the cell blank | — | Optional fields deserialize to null. A blank cell in a required field rejects that row. |
+
+## Rows that are skipped on purpose
+
+Two kinds of rows are silently skipped — they don't count as errors:
+
+- **Example rows.** Rows whose identifier column starts with **`Ex.`** are
+  treated as template examples. The identifier column depends on the
+  category: `File #` for data workbooks, `Program #` for programs, and the
+  policy-number column (`KYC Policy` / `KYB Policy`) for policy workbooks.
+  Use these to keep in-workbook guidance without affecting ingestion.
+- **Blank rows.** Rows missing their identifying values entirely — a data row
+  with no file number and no program name, a program row with no program
+  name, a policy row with no policy name — are treated as empty padding and
+  skipped.
+
+## Formula cells
+
+Workbooks are read using **cached formula results**, not live evaluation. If
+a cell contains a formula that has never been calculated and saved (typical
+when the file was generated programmatically and never opened in Excel), the
+ingester detects the uncached formula and **rejects that row**, listing the
+offending column names in the error — it will not silently treat the cell as
+blank.
+
+To avoid this: open and save the workbook in Excel with calculation enabled,
+or write literal values (or pre-computed cached values) when generating files
+programmatically.
+
+## Common mistakes
+
+| Mistake | What happens | Fix |
+|---|---|---|
+| Headers in row 1, data from row 2 | Headers read as banner; first data row read as headers → "missing required headers" | Put a banner (or blank row) in row 1, headers in row 2 |
+| Saved as `.xls` or `.csv` | File can't be parsed | Re-save as `.xlsx` |
+| Data on the second sheet | Sheet ignored; first sheet (often empty) is parsed | Move data to the first sheet |
+| SSN/EIN in a numeric cell | Leading zeros silently dropped → wrong identifier, wrong entity match | Format identifier columns as Text |
+| US-style date text (`01/15/2026`) | Row rejected: expected an ISO date | Use Excel date cells or `2026-01-15` |
+| Misspelled header (`plicy_name`) | Treated as unknown column; workbook rejected for the missing required header | Copy headers from the [templates](/concepts/sftp/schemas) |
+| Two columns normalizing to one field | Whole workbook rejected as duplicate header | Delete the duplicate column |
+| Formula never calculated | Row rejected, error lists the columns | Open + save in Excel, or write literal values |
+| Real data prefixed `Ex.` | Row silently skipped as a template example | Remove the `Ex.` prefix |
+| Blank operation-flag cell expected to mean "true" | Read as `false` | Set flags explicitly: `true` / `false` |
+
+<AccordionGroup>
+  <Accordion title="Why is the whole file rejected for one bad header, but not for one bad row?">
+    Header problems are structural — without the right headers the ingester
+    can't trust its reading of *any* row, so it fails fast with a list of
+    what's missing or duplicated. Cell-level problems are local — each data
+    row is parsed and ingested independently, so a bad date in row 17 produces
+    one row error while rows 3–16 and 18+ proceed normally.
+  </Accordion>
+  <Accordion title="How do I check what failed?">
+    The dashboard's uploads view reports per-row outcomes, including the
+    spreadsheet row number (counted as Excel displays it, banner and header
+    included) and a human-readable message naming the offending column. Fix
+    the rows and re-upload under a new filename — data rows
+    [upsert on natural keys](/concepts/sftp/overview#what-happens-on-upload),
+    so corrected rows update rather than duplicate.
+  </Accordion>
+</AccordionGroup>
+
+For the exact columns each category expects, continue to
+[Upload Categories](/concepts/sftp/schemas).
