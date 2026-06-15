@@ -4,18 +4,58 @@ description: 'What the SOLO Network is, who participates in it, and where each k
 icon: 'globe'
 ---
 
-The SOLO Network is a shared data network for identity, compliance, and
-financial verification. Banks and other institutions **furnish** verified data
-about consumers and businesses into networks they belong to, and **query** that
-data back — under explicit, auditable rules about who can read what, and why.
+SOLO is **not a data aggregator**. It is a reusable verification network.
 
-Instead of integrating with dozens of verification vendors one at a time, you
-connect to SOLO once and work with standardized **products** — a KYC
-certificate, a KYB certificate, screening lists — inside a
+A data provider answers *"what can we discover about this business or
+consumer?"* — and every institution starts that discovery from scratch. SOLO
+answers a different question: *"what has already been verified about this
+subject, who verified it, on what evidence, and can I safely reuse it?"* When
+one institution verifies a consumer or business, that completed work becomes a
+**reusable, permissioned, attributable result** that other participants can
+build on instead of repeating.
+
+> Data providers help you *verify* a business. SOLO helps you avoid *verifying
+> the same business again.*
+
+Banks and other institutions **furnish** verified data about consumers and
+businesses into networks they belong to, and **query** that data back — under
+explicit, auditable rules about who can read what, and why. Instead of
+integrating with dozens of verification vendors one at a time, you connect to
+SOLO once and work with standardized **products** — a KYC certificate, a KYB
+certificate, screening lists — inside a
 [network](/concepts/governance/networks) of participants you already trust.
 Every read is gated by the subject's [consent](/concepts/identity/consent),
 shaped by the network's policies, and limited to the fields you are entitled to
 see.
+
+## Verify once, reuse everywhere
+
+In the traditional model, every application triggers a fresh round of
+verification. Three banks onboarding the same business each collect the same
+documents, run the same registry lookups, and trace the same ownership — paying
+again to rediscover the same facts. In a SOLO network, the first verification
+is preserved as a reusable result; later participants reuse it, with full
+provenance, and only do the work that is genuinely missing.
+
+```mermaid
+flowchart TB
+    subgraph traditional [Traditional verification - repeat every time]
+        direction LR
+        A1[Application 1] --> V1["Verify identity, ownership, income"] --> D1[Decision]
+        A2[Application 2] --> V2["Verify identity, ownership, income"] --> D2[Decision]
+        A3[Application 3] --> V3["Verify identity, ownership, income"] --> D3[Decision]
+    end
+    subgraph solo [SOLO network - verify once and reuse]
+        direction LR
+        S1[Application 1] --> SV1["Verify once"] --> TA[("Reusable verified result")]
+        S2[Application 2] --> TA
+        S3[Application 3] --> TA
+        TA --> SD["Decision faster"]
+    end
+```
+
+See [How SOLO is different](/home/why-solo) for the full contrast with
+traditional data and KYB/KYC providers.
 
 ## How the network works
 
@@ -128,7 +168,13 @@ switch base URLs.
 
 ## Next steps
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
+  <Card title="How SOLO is different" icon="arrows-rotate" href="/home/why-solo">
+    Why SOLO is a reusable trust network, not a data aggregator.
+  </Card>
+  <Card title="Trust assets" icon="award" href="/concepts/trust/trust-assets">
+    How a furnished verification becomes reusable, with provenance intact.
+  </Card>
   <Card title="Quickstart" icon="rocket" href="/home/quickstart">
     Furnish an entity, query a product, and join a network — hands-on, in
     minutes.

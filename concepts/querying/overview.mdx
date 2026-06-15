@@ -1,12 +1,30 @@
 ---
-title: 'Querying'
-description: 'How reading data from the network works, and why consent is required'
+title: 'Network consumption'
+description: 'How reusing verified work from the network works, and why consent is required'
 icon: 'magnifying-glass'
 ---
 
-**Querying** reads consolidated data about an entity from the network. A single
+**Querying** is how a participant consumes the network: it reads consolidated,
+already-verified data about an entity instead of re-collecting it. A single
 query brings together four concepts — a **network**, a **policy**, a **product**,
 and a **consumer** (or business) — gated by **consent**.
+
+## Why consume network data
+
+You query to reuse work, not to "buy data." A query returns a
+[trust asset](/concepts/trust/trust-assets) — an attested verification with its
+provenance intact — so the outcome is operational, not informational:
+
+- **Faster onboarding** — reuse a verified [KYC](/concepts/querying/kyc-certificate)
+  or [KYB](/concepts/querying/kyb-certificate) certificate instead of repeating
+  document collection and review.
+- **Less manual review** — start from another institution's completed,
+  evidenced verification rather than from zero.
+- **Do only the missing work** — a [coverage check](/concepts/querying/coverage-check)
+  tells you what already exists, so you collect only what's genuinely absent.
+
+Read it as *"check whether verified trust assets already exist for this
+subject,"* not *"fetch a data record."*
 
 ## How querying works
 
@@ -306,6 +324,24 @@ A robust querying integration usually looks like this:
    records for audit, support, and billing reconciliation.
 5. **Treat missing fields as an entitlement question first** — check what
    you've furnished and what the policy exposes before raising a data issue.
+
+## The network control plane
+
+Reuse is safe because it is governed by independent controls — the network's
+control plane. Every one of these exists today; none can be bypassed by a single
+actor:
+
+| Control | What it governs | Where it's defined |
+|---|---|---|
+| **Consent** | Whether a subject's data may be read at all, its scope, and its expiry | [Consent](/concepts/identity/consent) (`scope`, `expires_at`, `consented_fields`) |
+| **Entitlement** | Which fields a given reader may see, earned by participation | [Entitlement](/concepts/governance/entitlement) |
+| **Querying policy** | What a product exposes, and how fresh it must be to count | [Querying policies](/concepts/governance/querying-policies) (freshness windows) |
+| **`204` on insufficiency** | Refusal to return stale or incomplete results | This page — `204 No Content` |
+
+A governor controls policy but not consent; a subject controls consent but not
+entitlement; your own history determines entitlement but not policy. That
+separation is what lets institutions reuse each other's work without anyone
+losing control of their own.
 
 ## Related concepts
 

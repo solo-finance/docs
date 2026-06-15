@@ -1,0 +1,119 @@
+---
+title: 'Consumer graph'
+description: 'What can actually be verified about a consumer in the network, and how each branch becomes a reusable trust asset'
+icon: 'user'
+---
+
+The **consumer graph** is everything a SOLO network can hold about a person: a
+core identity, plus the verification events participants have furnished about
+them. Each branch is a candidate [trust asset](/concepts/trust/trust-assets) —
+an attested verification another institution can reuse instead of repeating.
+
+This page shows what lives in the graph **today**. Every node maps to a real
+model; branches with no backing model (for example consumer assets, liabilities,
+or bank-account inventories) are deliberately absent rather than implied.
+
+## The graph
+
+```text
+Consumer
+├── Identity                         (consumer)
+│   ├── first_name, last_name
+│   ├── date_of_birth
+│   ├── personal_email
+│   ├── phone_number
+│   └── social_security_number
+│
+├── Identity verification — KYC      (KYC certificate sub-products)
+│   ├── Document capture & review    (document_capture_event, identity_document)
+│   ├── Biometric capture & review   (biometric_capture_event)
+│   ├── Liveness capture & review    (liveness_check_event)
+│   ├── Address capture & verification (address_capture_event)
+│   └── Identity corroboration       (identity_verification_event)
+│       └── is_ssn_match, is_name_match, is_dob_match, kyc_decision
+│
+├── Address verification             (address_verification)
+│   └── is_match, address_match_quality, address_verification_method_type
+│
+├── Income                           (income_verification_event)
+│   ├── base_salary, monthly_income
+│   ├── bonus_commission_income, overtime_income
+│   ├── debt_to_income_ratio
+│   └── paystub_upload (evidence)
+│
+├── Employment                       (employment_verification_event)
+│   ├── employer_name, job_title
+│   ├── employment_status, employment_type
+│   ├── employment_start_date, length_of_employment_months
+│   └── employer_letter_of_employment_upload (evidence)
+│
+├── Phone                            (phone_number_verification)
+│   └── phone_carrier_name, phone_age_days, phone_risk_score
+│
+├── Fraud signals                    (fraud_verification_event)
+│   ├── confirmed_fraud_indicator
+│   ├── fraud_attribute_label, fraud_loss_event_category
+│   └── fraud_event_date
+│
+└── Consent                          (consumer consent)
+    └── scope, expires_at, consented_fields
+```
+
+## How to read the graph
+
+- **Identity** is the [entity](/concepts/identity/entities) itself — the
+  matching keys (SSN, date of birth) that let contributions from different
+  participants accrue to one person.
+- **Verification branches** are furnished events. The richest is **KYC**, which
+  a [KYC certificate](/concepts/querying/kyc-certificate) query consolidates
+  into up to nine sub-products. Income, employment, phone, and fraud are
+  separate verification-event models that can also be furnished about a
+  consumer.
+- **Consent** is not data *about* the consumer so much as the permission layer
+  that governs reading any of it.
+
+## Each branch carries provenance
+
+A branch only becomes a reusable trust asset because its lineage travels with
+it. Certificate sub-products always carry the `furnishing_entity_id` and
+`attestation_id` of the participant whose data backed them, plus an `assertions`
+block recording what was asserted and when. Evidence is concrete — a paystub
+upload behind an income event, a captured document behind identity
+verification. See [Provenance](/concepts/trust/provenance) for the full lineage
+model.
+
+<Note>
+  What you can actually read back is the intersection of the network's
+  [querying policy](/concepts/governance/querying-policies) and your
+  [entitlement](/concepts/governance/entitlement). The graph describes what
+  *can* exist; consent, policy, and entitlement decide what *you* see.
+</Note>
+
+## Reusable trust assets for a consumer
+
+Consolidated through products, the consumer graph yields reusable assets such
+as:
+
+- **Verified identity** — a [KYC certificate](/concepts/querying/kyc-certificate)
+  consolidating document, biometric, liveness, address, and corroboration
+  evidence.
+- **Verified address** — address capture and verification outcomes.
+- **Fraud screening** — [screening list](/concepts/querying/screening-lists)
+  results drawn from furnished fraud signals.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Business graph" icon="building" href="/concepts/trust/business-graph">
+    The equivalent for businesses.
+  </Card>
+  <Card title="KYC Certificate" icon="id-card" href="/concepts/querying/kyc-certificate">
+    The consolidated identity trust asset, field by field.
+  </Card>
+  <Card title="Trust assets" icon="award" href="/concepts/trust/trust-assets">
+    What makes a verification reusable.
+  </Card>
+  <Card title="Provenance" icon="fingerprint" href="/concepts/trust/provenance">
+    The lineage each branch carries.
+  </Card>
+</CardGroup>

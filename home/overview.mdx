@@ -4,11 +4,30 @@ description: 'The six building blocks of the SOLO Network, the data flow that co
 icon: 'shapes'
 ---
 
-The SOLO Network is a shared data network. Participants furnish verified data
+The SOLO Network turns one institution's completed verification work into
+another institution's trusted starting point. Participants furnish verified data
 about consumers and businesses, and query that data back — under clear rules
 about who can read what, and why. Six concepts power everything you do with the
 API. Once you understand them and the order they come into play, every endpoint
 in the [reference](/api-reference/introduction) reads naturally.
+
+The architecture is not internal plumbing you can ignore — it *is* the trust
+mechanism. Each building block exists to answer a question a bank's risk and
+compliance teams must be able to answer before they reuse another institution's
+work:
+
+| Building block | Trust question it answers |
+|---|---|
+| Network | Inside which boundary of trusted participants does this data live? |
+| Entity | Who is the subject being verified? |
+| Consent | Did the subject permit this read? |
+| Product | What standardized, reusable result am I asking for? |
+| Policy | What may be read, and how fresh must it be, to count? |
+| Entitlement | Of what the policy exposes, what may *I* see — and why? |
+
+Read [How SOLO is different](/home/why-solo) for why this matters, and
+[Trust assets](/concepts/trust/trust-assets) for how a furnished verification
+becomes something reusable.
 
 ## The building blocks
 

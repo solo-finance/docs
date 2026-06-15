@@ -53,6 +53,7 @@
             "group": "Getting Started",
             "pages": [
               "home/welcome",
+              "home/why-solo",
               "home/overview",
               "home/authentication",
               "home/errors"
@@ -66,12 +67,28 @@
               "home/quickstart/query-a-product",
               "home/quickstart/join-a-network"
             ]
+          },
+          {
+            "group": "Golden paths",
+            "pages": [
+              "home/quickstart/business-lending-onboarding",
+              "home/quickstart/network-consumption"
+            ]
           }
         ]
       },
       {
         "tab": "Concepts",
         "groups": [
+          {
+            "group": "Trust model",
+            "pages": [
+              "concepts/trust/trust-assets",
+              "concepts/trust/consumer-graph",
+              "concepts/trust/business-graph",
+              "concepts/trust/provenance"
+            ]
+          },
           {
             "group": "Networks & Governance",
             "pages": [
@@ -91,7 +108,7 @@
             ]
           },
           {
-            "group": "Furnishing Data",
+            "group": "Contributing data",
             "pages": [
               "concepts/furnishing/overview",
               "concepts/furnishing/file-upload",
@@ -107,7 +124,7 @@
             ]
           },
           {
-            "group": "Querying Data",
+            "group": "Consuming data",
             "pages": [
               "concepts/querying/overview",
               "concepts/querying/products",
