@@ -4,6 +4,16 @@
     "title": "SOLO Network API",
     "version": "v1"
   },
+  "servers": [
+    {
+      "url": "https://api.solo.one",
+      "description": "Production"
+    },
+    {
+      "url": "https://api.sandbox.solo.one",
+      "description": "Sandbox"
+    }
+  ],
   "paths": {
     "/v1/consent/business": {
       "post": {
@@ -669,51 +679,6 @@
       }
     },
     "/v1/networks/policies/furnishing": {
-      "post": {
-        "tags": [
-          "Furnishing Policies"
-        ],
-        "summary": "Create a furnishing policy for a (product, network) pair.",
-        "description": "Create a new furnishing policy shell for a (product, network) pair.\n\nThe ``(network_id, product_id)`` pair determines ``source_default_slug``\nfrom the product catalogue path. Pipeline steps and runtime entries are\nadded later via workbook ingest or ``persistFurnishingPolicy``.",
-        "operationId": "create_furnishing_policy_v1_networks_policies_furnishing_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFurnishingPolicyInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateFurnishingPolicyResult"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
       "get": {
         "tags": [
           "Furnishing Policies"
@@ -778,65 +743,6 @@
                     "$ref": "#/components/schemas/FurnishingPolicyResult"
                   },
                   "title": "Response List Furnishing Policies V1 Networks Policies Furnishing Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/networks/policies/furnishing/{policy_id}/configuration": {
-      "put": {
-        "tags": [
-          "Furnishing Policies"
-        ],
-        "summary": "Save pipeline step selection onto an existing furnishing policy.",
-        "description": "Replace child pipeline rows on a draft furnishing policy.",
-        "operationId": "save_furnishing_policy_configuration_v1_networks_policies_furnishing__policy_id__configuration_put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "policy_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Policy Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SaveFurnishingPolicyConfigurationInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SaveFurnishingPolicyConfigurationResult"
                 }
               }
             }
@@ -1010,6 +916,52 @@
         ]
       }
     },
+    "/v1/products/kyc_certificate/furnish_via_upload": {
+      "post": {
+        "tags": [
+          "KYC Certificate"
+        ],
+        "summary": "Furnish KYC certificate data via Excel file upload",
+        "operationId": "kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KycCertificateFurnishOutput"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/v1/products/kyb_certificate/query": {
       "post": {
         "tags": [
@@ -1071,6 +1023,52 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/KybCertificateFurnishInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KybCertificateFurnishOutput"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/products/kyb_certificate/furnish_via_upload": {
+      "post": {
+        "tags": [
+          "KYB Certificate"
+        ],
+        "summary": "Furnish KYB certificate data via Excel file upload",
+        "operationId": "kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post"
               }
             }
           },
@@ -1410,6 +1408,79 @@
         "type": "object",
         "title": "AddressCaptureData"
       },
+      "AddressCaptureEventInput": {
+        "properties": {
+          "is_address_captured": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Address Captured"
+          },
+          "address_capture_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Capture Timestamp"
+          },
+          "is_address_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Address Verified"
+          },
+          "address_verification_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Verification Timestamp"
+          },
+          "is_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Match"
+          },
+          "address_verification_method_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Verification Method Type"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "AddressCaptureEventInput"
+      },
       "AddressCaptureSubProduct": {
         "properties": {
           "furnishing_entity_id": {
@@ -1449,6 +1520,104 @@
           "data"
         ],
         "title": "AddressCaptureSubProduct"
+      },
+      "AddressInput": {
+        "properties": {
+          "line_1": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line 1"
+          },
+          "line_2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line 2"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "zip": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zip"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "address_capture_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AddressCaptureEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Capture Events"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "AddressInput"
       },
       "AddressVerificationAssertions": {
         "properties": {
@@ -1801,6 +1970,79 @@
         "type": "object",
         "title": "BiometricCaptureData"
       },
+      "BiometricCaptureEventInput": {
+        "properties": {
+          "is_biometric_captured": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Biometric Captured"
+          },
+          "biometric_capture_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Capture Timestamp"
+          },
+          "biometric_artifact_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Artifact Type"
+          },
+          "biometric_artifact_upload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Artifact Upload"
+          },
+          "is_biometric_attribute_reviewed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Biometric Attribute Reviewed"
+          },
+          "biometric_attribute_review_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Attribute Review Timestamp"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "BiometricCaptureEventInput"
+      },
       "BiometricCaptureSubProduct": {
         "properties": {
           "furnishing_entity_id": {
@@ -1963,6 +2205,34 @@
           "slug"
         ],
         "title": "Body_ingest_csv_v1_file_upload_ingest_post"
+      },
+      "Body_kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post"
+      },
+      "Body_kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post"
       },
       "BusinessAddressOutput": {
         "properties": {
@@ -2278,6 +2548,156 @@
         "type": "object",
         "title": "BusinessIdentityVerificationData"
       },
+      "BusinessIdentityVerificationEventInput": {
+        "properties": {
+          "is_identity_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Identity Verified"
+          },
+          "identity_verification_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Verification Timestamp"
+          },
+          "identity_verification_overall_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Verification Overall Status"
+          },
+          "tax_id_validation_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Id Validation Result"
+          },
+          "address_verification_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Verification Result"
+          },
+          "registration_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Status"
+          },
+          "registration_identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Identifier"
+          },
+          "jurisdiction_of_formation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jurisdiction Of Formation"
+          },
+          "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Type"
+          },
+          "dba_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dba Name"
+          },
+          "website_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website Url"
+          },
+          "formation_document_artifact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formation Document Artifact"
+          },
+          "operational_existence_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operational Existence Status"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "BusinessIdentityVerificationEventInput"
+      },
       "BusinessIdentityVerificationSubProduct": {
         "properties": {
           "furnishing_entity_id": {
@@ -2524,6 +2944,101 @@
         },
         "type": "object",
         "title": "BusinessOwnershipControlVerificationData"
+      },
+      "BusinessOwnershipControlVerificationEventInput": {
+        "properties": {
+          "is_ownership_control_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Ownership Control Verified"
+          },
+          "ownership_control_verification_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownership Control Verification Timestamp"
+          },
+          "ownership_control_verification_overall_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownership Control Verification Overall Status"
+          },
+          "ownership_control_verification_overall_primary_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownership Control Verification Overall Primary Source"
+          },
+          "beneficial_owners_identified_count": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beneficial Owners Identified Count"
+          },
+          "control_persons_identified_count": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Persons Identified Count"
+          },
+          "authority_determination_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authority Determination Basis"
+          },
+          "ownership_evidence_artifact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownership Evidence Artifact"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "BusinessOwnershipControlVerificationEventInput"
       },
       "BusinessOwnershipControlVerificationSubProduct": {
         "properties": {
@@ -2790,6 +3305,101 @@
           "data"
         ],
         "title": "BusinessRiskComplianceAssessmentSubProduct"
+      },
+      "BusinessRiskComplianceEventInput": {
+        "properties": {
+          "is_risk_compliance_assessed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Risk Compliance Assessed"
+          },
+          "risk_compliance_assessment_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Compliance Assessment Timestamp"
+          },
+          "risk_compliance_assessment_overall_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Compliance Assessment Overall Status"
+          },
+          "sanctions_screening_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sanctions Screening Result"
+          },
+          "adverse_media_assessment_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adverse Media Assessment Result"
+          },
+          "activity_risk_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Risk Level"
+          },
+          "primary_activity_classification_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Activity Classification Code"
+          },
+          "primary_activity_classification_system": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Activity Classification System"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "BusinessRiskComplianceEventInput"
       },
       "BusinessSearchResult": {
         "properties": {
@@ -3301,6 +3911,12 @@
             "type": "boolean",
             "title": "Complete"
           },
+          "hit": {
+            "type": "boolean",
+            "title": "Hit",
+            "description": "Whether the furnisher has any data for the checked product.",
+            "default": false
+          },
           "models": {
             "items": {
               "$ref": "#/components/schemas/CoverageCheckModelOutput"
@@ -3442,6 +4058,12 @@
             "type": "integer",
             "title": "Total Count"
           },
+          "hit": {
+            "type": "boolean",
+            "title": "Hit",
+            "description": "Whether the furnisher has any row for this model at all. A hit with a low met_count signals data that exists but is not (fully) accessible under the current consent.",
+            "default": false
+          },
           "fields": {
             "items": {
               "$ref": "#/components/schemas/CoverageCheckFieldOutput"
@@ -3504,74 +4126,6 @@
           "entities"
         ],
         "title": "CoverageCheckOutput"
-      },
-      "CreateFurnishingPolicyInput": {
-        "properties": {
-          "product_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Product Id"
-          },
-          "network_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Network Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          }
-        },
-        "type": "object",
-        "required": [
-          "product_id",
-          "network_id",
-          "name"
-        ],
-        "title": "CreateFurnishingPolicyInput",
-        "description": "Body of ``POST /networks/policies/furnishing``.\n\nThe dialog presents Product and Network independently; the backend\nresolves ``source_default_slug`` from the product catalogue path and\ncreates an empty policy shell (steps and runtime entries are added\nlater via workbook ingest or pipeline persistence)."
-      },
-      "CreateFurnishingPolicyResult": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "entity_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Entity Id"
-          },
-          "network_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Network Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "source_default_slug": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Default Slug"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "entity_id",
-          "network_id",
-          "name"
-        ],
-        "title": "CreateFurnishingPolicyResult"
       },
       "CreateQueryingPolicyInput": {
         "properties": {
@@ -3875,6 +4429,57 @@
         },
         "type": "object",
         "title": "DocumentCaptureData"
+      },
+      "DocumentCaptureEventInput": {
+        "properties": {
+          "is_document_captured": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Document Captured"
+          },
+          "document_capture_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Capture Timestamp"
+          },
+          "is_document_attribute_reviewed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Document Attribute Reviewed"
+          },
+          "document_attribute_review_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Attribute Review Timestamp"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "DocumentCaptureEventInput"
       },
       "DocumentCaptureSubProduct": {
         "properties": {
@@ -4597,6 +5202,115 @@
         ],
         "title": "IdentityCorroborationSubProduct"
       },
+      "IdentityDocumentInput": {
+        "properties": {
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "issue_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue Date"
+          },
+          "expiration_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiration Date"
+          },
+          "issuing_authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuing Authority"
+          },
+          "upload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upload"
+          },
+          "are_security_features_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Are Security Features Verified"
+          },
+          "is_tampering_detected": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Tampering Detected"
+          },
+          "identity_verification_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IdentityVerificationEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Verification Events"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "IdentityDocumentInput"
+      },
       "IdentityInput": {
         "properties": {
           "business_dba_name": {
@@ -4663,6 +5377,101 @@
           "business_registration_identifier_from_jurisdiction_of_formation"
         ],
         "title": "IdentityInput"
+      },
+      "IdentityVerificationEventInput": {
+        "properties": {
+          "is_kyccip": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Kyccip"
+          },
+          "kyc_decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kyc Decision"
+          },
+          "is_ssn_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Ssn Match"
+          },
+          "is_dob_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Dob Match"
+          },
+          "is_name_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Name Match"
+          },
+          "ssn_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ssn Verified"
+          },
+          "name_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Verified"
+          },
+          "selfie_verification_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selfie Verification Result"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "IdentityVerificationEventInput"
       },
       "InstitutionAttestationCreateRequest": {
         "properties": {
@@ -4846,6 +5655,35 @@
               }
             ],
             "title": "Submission Id"
+          },
+          "profile_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Ids"
+          },
+          "counts": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counts"
           }
         },
         "type": "object",
@@ -4853,11 +5691,17 @@
       },
       "KybCertificateFurnishRecord": {
         "properties": {
-          "business_legal_name": {
-            "type": "string",
-            "title": "Business Legal Name"
+          "federal_ein": {
+            "type": "integer",
+            "title": "Federal Ein",
+            "description": "Federal EIN \u2014 business match key."
           },
-          "business_ein": {
+          "business_jurisdiction_of_formation": {
+            "type": "string",
+            "title": "Business Jurisdiction Of Formation",
+            "description": "Jurisdiction of formation \u2014 business match key."
+          },
+          "business_legal_name": {
             "anyOf": [
               {
                 "type": "string"
@@ -4866,12 +5710,77 @@
                 "type": "null"
               }
             ],
-            "title": "Business Ein"
+            "title": "Business Legal Name"
+          },
+          "business_dba_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Dba Name"
+          },
+          "business_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Email"
+          },
+          "business_identity_verification_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BusinessIdentityVerificationEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Identity Verification Events"
+          },
+          "business_ownership_control_verification_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BusinessOwnershipControlVerificationEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Ownership Control Verification Events"
+          },
+          "business_risk_compliance_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BusinessRiskComplianceEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Risk Compliance Events"
           }
         },
         "type": "object",
         "required": [
-          "business_legal_name"
+          "federal_ein",
+          "business_jurisdiction_of_formation"
         ],
         "title": "KybCertificateFurnishRecord"
       },
@@ -5087,6 +5996,35 @@
               }
             ],
             "title": "Submission Id"
+          },
+          "profile_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Ids"
+          },
+          "counts": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counts"
           }
         },
         "type": "object",
@@ -5109,6 +6047,76 @@
           "social_security_number": {
             "type": "string",
             "title": "Social Security Number"
+          },
+          "document_capture_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DocumentCaptureEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Capture Events"
+          },
+          "biometric_capture_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BiometricCaptureEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Capture Events"
+          },
+          "liveness_check_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LivenessCheckEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liveness Check Events"
+          },
+          "identity_documents": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IdentityDocumentInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Documents"
+          },
+          "addresses": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AddressInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Addresses"
           }
         },
         "type": "object",
@@ -5431,6 +6439,79 @@
         ],
         "title": "LivenessCaptureSubProduct"
       },
+      "LivenessCheckEventInput": {
+        "properties": {
+          "is_liveness_captured": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Liveness Captured"
+          },
+          "capture_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capture Timestamp"
+          },
+          "capture_method_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capture Method Type"
+          },
+          "check_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Check Result"
+          },
+          "is_liveness_evidence_reviewed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Liveness Evidence Reviewed"
+          },
+          "evidence_review_timestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Review Timestamp"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "LivenessCheckEventInput"
+      },
       "LivenessReviewAssertions": {
         "properties": {
           "liveness_review_assertion": {
@@ -5583,109 +6664,6 @@
           "network_id"
         ],
         "title": "QueryResolutionMeta"
-      },
-      "SaveFurnishingPolicyConfigurationInput": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name"
-          },
-          "active_on": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Active On"
-          },
-          "deprecated_on": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Deprecated On"
-          },
-          "enabled_step_names": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Enabled Step Names"
-          },
-          "step_model_defaults": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "additionalProperties": true,
-                  "type": "object"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Step Model Defaults"
-          },
-          "step_field_configuration": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Step Field Configuration"
-          }
-        },
-        "type": "object",
-        "required": [
-          "enabled_step_names"
-        ],
-        "title": "SaveFurnishingPolicyConfigurationInput",
-        "description": "Body of ``PUT /networks/policies/furnishing/{policy_id}/configuration``."
-      },
-      "SaveFurnishingPolicyConfigurationResult": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "step_count": {
-            "type": "integer",
-            "title": "Step Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "step_count"
-        ],
-        "title": "SaveFurnishingPolicyConfigurationResult"
       },
       "SaveQueryingPolicyConfigurationInput": {
         "properties": {
