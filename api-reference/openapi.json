@@ -832,7 +832,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KycCertificateQueryInput"
+                "$ref": "#/components/schemas/KYCCertificateQueryInput"
               }
             }
           },
@@ -844,7 +844,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KycCertificateQueryOutput"
+                  "$ref": "#/components/schemas/KYCCertificateQueryOutput"
                 }
               }
             }
@@ -881,7 +881,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KycCertificateFurnishInput"
+                "$ref": "#/components/schemas/KYCCertificateFurnishInput"
               }
             }
           },
@@ -893,7 +893,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KycCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/KYCCertificateFurnishOutput"
                 }
               }
             }
@@ -939,7 +939,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KycCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/KYCCertificateFurnishOutput"
                 }
               }
             }
@@ -973,7 +973,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KybCertificateQueryInput"
+                "$ref": "#/components/schemas/KYBCertificateQueryInput"
               }
             }
           },
@@ -985,7 +985,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KybCertificateQueryOutput"
+                  "$ref": "#/components/schemas/KYBCertificateQueryOutput"
                 }
               }
             }
@@ -1022,7 +1022,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KybCertificateFurnishInput"
+                "$ref": "#/components/schemas/KYBCertificateFurnishInput"
               }
             }
           },
@@ -1034,7 +1034,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KybCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/KYBCertificateFurnishOutput"
                 }
               }
             }
@@ -1080,7 +1080,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KybCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/KYBCertificateFurnishOutput"
                 }
               }
             }
@@ -5400,7 +5400,7 @@
                 "type": "null"
               }
             ],
-            "title": "Kyc Decision"
+            "title": "KYC Decision"
           },
           "is_ssn_match": {
             "anyOf": [
@@ -5601,7 +5601,7 @@
         ],
         "title": "InstitutionAttestationResponse"
       },
-      "KybCertificateFurnishInput": {
+      "KYBCertificateFurnishInput": {
         "properties": {
           "network_id": {
             "type": "string",
@@ -5621,7 +5621,7 @@
           },
           "records": {
             "items": {
-              "$ref": "#/components/schemas/KybCertificateFurnishRecord"
+              "$ref": "#/components/schemas/KYBCertificateFurnishRecord"
             },
             "type": "array",
             "title": "Records",
@@ -5635,9 +5635,9 @@
           "application_date",
           "records"
         ],
-        "title": "KybCertificateFurnishInput"
+        "title": "KYBCertificateFurnishInput"
       },
-      "KybCertificateFurnishOutput": {
+      "KYBCertificateFurnishOutput": {
         "properties": {
           "success": {
             "type": "boolean",
@@ -5687,9 +5687,9 @@
           }
         },
         "type": "object",
-        "title": "KybCertificateFurnishOutput"
+        "title": "KYBCertificateFurnishOutput"
       },
-      "KybCertificateFurnishRecord": {
+      "KYBCertificateFurnishRecord": {
         "properties": {
           "federal_ein": {
             "type": "integer",
@@ -5782,9 +5782,9 @@
           "federal_ein",
           "business_jurisdiction_of_formation"
         ],
-        "title": "KybCertificateFurnishRecord"
+        "title": "KYBCertificateFurnishRecord"
       },
-      "KybCertificateNetworkResult": {
+      "KYBCertificateNetworkResult": {
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/QueryResolutionMeta"
@@ -5824,9 +5824,9 @@
         "required": [
           "meta"
         ],
-        "title": "KybCertificateNetworkResult"
+        "title": "KYBCertificateNetworkResult"
       },
-      "KybCertificateQueryInput": {
+      "KYBCertificateQueryInput": {
         "properties": {
           "policy_id": {
             "anyOf": [
@@ -5897,9 +5897,9 @@
         "required": [
           "network_ids"
         ],
-        "title": "KybCertificateQueryInput"
+        "title": "KYBCertificateQueryInput"
       },
-      "KybCertificateQueryOutput": {
+      "KYBCertificateQueryOutput": {
         "properties": {
           "certificate_id": {
             "anyOf": [
@@ -5931,7 +5931,7 @@
             "title": "Business Id"
           },
           "result": {
-            "$ref": "#/components/schemas/KybCertificateNetworkResult",
+            "$ref": "#/components/schemas/KYBCertificateNetworkResult",
             "description": "Consolidated certificate resolution across all queried networks."
           }
         },
@@ -5940,9 +5940,9 @@
           "business_id",
           "result"
         ],
-        "title": "KybCertificateQueryOutput"
+        "title": "KYBCertificateQueryOutput"
       },
-      "KycCertificateFurnishInput": {
+      "KYCCertificateFurnishInput": {
         "properties": {
           "network_id": {
             "type": "string",
@@ -5962,7 +5962,7 @@
           },
           "records": {
             "items": {
-              "$ref": "#/components/schemas/KycCertificateFurnishRecord"
+              "$ref": "#/components/schemas/KYCCertificateFurnishRecord"
             },
             "type": "array",
             "title": "Records",
@@ -5976,9 +5976,9 @@
           "application_date",
           "records"
         ],
-        "title": "KycCertificateFurnishInput"
+        "title": "KYCCertificateFurnishInput"
       },
-      "KycCertificateFurnishOutput": {
+      "KYCCertificateFurnishOutput": {
         "properties": {
           "success": {
             "type": "boolean",
@@ -6028,9 +6028,9 @@
           }
         },
         "type": "object",
-        "title": "KycCertificateFurnishOutput"
+        "title": "KYCCertificateFurnishOutput"
       },
-      "KycCertificateFurnishRecord": {
+      "KYCCertificateFurnishRecord": {
         "properties": {
           "first_name": {
             "type": "string",
@@ -6126,9 +6126,9 @@
           "date_of_birth",
           "social_security_number"
         ],
-        "title": "KycCertificateFurnishRecord"
+        "title": "KYCCertificateFurnishRecord"
       },
-      "KycCertificateNetworkResult": {
+      "KYCCertificateNetworkResult": {
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/QueryResolutionMeta"
@@ -6228,9 +6228,9 @@
         "required": [
           "meta"
         ],
-        "title": "KycCertificateNetworkResult"
+        "title": "KYCCertificateNetworkResult"
       },
-      "KycCertificateQueryInput": {
+      "KYCCertificateQueryInput": {
         "properties": {
           "policy_id": {
             "anyOf": [
@@ -6301,9 +6301,9 @@
         "required": [
           "network_ids"
         ],
-        "title": "KycCertificateQueryInput"
+        "title": "KYCCertificateQueryInput"
       },
-      "KycCertificateQueryOutput": {
+      "KYCCertificateQueryOutput": {
         "properties": {
           "certificate_id": {
             "anyOf": [
@@ -6335,7 +6335,7 @@
             "title": "Consumer Id"
           },
           "result": {
-            "$ref": "#/components/schemas/KycCertificateNetworkResult",
+            "$ref": "#/components/schemas/KYCCertificateNetworkResult",
             "description": "Consolidated certificate resolution across all queried networks."
           }
         },
@@ -6344,7 +6344,7 @@
           "consumer_id",
           "result"
         ],
-        "title": "KycCertificateQueryOutput"
+        "title": "KYCCertificateQueryOutput"
       },
       "LivenessCaptureAssertions": {
         "properties": {
