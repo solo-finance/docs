@@ -1,0 +1,1262 @@
+{
+  "extracted_at": "2026-06-22T19:12:42.958Z",
+  "source_manifest": "apps/frontend/app/spec/docs-screenshots/.playwright-output/manifest.json",
+  "output_dir": "docs/images/dashboard",
+  "capture_count": 89,
+  "captures": [
+    {
+      "journey_id": "network-complete",
+      "journey_name": "Create and browse networks",
+      "step_index": 6,
+      "capture_ordinal": 1,
+      "title": "Create network — review and submit",
+      "file": "journeys/networks/network-complete/01-create-dialog-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/networks/network-complete/01-create-dialog-filled.png",
+      "docs_pages": [
+        "concepts/governance/networks"
+      ]
+    },
+    {
+      "journey_id": "network-complete",
+      "journey_name": "Create and browse networks",
+      "step_index": 9,
+      "capture_ordinal": 2,
+      "title": "Network created — detail page with new network",
+      "file": "journeys/networks/network-complete/02-create-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/networks/network-complete/02-create-success-detail.png",
+      "docs_pages": [
+        "concepts/governance/networks",
+        "concepts/governance/network-roles"
+      ]
+    },
+    {
+      "journey_id": "network-complete",
+      "journey_name": "Create and browse networks",
+      "step_index": 11,
+      "capture_ordinal": 3,
+      "title": "Network detail — overview",
+      "file": "journeys/networks/network-complete/03-detail-overview.png",
+      "docs_image_src": "/images/dashboard/journeys/networks/network-complete/03-detail-overview.png",
+      "docs_pages": [
+        "concepts/governance/network-roles",
+        "home/quickstart/join-a-network"
+      ]
+    },
+    {
+      "journey_id": "network-complete",
+      "journey_name": "Create and browse networks",
+      "step_index": 12,
+      "capture_ordinal": 4,
+      "title": "Network detail — topology graph",
+      "file": "journeys/networks/network-complete/04-detail-topology.png",
+      "docs_image_src": "/images/dashboard/journeys/networks/network-complete/04-detail-topology.png",
+      "docs_pages": [
+        "concepts/governance/networks",
+        "home/quickstart/join-a-network"
+      ]
+    },
+    {
+      "journey_id": "network-complete",
+      "journey_name": "Create and browse networks",
+      "step_index": 14,
+      "capture_ordinal": 5,
+      "title": "Networks list — newly created network visible",
+      "file": "journeys/networks/network-complete/05-create-success-list.png",
+      "docs_image_src": "/images/dashboard/journeys/networks/network-complete/05-create-success-list.png",
+      "docs_pages": [
+        "concepts/governance/networks",
+        "home/quickstart/network-consumption",
+        "home/quickstart/join-a-network"
+      ],
+      "docs_page_order": {
+        "home/quickstart/network-consumption": 1,
+        "home/quickstart/join-a-network": 1
+      }
+    },
+    {
+      "journey_id": "network-complete",
+      "journey_name": "Create and browse networks",
+      "step_index": 16,
+      "capture_ordinal": 6,
+      "title": "Topbar network multiselect open",
+      "file": "journeys/network-scope/network-complete/06-selector-open.png",
+      "docs_image_src": "/images/dashboard/journeys/network-scope/network-complete/06-selector-open.png",
+      "docs_pages": [
+        "concepts/governance/networks",
+        "home/quickstart/network-consumption",
+        "home/quickstart/join-a-network"
+      ],
+      "docs_page_order": {
+        "home/quickstart/network-consumption": 2,
+        "home/quickstart/join-a-network": 2
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 2,
+      "capture_ordinal": 1,
+      "title": "Querying policies list",
+      "file": "journeys/policies/policies-and-entities-complete/01-querying-list.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/01-querying-list.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 1
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 8,
+      "capture_ordinal": 2,
+      "title": "Create querying policy — ready to submit",
+      "file": "journeys/policies/policies-and-entities-complete/02-querying-create-dialog-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/02-querying-create-dialog-filled.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 2
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 10,
+      "capture_ordinal": 3,
+      "title": "Querying policy created — detail page",
+      "file": "journeys/policies/policies-and-entities-complete/03-querying-create-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/03-querying-create-success-detail.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 3
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 11,
+      "capture_ordinal": 4,
+      "title": "Querying policy field configuration — edit mode",
+      "file": "journeys/policies/policies-and-entities-complete/04-querying-wizard-fields.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/04-querying-wizard-fields.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 4
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 16,
+      "capture_ordinal": 5,
+      "title": "Run query opened from policy detail",
+      "file": "journeys/querying/policies-and-entities-complete/05-from-policy-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/policies-and-entities-complete/05-from-policy-detail.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 6
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 21,
+      "capture_ordinal": 6,
+      "title": "Run query — choose entity",
+      "file": "journeys/querying/policies-and-entities-complete/06-from-policy-entity.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/policies-and-entities-complete/06-from-policy-entity.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 7
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 23,
+      "capture_ordinal": 7,
+      "title": "Run query — Network & Furnishers tab",
+      "file": "journeys/querying/policies-and-entities-complete/07-from-policy-networks-tab.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/policies-and-entities-complete/07-from-policy-networks-tab.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 8
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 26,
+      "capture_ordinal": 8,
+      "title": "Furnishing policies list",
+      "file": "journeys/policies/policies-and-entities-complete/08-furnishing-list.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/08-furnishing-list.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 32,
+      "capture_ordinal": 9,
+      "title": "Create KYC furnishing policy — ready to submit",
+      "file": "journeys/policies/policies-and-entities-complete/09-furnishing-create-dialog-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/09-furnishing-create-dialog-filled.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 34,
+      "capture_ordinal": 10,
+      "title": "KYC furnishing policy created — detail page",
+      "file": "journeys/policies/policies-and-entities-complete/10-furnishing-create-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/10-furnishing-create-success-detail.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 35,
+      "capture_ordinal": 11,
+      "title": "Activate furnishing policy",
+      "file": "journeys/policies/policies-and-entities-complete/11-furnishing-activate-button.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/11-furnishing-activate-button.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 44,
+      "capture_ordinal": 12,
+      "title": "KYB furnishing policy created — detail page",
+      "file": "journeys/policies/policies-and-entities-complete/12-furnishing-kyb-create-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/12-furnishing-kyb-create-success-detail.png",
+      "docs_pages": []
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 52,
+      "capture_ordinal": 13,
+      "title": "Furnishing policies list — KYC and KYB policies visible",
+      "file": "journeys/policies/policies-and-entities-complete/13-furnishing-create-success-list.png",
+      "docs_image_src": "/images/dashboard/journeys/policies/policies-and-entities-complete/13-furnishing-create-success-list.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 54,
+      "capture_ordinal": 14,
+      "title": "Entities hub — All tab",
+      "file": "journeys/entities/policies-and-entities-complete/14-hub-all.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/14-hub-all.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 1
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 55,
+      "capture_ordinal": 15,
+      "title": "Entities hub — Consumers tab",
+      "file": "journeys/entities/policies-and-entities-complete/15-hub-consumers.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/15-hub-consumers.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 2
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 56,
+      "capture_ordinal": 16,
+      "title": "Entities hub — Businesses tab",
+      "file": "journeys/entities/policies-and-entities-complete/16-hub-businesses.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/16-hub-businesses.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 3
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 58,
+      "capture_ordinal": 17,
+      "title": "Consumers list",
+      "file": "journeys/entities/policies-and-entities-complete/17-consumers-list.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/17-consumers-list.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 4
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 60,
+      "capture_ordinal": 18,
+      "title": "Find or create consumer dialog",
+      "file": "journeys/entities/policies-and-entities-complete/18-consumer-find-or-create-dialog.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/18-consumer-find-or-create-dialog.png",
+      "docs_pages": [
+        "concepts/identity/consent"
+      ],
+      "docs_page_order": {
+        "concepts/identity/consent": 2
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 68,
+      "capture_ordinal": 19,
+      "title": "Find or create consumer — ready to submit",
+      "file": "journeys/entities/policies-and-entities-complete/19-consumer-find-or-create-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/19-consumer-find-or-create-filled.png",
+      "docs_pages": [
+        "concepts/identity/consent"
+      ],
+      "docs_page_order": {
+        "concepts/identity/consent": 3
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 74,
+      "capture_ordinal": 20,
+      "title": "Consumer consent created — profile detail",
+      "file": "journeys/entities/policies-and-entities-complete/20-consumer-detail-identity.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/20-consumer-detail-identity.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 5
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 75,
+      "capture_ordinal": 21,
+      "title": "Consumer — identity verification tab",
+      "file": "journeys/entities/policies-and-entities-complete/21-consumer-tab-identity-verification.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/21-consumer-tab-identity-verification.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 6
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 76,
+      "capture_ordinal": 22,
+      "title": "Consumer — consent tab",
+      "file": "journeys/entities/policies-and-entities-complete/22-consumer-tab-consent.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/22-consumer-tab-consent.png",
+      "docs_pages": [
+        "concepts/identity/consent"
+      ],
+      "docs_page_order": {
+        "concepts/identity/consent": 1
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 77,
+      "capture_ordinal": 23,
+      "title": "Consumer — query history tab",
+      "file": "journeys/entities/policies-and-entities-complete/23-consumer-tab-queries.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/23-consumer-tab-queries.png",
+      "docs_pages": [
+        "concepts/querying/overview"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 11
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 79,
+      "capture_ordinal": 24,
+      "title": "Businesses list",
+      "file": "journeys/entities/policies-and-entities-complete/24-businesses-list.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/24-businesses-list.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 8
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 81,
+      "capture_ordinal": 25,
+      "title": "Find or create business dialog",
+      "file": "journeys/entities/policies-and-entities-complete/25-business-find-or-create-dialog.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/25-business-find-or-create-dialog.png",
+      "docs_pages": [
+        "concepts/identity/consent"
+      ],
+      "docs_page_order": {
+        "concepts/identity/consent": 4
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 89,
+      "capture_ordinal": 26,
+      "title": "Find or create business — ready to submit",
+      "file": "journeys/entities/policies-and-entities-complete/26-business-find-or-create-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/26-business-find-or-create-filled.png",
+      "docs_pages": [
+        "concepts/identity/consent"
+      ],
+      "docs_page_order": {
+        "concepts/identity/consent": 5
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 92,
+      "capture_ordinal": 27,
+      "title": "Business profile — overview",
+      "file": "journeys/entities/policies-and-entities-complete/27-business-detail-overview.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/27-business-detail-overview.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 9
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 93,
+      "capture_ordinal": 28,
+      "title": "Business — consent tab",
+      "file": "journeys/entities/policies-and-entities-complete/28-business-tab-consent.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/28-business-tab-consent.png",
+      "docs_pages": [
+        "concepts/identity/consent"
+      ],
+      "docs_page_order": {
+        "concepts/identity/consent": 6
+      }
+    },
+    {
+      "journey_id": "policies-and-entities-complete",
+      "journey_name": "Create policies and entity profiles",
+      "step_index": 94,
+      "capture_ordinal": 29,
+      "title": "Business — query history tab",
+      "file": "journeys/entities/policies-and-entities-complete/29-business-tab-queries.png",
+      "docs_image_src": "/images/dashboard/journeys/entities/policies-and-entities-complete/29-business-tab-queries.png",
+      "docs_pages": [
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyb-certificate": 8
+      }
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 3,
+      "capture_ordinal": 1,
+      "title": "Furnishing programs list — before program workbook upload",
+      "file": "journeys/furnishing/furnishing-complete/01-programs-list.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/01-programs-list.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ],
+      "docs_page_order": {
+        "concepts/furnishing/overview": 1
+      }
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 5,
+      "capture_ordinal": 2,
+      "title": "Program workbook upload dialog",
+      "file": "journeys/furnishing/furnishing-complete/02-program-upload-dialog.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/02-program-upload-dialog.png",
+      "docs_pages": [
+        "concepts/furnishing/overview",
+        "concepts/furnishing/file-upload"
+      ],
+      "docs_page_order": {
+        "concepts/furnishing/overview": 2,
+        "concepts/furnishing/file-upload": 1
+      }
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 8,
+      "capture_ordinal": 3,
+      "title": "Program workbook upload — ready to submit",
+      "file": "journeys/furnishing/furnishing-complete/03-program-upload-dialog-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/03-program-upload-dialog-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 11,
+      "capture_ordinal": 4,
+      "title": "Program workbook upload accepted",
+      "file": "journeys/furnishing/furnishing-complete/04-program-upload-success.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/04-program-upload-success.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 13,
+      "capture_ordinal": 5,
+      "title": "Furnishing programs list after upload",
+      "file": "journeys/furnishing/furnishing-complete/05-programs-list-after-upload.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/05-programs-list-after-upload.png",
+      "docs_pages": []
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 15,
+      "capture_ordinal": 6,
+      "title": "Furnishing channels — REST API, SFTP file drops, and data lake connectors",
+      "file": "journeys/sources/furnishing-complete/06-list.png",
+      "docs_image_src": "/images/dashboard/journeys/sources/furnishing-complete/06-list.png",
+      "docs_pages": [
+        "concepts/sftp/overview",
+        "concepts/furnishing/overview"
+      ],
+      "docs_page_order": {
+        "concepts/furnishing/overview": 3,
+        "concepts/sftp/overview": 1
+      }
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 17,
+      "capture_ordinal": 7,
+      "title": "KYC product detail — overview",
+      "file": "journeys/furnishing/furnishing-complete/07-product-detail-overview.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/07-product-detail-overview.png",
+      "docs_pages": [
+        "concepts/querying/products"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 18,
+      "capture_ordinal": 8,
+      "title": "KYC product detail — furnishing policies tab",
+      "file": "journeys/furnishing/furnishing-complete/08-product-furnishing-policies-tab.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/08-product-furnishing-policies-tab.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 20,
+      "capture_ordinal": 9,
+      "title": "Product furnish onboarding — step overview",
+      "file": "journeys/furnishing/furnishing-complete/09-product-onboarding-dialog.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/09-product-onboarding-dialog.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 21,
+      "capture_ordinal": 10,
+      "title": "Institutional attestation — active or ready to certify",
+      "file": "journeys/furnishing/furnishing-complete/10-product-onboarding-attestation-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/10-product-onboarding-attestation-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 36,
+      "capture_ordinal": 11,
+      "title": "Product furnish onboarding — KYC data workbook ready to upload",
+      "file": "journeys/furnishing/furnishing-complete/11-product-onboarding-upload-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/11-product-onboarding-upload-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 38,
+      "capture_ordinal": 12,
+      "title": "Product furnish onboarding — KYC upload accepted and processing",
+      "file": "journeys/furnishing/furnishing-complete/12-product-onboarding-upload-success.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/12-product-onboarding-upload-success.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 41,
+      "capture_ordinal": 13,
+      "title": "KYC product detail after successful furnish onboarding",
+      "file": "journeys/furnishing/furnishing-complete/13-product-onboarding-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/13-product-onboarding-success-detail.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 57,
+      "capture_ordinal": 14,
+      "title": "Furnished consumer — profile detail",
+      "file": "journeys/furnishing/furnishing-complete/14-entity-furnish-consumer-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/14-entity-furnish-consumer-success-detail.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 7
+      }
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 58,
+      "capture_ordinal": 15,
+      "title": "Consumer detail — furnishments tab",
+      "file": "journeys/furnishing/furnishing-complete/15-entity-furnish-furnishments-tab.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/15-entity-furnish-furnishments-tab.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 60,
+      "capture_ordinal": 16,
+      "title": "Entity furnish — product picker dialog",
+      "file": "journeys/furnishing/furnishing-complete/16-entity-furnish-dialog.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/16-entity-furnish-dialog.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 62,
+      "capture_ordinal": 17,
+      "title": "Entity furnish — KYC product selected",
+      "file": "journeys/furnishing/furnishing-complete/17-entity-furnish-dialog-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/17-entity-furnish-dialog-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 66,
+      "capture_ordinal": 18,
+      "title": "Entity KYC data workbook upload — ready to submit",
+      "file": "journeys/furnishing/furnishing-complete/18-entity-furnish-upload-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/18-entity-furnish-upload-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 68,
+      "capture_ordinal": 19,
+      "title": "Entity KYC data workbook upload accepted — dialog closed",
+      "file": "journeys/furnishing/furnishing-complete/19-entity-furnish-upload-success.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/19-entity-furnish-upload-success.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 69,
+      "capture_ordinal": 20,
+      "title": "Furnished consumer — furnishments tab after KYC upload",
+      "file": "journeys/furnishing/furnishing-complete/20-entity-furnish-furnishments-after-upload.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/20-entity-furnish-furnishments-after-upload.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 76,
+      "capture_ordinal": 21,
+      "title": "Furnished business — profile detail",
+      "file": "journeys/furnishing/furnishing-complete/21-entity-furnish-business-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/21-entity-furnish-business-success-detail.png",
+      "docs_pages": [
+        "concepts/identity/entities"
+      ],
+      "docs_page_order": {
+        "concepts/identity/entities": 10
+      }
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 77,
+      "capture_ordinal": 22,
+      "title": "Business detail — furnishments tab",
+      "file": "journeys/furnishing/furnishing-complete/22-entity-furnish-business-furnishments-tab.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/22-entity-furnish-business-furnishments-tab.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 79,
+      "capture_ordinal": 23,
+      "title": "Entity furnish — KYB product picker",
+      "file": "journeys/furnishing/furnishing-complete/23-entity-furnish-business-dialog.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/23-entity-furnish-business-dialog.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 81,
+      "capture_ordinal": 24,
+      "title": "Entity furnish — KYB product selected",
+      "file": "journeys/furnishing/furnishing-complete/24-entity-furnish-business-dialog-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/24-entity-furnish-business-dialog-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 85,
+      "capture_ordinal": 25,
+      "title": "Entity KYB data workbook upload — ready to submit",
+      "file": "journeys/furnishing/furnishing-complete/25-entity-furnish-business-upload-filled.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/25-entity-furnish-business-upload-filled.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 87,
+      "capture_ordinal": 26,
+      "title": "Entity KYB data workbook upload accepted — dialog closed",
+      "file": "journeys/furnishing/furnishing-complete/26-entity-furnish-business-upload-success.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/26-entity-furnish-business-upload-success.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 88,
+      "capture_ordinal": 27,
+      "title": "Furnished business — furnishments tab after KYB upload",
+      "file": "journeys/furnishing/furnishing-complete/27-entity-furnish-business-furnishments-after-upload.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/27-entity-furnish-business-furnishments-after-upload.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 90,
+      "capture_ordinal": 28,
+      "title": "Furnish events history list",
+      "file": "journeys/furnishing/furnishing-complete/28-history-list.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/28-history-list.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 93,
+      "capture_ordinal": 29,
+      "title": "Furnish event detail — overview tab",
+      "file": "journeys/furnishing/furnishing-complete/29-history-event-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/29-history-event-detail.png",
+      "docs_pages": [
+        "concepts/furnishing/overview"
+      ]
+    },
+    {
+      "journey_id": "furnishing-complete",
+      "journey_name": "Complete furnishing lifecycle",
+      "step_index": 95,
+      "capture_ordinal": 30,
+      "title": "File uploads list (workbook ingest status)",
+      "file": "journeys/furnishing/furnishing-complete/30-uploads-list.png",
+      "docs_image_src": "/images/dashboard/journeys/furnishing/furnishing-complete/30-uploads-list.png",
+      "docs_pages": [
+        "concepts/furnishing/file-upload"
+      ]
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 2,
+      "capture_ordinal": 1,
+      "title": "Home — querying and furnishing checklists",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/01-dashboard.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/01-dashboard.png",
+      "docs_pages": [
+        "home/overview"
+      ]
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 4,
+      "capture_ordinal": 2,
+      "title": "Products catalogue — By Templates",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/02-products-catalogue-templates.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/02-products-catalogue-templates.png",
+      "docs_pages": [
+        "concepts/querying/products",
+        "home/quickstart/query-a-product"
+      ],
+      "docs_page_order": {
+        "home/quickstart/query-a-product": 1
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 5,
+      "capture_ordinal": 3,
+      "title": "Products catalogue — By Attributes tab",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/03-products-catalogue-attributes.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/03-products-catalogue-attributes.png",
+      "docs_pages": [
+        "concepts/querying/products"
+      ]
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 8,
+      "capture_ordinal": 4,
+      "title": "Run query — choose consumer or business",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/04-wizard-step-kind.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/04-wizard-step-kind.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 1,
+        "concepts/querying/kyb-certificate": 1
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 11,
+      "capture_ordinal": 5,
+      "title": "Run query — choose KYC certificate product",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/05-wizard-step-product.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/05-wizard-step-product.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "concepts/querying/products",
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 2,
+        "concepts/querying/kyc-certificate": 1
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 13,
+      "capture_ordinal": 6,
+      "title": "Run query — choose policy",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/06-wizard-step-policy.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/06-wizard-step-policy.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 3,
+        "concepts/querying/kyc-certificate": 2
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 18,
+      "capture_ordinal": 7,
+      "title": "Run query — choose entity",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/07-wizard-step-entity.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/07-wizard-step-entity.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "home/quickstart/query-a-product",
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 4,
+        "home/quickstart/query-a-product": 4,
+        "concepts/querying/kyc-certificate": 3
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 20,
+      "capture_ordinal": 8,
+      "title": "Run query — networks and consent matrix",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/08-wizard-step-networks.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/08-wizard-step-networks.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "home/quickstart/query-a-product",
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 5,
+        "home/quickstart/query-a-product": 5,
+        "concepts/querying/kyc-certificate": 4
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 24,
+      "capture_ordinal": 9,
+      "title": "Query completed — run detail overview",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/09-wizard-success-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/09-wizard-success-detail.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "home/quickstart/query-a-product",
+        "concepts/governance/querying-policies",
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 6,
+        "home/quickstart/query-a-product": 6,
+        "concepts/governance/querying-policies": 10,
+        "concepts/querying/kyc-certificate": 5
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 30,
+      "capture_ordinal": 10,
+      "title": "Consumer KYC certificate — parsed result fields",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/10-consumer-kyc-result-certificate.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/10-consumer-kyc-result-certificate.png",
+      "docs_pages": [
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyc-certificate": 6
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 32,
+      "capture_ordinal": 11,
+      "title": "Consumer KYC query — overview tab",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/11-consumer-kyc-result-response.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/11-consumer-kyc-result-response.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "concepts/querying/kyc-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 7,
+        "concepts/querying/kyc-certificate": 7
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 35,
+      "capture_ordinal": 12,
+      "title": "Query history list — recent consumer query",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/12-history-list.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/12-history-list.png",
+      "docs_pages": [
+        "concepts/querying/overview"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 8
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 38,
+      "capture_ordinal": 13,
+      "title": "Query history — consumer KYC run detail opened from list",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/13-history-run-detail-from-list.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/13-history-run-detail-from-list.png",
+      "docs_pages": [
+        "concepts/querying/overview"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 9
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 47,
+      "capture_ordinal": 14,
+      "title": "Run query — choose policy",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/14-wizard-step-policy-for-docs.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/14-wizard-step-policy-for-docs.png",
+      "docs_pages": []
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 50,
+      "capture_ordinal": 15,
+      "title": "KYC product detail — overview tab",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/15-product-detail-overview.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/15-product-detail-overview.png",
+      "docs_pages": [
+        "home/quickstart/query-a-product"
+      ],
+      "docs_page_order": {
+        "home/quickstart/query-a-product": 2
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 51,
+      "capture_ordinal": 16,
+      "title": "KYC product detail — Querying Policies tab",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/16-product-detail-querying-policies.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/16-product-detail-querying-policies.png",
+      "docs_pages": [
+        "concepts/governance/querying-policies",
+        "concepts/querying/products"
+      ],
+      "docs_page_order": {
+        "concepts/governance/querying-policies": 5
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 53,
+      "capture_ordinal": 17,
+      "title": "KYB product detail — Furnishing Policies tab",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/17-product-detail-kyb-furnishing-policies.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/17-product-detail-kyb-furnishing-policies.png",
+      "docs_pages": [
+        "concepts/governance/furnishing-policies"
+      ]
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 56,
+      "capture_ordinal": 18,
+      "title": "Run query opened from product detail",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/18-from-product-detail.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/18-from-product-detail.png",
+      "docs_pages": [
+        "concepts/querying/products",
+        "home/quickstart/query-a-product"
+      ],
+      "docs_page_order": {
+        "home/quickstart/query-a-product": 3
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 61,
+      "capture_ordinal": 19,
+      "title": "Run query — choose KYB certificate product",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/19-wizard-step-kyb-product.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/19-wizard-step-kyb-product.png",
+      "docs_pages": [
+        "concepts/querying/kyb-certificate",
+        "concepts/querying/products"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyb-certificate": 2
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 63,
+      "capture_ordinal": 20,
+      "title": "Run query — choose policy",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/20-wizard-step-kyb-policy.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/20-wizard-step-kyb-policy.png",
+      "docs_pages": [
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyb-certificate": 3
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 68,
+      "capture_ordinal": 21,
+      "title": "Run query — choose business",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/21-wizard-step-kyb-entity.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/21-wizard-step-kyb-entity.png",
+      "docs_pages": [
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyb-certificate": 4
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 70,
+      "capture_ordinal": 22,
+      "title": "Run query — networks and consent matrix",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/22-wizard-step-kyb-networks.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/22-wizard-step-kyb-networks.png",
+      "docs_pages": [
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyb-certificate": 5
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 81,
+      "capture_ordinal": 23,
+      "title": "Business KYB query — policy and billing",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/23-business-kyb-result-policy-billing.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/23-business-kyb-result-policy-billing.png",
+      "docs_pages": [
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/kyb-certificate": 6
+      }
+    },
+    {
+      "journey_id": "query-full-wizard-consumer-kyc",
+      "journey_name": "Run queries and review query run results",
+      "step_index": 82,
+      "capture_ordinal": 24,
+      "title": "Business KYB query — REST response payload",
+      "file": "journeys/querying/query-full-wizard-consumer-kyc/24-business-kyb-result-response.png",
+      "docs_image_src": "/images/dashboard/journeys/querying/query-full-wizard-consumer-kyc/24-business-kyb-result-response.png",
+      "docs_pages": [
+        "concepts/querying/overview",
+        "concepts/querying/kyb-certificate"
+      ],
+      "docs_page_order": {
+        "concepts/querying/overview": 10,
+        "concepts/querying/kyb-certificate": 7
+      }
+    }
+  ]
+}

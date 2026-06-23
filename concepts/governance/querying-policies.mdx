@@ -3,6 +3,7 @@ title: 'Querying Policies'
 description: 'Field-by-field read rules that bind a product to a network'
 icon: 'magnifying-glass'
 ---
+import DashboardGovernanceQueryingPolicies from '/snippets/dashboard/governance-querying-policies.mdx';
 
 A **querying policy** is the set of read rules a
 [network](/concepts/governance/networks) applies to a
@@ -270,6 +271,7 @@ All errors use the standard envelope (see [Errors](/home/errors)):
 | Malformed selection payload (missing field, bad UUID) | `422` (short shape, no `error_code`) |
 | Querying a network you can't scope to | `403` `PERMISSION_DENIED` |
 
+<DashboardGovernanceQueryingPolicies />
 ## Related concepts
 
 <CardGroup cols={2}>

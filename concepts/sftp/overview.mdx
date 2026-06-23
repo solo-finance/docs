@@ -4,6 +4,8 @@ description: 'Bulk data ingestion via SFTP file uploads'
 icon: 'server'
 ---
 
+import DashboardSftpOverview from '/snippets/dashboard/sftp-overview.mdx';
+
 The SOLO Network supports bulk data ingestion via SFTP. Upload Excel workbooks
 to your organization's SFTP endpoint, and each file is automatically routed to
 the right ingestion workflow, validated row by row, and written into the
@@ -224,6 +226,8 @@ The five categories split into two permission tiers:
   `programs`) define network rules and are enforced as governor-only at
   ingest — rows uploaded by a non-governor fail with an access error even
   though the file itself uploads successfully.
+
+<DashboardSftpOverview />
 
 <CardGroup cols={2}>
   <Card title="Getting Started" icon="rocket" href="/concepts/sftp/getting-started">

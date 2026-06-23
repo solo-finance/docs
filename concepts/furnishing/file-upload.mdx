@@ -4,6 +4,8 @@ description: 'Ingest data files through the REST file-upload endpoint'
 icon: 'file-arrow-up'
 ---
 
+import DashboardFurnishingFileUpload from '/snippets/dashboard/furnishing-file-upload.mdx';
+
 The bulk file upload endpoint lets you furnish an entire file of records with a
 single HTTPS request — no SFTP credentials, no file-transfer infrastructure.
 You `POST` a CSV file plus a category slug; the network accepts it
@@ -200,6 +202,8 @@ data *goes*:
     Latin-1) should be re-saved as UTF-8 CSV.
   </Accordion>
 </AccordionGroup>
+
+<DashboardFurnishingFileUpload />
 
 ## When to use a different channel
 
