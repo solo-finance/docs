@@ -1,0 +1,84 @@
+---
+title: 'Bank-Specific Bad Actor List'
+description: 'Sponsor-bank-scoped screening for repeat policy violators'
+icon: 'user-xmark'
+---
+
+The **Bank-Specific Bad Actor List** is a sponsor-bank-scoped list of specific
+individuals who, as prior customers of one or more of the bank's fintech
+partners, violated one or more documented bank policies. It answers a narrow
+question — *is this consumer on this bank's bad actor list?* — and returns a
+listing indicator plus a small set of context fields. It never issues a reusable
+certificate; it is a point-in-time check.
+
+| | |
+|---|---|
+| **Category** | Fraud & Financial Crime |
+| **Use case** | Bad actor screening |
+| **Subject** | Consumer |
+| **Family** | List (query-only) |
+| **Scope** | Your sponsor bank's network only — results never cross network boundaries |
+| **Operation** | `POST /v1/products/bank_specific_bad_actor_list/query` |
+
+Because it is scoped to one sponsor bank, a consumer flagged in Bank A's program
+is invisible to Bank B. The events behind the list are contributed by network
+participants through governed furnishing flows.
+
+## At a glance
+
+```bash
+curl -X POST https://api.solo.one/v1/products/bank_specific_bad_actor_list/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+```json
+{
+  "query_event_id": "7b2d9c4e-…",
+  "consumer_id": "c2a4e8d0-…",
+  "furnishing_entity_id": null,
+  "is_listed": false,
+  "bad_actor_list_placement_date": null,
+  "bad_actor_list_reason_code": null
+}
+```
+
+A clean result is `"is_listed": false` (always `200 OK`, never `204`). When the
+consumer is listed, `is_listed` is `true` and the context fields are populated
+with a placement date and a reason code.
+
+## Matching & fields
+
+Subjects are matched on the consumer identity behind your
+[consent](/concepts/identity/consent) record. SSN and date of birth are
+mandatory match inputs; name, phone, and email refine the match.
+
+Reason codes are drawn from a documented set — `account_abuse`, `fraud`, and
+`policy_violation` — and each listing carries the bank's definition of the
+violated policy in `bad_actor_reason_definition`.
+
+| Field | API name | Type |
+|---|---|---|
+| Bad Actor Reason Code | `bad_actor_reason_code` | String |
+| Bad Actor Reason Definition | `bad_actor_reason_definition` | String |
+| Bad Actor List Placement Date | `bad_actor_list_placement_date` | Date |
+
+<Card title="Full field reference & matching rules" icon="book" href="/concepts/querying/screening-lists">
+  The screening lists deep dive — match inputs, per-list event fields, reason
+  codes, and compliance posture.
+</Card>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Products" icon="box" href="/products/overview">
+    The full product catalog.
+  </Card>
+  <Card title="Cross-Bank Financial Crimes Watch List" icon="building-shield" href="/products/cross-bank-financial-crimes-watch-list">
+    The cross-bank counterpart, visible across the consortium.
+  </Card>
+</CardGroup>

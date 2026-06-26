@@ -1,0 +1,76 @@
+---
+title: 'KYC Certificate'
+description: 'Reusable consumer identity-verification certificate for onboarding'
+icon: 'id-card'
+---
+
+The **KYC Certificate** is a reusable identity-verification certificate for
+consumer onboarding. Instead of each institution re-running document capture,
+biometric checks, and identity corroboration for the same person, a query
+assembles the verification work already furnished by network participants into a
+single network-issued certificate.
+
+| | |
+|---|---|
+| **Category** | Identity Verification |
+| **Use case** | Customer onboarding |
+| **Subject** | Consumer |
+| **Family** | Certificate (issues a `certificate_id`) |
+| **Operations** | `POST /v1/products/kyc_certificate/query`, `POST /v1/products/kyc_certificate/furnish` |
+
+## What's in the certificate
+
+A KYC certificate consolidates up to nine **sub-products**, each a block in the
+query response with its own `assertions` (what was attested, and when) and
+`data` (the supporting attributes):
+
+| Sub-product | Response key | What it attests |
+|---|---|---|
+| Document capture | `document_capture` | An identity document was captured, with its type, number, and dates. |
+| Document review | `document_review` | The document's attributes were reviewed — tamper and machine-readable-data checks. |
+| Biometric capture | `biometric_capture` | A biometric artifact (e.g. a selfie) was captured. |
+| Biometric review | `biometric_review` | The biometric was compared against a reference, with quality and outcome. |
+| Liveness capture | `liveness_capture` | Liveness evidence was captured. |
+| Liveness review | `liveness_review` | The liveness evidence was reviewed, with outcome and confidence tier. |
+| Address capture | `address_capture` | A residential address was captured. |
+| Address verification | `address_verification` | The address was verified, with methods and per-source match counts. |
+| Identity corroboration | `identity_corroboration` | CIP-style corroboration — SSN, name, and DOB matches across sources. |
+
+Every populated sub-product carries the `furnishing_entity_id` of the
+participant whose data backed it and the `attestation_id` of their attestation,
+so the certificate is auditable down to its sources.
+
+## At a glance
+
+```bash
+curl -X POST https://api.solo.one/v1/products/kyc_certificate/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "policy_id": "5e7d2a14-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+A `200 OK` means a certificate was issued — the response carries a
+`certificate_id`, the billable `query_event_id`, and a `result` block with each
+requested sub-product (sub-products the policy didn't require, or that lacked
+data, are `null`). A `204 No Content` means the available data did not satisfy
+the policy.
+
+<Card title="Full field reference & response schema" icon="book" href="/concepts/querying/kyc-certificate">
+  The complete KYC certificate deep dive — every model, the full response
+  example, how it resolves per network, and the `204` rules.
+</Card>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Products" icon="box" href="/products/overview">
+    The full product catalog.
+  </Card>
+  <Card title="Coverage check" icon="list-radio" href="/products/coverage-check">
+    Check field coverage before running a billable query.
+  </Card>
+</CardGroup>

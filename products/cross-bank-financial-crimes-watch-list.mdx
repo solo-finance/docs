@@ -1,0 +1,97 @@
+---
+title: 'Cross-Bank Financial Crimes Watch List'
+description: '314(b) consortium screening for inter-bank financial-crimes signals'
+icon: 'building-shield'
+---
+
+The **314(b) Cross-Bank Financial Crimes Watch List** is a cross-bank shared
+consortium that extends beyond one sponsor-bank network and focuses on sharing
+suspicious financial-crimes activity. It is governed by banks as defined by
+31 CFR 1020.100(d), under 314(b) permissible purpose. It answers — *is this
+consumer associated with suspicious financial-crimes activity reported across
+participating banks?* — returning a listing indicator plus a small set of
+context fields. It never issues a reusable certificate.
+
+| | |
+|---|---|
+| **Category** | Fraud & Financial Crime |
+| **Use case** | Watch list screening |
+| **Subject** | Consumer |
+| **Family** | List (query-only) |
+| **Scope** | All participating banks — visibility spans the consortium |
+| **Operation** | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
+
+Unlike the [Bank-Specific Bad Actor List](/products/bank-specific-bad-actor-list),
+this list is cross-bank by design: it exists so that suspicious financial-crimes
+activity observed at one bank is visible to the others, under the 314(b)
+information-sharing framework. The events behind it are contributed by network
+participants through governed furnishing flows.
+
+## At a glance
+
+```bash
+curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_list/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+```json
+{
+  "query_event_id": "7b2d9c4e-…",
+  "consumer_id": "c2a4e8d0-…",
+  "furnishing_entity_id": null,
+  "is_listed": false,
+  "entity_level_adverse_action_eligible_indicator": null,
+  "watch_list_placement_date": null
+}
+```
+
+A clean result is `"is_listed": false` (always `200 OK`, never `204`). When the
+consumer is listed, the context fields — including a placement date and the
+`entity_level_adverse_action_eligible_indicator` — are populated.
+
+## Matching & fields
+
+Subjects are matched on the consumer identity behind your
+[consent](/concepts/identity/consent) record. SSN and date of birth are
+mandatory match inputs; name, phone, and email refine the match.
+
+Event categories include `money_laundering`, `terrorist_financing`, and `fraud`;
+signal levels are `high`, `medium`, or `low`. A network's
+[querying policy](/concepts/governance/querying-policies) can restrict which
+categories and signal levels a query considers — for example, only `high`-signal
+events.
+
+| Field | API name | Type |
+|---|---|---|
+| Event Date | `event_date` | Date |
+| Event Category | `event_category` | String |
+| Signal Level | `signal_level` | String |
+
+<Warning>
+  Watch-list signals are screening inputs, not adjudications. Whether a listing
+  can support adverse action depends on your program's compliance framework —
+  this list operates under 314(b) permissible purpose, and the
+  `entity_level_adverse_action_eligible_indicator` exists precisely because not
+  every signal qualifies. Route hits to your compliance review process.
+</Warning>
+
+<Card title="Full field reference & matching rules" icon="book" href="/concepts/querying/screening-lists">
+  The screening lists deep dive — match inputs, per-list event fields, and
+  compliance posture.
+</Card>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Products" icon="box" href="/products/overview">
+    The full product catalog.
+  </Card>
+  <Card title="Bank-Specific Bad Actor List" icon="user-xmark" href="/products/bank-specific-bad-actor-list">
+    The sponsor-bank-scoped counterpart.
+  </Card>
+</CardGroup>

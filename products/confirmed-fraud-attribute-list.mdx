@@ -1,0 +1,103 @@
+---
+title: 'Confirmed Fraud Attribute List'
+description: 'Consortium screening for identifying attributes tied to confirmed fraud'
+icon: 'fingerprint'
+---
+
+The **Confirmed Fraud Attribute List** is a consortium for banks and fintechs to
+furnish discrete personal identifying attributes tied to **confirmed** fraud
+events. Rather than re-investigating a subject from scratch, a query checks
+whether the consumer is associated with a confirmed fraud event and surfaces the
+specific identifying attributes that were implicated. It never issues a reusable
+certificate; it is a point-in-time check.
+
+| | |
+|---|---|
+| **Category** | Fraud & Financial Crime |
+| **Use case** | Bad actor screening |
+| **Subject** | Consumer |
+| **Family** | List (query-only) |
+| **Operation** | `POST /v1/products/confirmed_fraud_attribute_list/query` |
+
+The distinction from the other lists is its focus on **attributes**: each
+listing ties a confirmed fraud event to discrete identifying data (the
+`fraud_attribute_label` and its content), so consumers of the list learn not
+just *that* fraud occurred but *which* identity attributes were involved. The
+events behind it are contributed by network participants through governed
+furnishing flows.
+
+## At a glance
+
+```bash
+curl -X POST https://api.solo.one/v1/products/confirmed_fraud_attribute_list/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+A clean result is `"is_listed": false` (always `200 OK`, never `204`). When the
+consumer is tied to a confirmed fraud event, the attributes from the product's
+`FraudVerificationEvent` schema are populated:
+
+```json
+{
+  "query_event_id": "7b2d9c4e-…",
+  "consumer_id": "c2a4e8d0-…",
+  "furnishing_entity_id": "e1d2c3b4-…",
+  "is_listed": true,
+  "confirmed_fraud_indicator": true,
+  "fraud_attribute_label": "phone_number",
+  "fraud_event_date": "2025-12-02",
+  "fraud_loss_event_category": "account-takeover",
+  "fraud_malicious_intent_method": "phishing"
+}
+```
+
+## Matching & fields
+
+Subjects are matched on the consumer identity behind your
+[consent](/concepts/identity/consent) record. SSN and date of birth are
+mandatory match inputs; name, phone, and email refine the match.
+
+The fraud attributes are defined by the product's `FraudVerificationEvent`
+schema. *Field* is the display name and *API name* is the `field_name` used in
+policies.
+
+| Field | API name | Type |
+|---|---|---|
+| Confirmed Fraud Indicator | `confirmed_fraud_indicator` | Boolean |
+| Fraud Attribute Label | `fraud_attribute_label` | String |
+| Fraud Attribute ID | `fraud_attribute_id` | UUID |
+| Fraud Attribute Content | `fraud_attribute_content` | String |
+| Fraud Event ID | `fraud_event_id` | UUID |
+| Fraud Event Date | `fraud_event_date` | Date |
+| Fraud Loss Event Category | `fraud_loss_event_category` | String |
+| Fraud Loss Event Documentation Upload | `fraud_loss_event_documentation_upload` | String |
+| Fraud Malicious Intent Method | `fraud_malicious_intent_method` | String |
+| Fraud Malicious Intent Lineage Documentation Upload | `fraud_malicious_intent_lineage_documentation_upload` | String |
+
+Loss-event categories include `financial-theft`, `account-takeover`, and
+`synthetic-identity`; malicious-intent methods include `phishing` and
+`card-not-present`. A network's
+[querying policy](/concepts/governance/querying-policies) can restrict which
+categories and methods a query considers.
+
+<Warning>
+  Confirmed-fraud signals are screening inputs, not adjudications. Whether a
+  listing can support adverse action depends on your program's compliance
+  framework. Route hits to your compliance review process.
+</Warning>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Products" icon="box" href="/products/overview">
+    The full product catalog.
+  </Card>
+  <Card title="Bank-Specific Bad Actor List" icon="user-xmark" href="/products/bank-specific-bad-actor-list">
+    Sponsor-bank-scoped repeat-offender screening.
+  </Card>
+</CardGroup>

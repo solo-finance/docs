@@ -78,6 +78,33 @@
         ]
       },
       {
+        "tab": "Products",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "products/overview"
+            ]
+          },
+          {
+            "group": "Catalog",
+            "pages": [
+              "products/kyc-certificate",
+              "products/kyb-certificate",
+              "products/bank-specific-bad-actor-list",
+              "products/cross-bank-financial-crimes-watch-list",
+              "products/confirmed-fraud-attribute-list"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "products/coverage-check"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Concepts",
         "groups": [
           {
@@ -106,9 +133,14 @@
               "concepts/identity/entities",
               "concepts/identity/consent"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "API Overview",
+        "groups": [
           {
-            "group": "Contributing data",
+            "group": "Furnishing API",
             "pages": [
               "concepts/furnishing/overview",
               "concepts/furnishing/file-upload",
@@ -124,7 +156,7 @@
             ]
           },
           {
-            "group": "Consuming data",
+            "group": "Query API",
             "pages": [
               "concepts/querying/overview",
               "concepts/querying/products",
@@ -132,6 +164,18 @@
               "concepts/querying/kyb-certificate",
               "concepts/querying/screening-lists",
               "concepts/querying/coverage-check"
+            ]
+          },
+          {
+            "group": "The Collect SDK",
+            "pages": [
+              "concepts/collect-sdk/overview"
+            ]
+          },
+          {
+            "group": "The Index Microservice",
+            "pages": [
+              "concepts/index-microservice/overview"
             ]
           }
         ]

@@ -1,0 +1,69 @@
+---
+title: 'KYB Certificate'
+description: 'Reusable business-verification certificate for business onboarding'
+icon: 'building'
+---
+
+The **KYB Certificate** is a reusable Know Your Business attestation that
+packages UBO (ultimate beneficial owner), incorporation, and business-identity
+evidence into a single certificate. Rather than each institution repeating
+registry lookups, ownership tracing, and risk screening for the same business, a
+query assembles the verification work already furnished by network participants
+into one network-issued result.
+
+| | |
+|---|---|
+| **Category** | Identity Verification |
+| **Use case** | Customer onboarding |
+| **Subject** | Business |
+| **Family** | Certificate (issues a `certificate_id`) |
+| **Operations** | `POST /v1/products/kyb_certificate/query`, `POST /v1/products/kyb_certificate/furnish` |
+
+## What's in the certificate
+
+A KYB certificate consolidates three **sub-products**, each a block in the query
+response with its own `assertions` (what was attested, and when) and `data` (the
+supporting attributes):
+
+| Sub-product | Response key | What it attests |
+|---|---|---|
+| Business identity verification | `business_identity_verification` | The legal entity exists and is what it claims — registration, jurisdiction, tax ID validation, operational existence. |
+| Ownership & control verification | `business_ownership_control_verification` | Beneficial owners, control persons, and authorized representatives were identified and evidenced. |
+| Risk & compliance assessment | `business_risk_compliance_assessment` | Sanctions, adverse media, restricted-activity, and activity-risk screening were performed. |
+
+Every populated sub-product carries the `furnishing_entity_id` of the
+participant whose data backed it and the `attestation_id` of their attestation.
+
+## At a glance
+
+```bash
+curl -X POST https://api.solo.one/v1/products/kyb_certificate/query \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "consent_id": "a3f0b9c7-…",
+    "policy_id": "5e7d2a14-…",
+    "network_ids": ["9f1c0c2e-…"]
+  }'
+```
+
+A `200 OK` means a certificate was issued — the response carries a
+`certificate_id`, the billable `query_event_id`, and a `result` block with each
+sub-product (sub-products without qualifying data are `null`). A `204 No Content`
+means the available data did not satisfy the policy.
+
+<Card title="Full field reference & response schema" icon="book" href="/concepts/querying/kyb-certificate">
+  The complete KYB certificate deep dive — every model, the full response
+  example, how it resolves per network, and the `204` rules.
+</Card>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Products" icon="box" href="/products/overview">
+    The full product catalog.
+  </Card>
+  <Card title="Coverage check" icon="list-radio" href="/products/coverage-check">
+    Check field coverage before running a billable query.
+  </Card>
+</CardGroup>
