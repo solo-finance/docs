@@ -7,7 +7,7 @@ icon: 'list-check'
 SOLO offers two **screening list** products in the Fraud & Financial Crime
 category. Both answer a narrow question — *is this consumer on a list?* — and
 return a listing indicator plus a small set of context fields. Unlike
-[certificates](/concepts/querying/kyc-certificate), screening list queries never
+[certificates](/api-overview/querying/kyc-certificate), screening list queries never
 issue a reusable artifact; they are point-in-time checks.
 
 | | Bank-Specific Bad Actor List | Cross-Bank Financial Crimes Watch List |
@@ -29,7 +29,7 @@ contributed by network participants through governed furnishing flows.
 
 ## Querying
 
-Both endpoints take the standard [query request](/concepts/querying/overview):
+Both endpoints take the standard [query request](/api-overview/querying/overview):
 a `consent_id` (or `consumer_id` for permissible-purpose lookups) plus the
 `network_ids` scope, with optional `policy_id` and `furnishing_entity_ids`.
 
@@ -113,10 +113,10 @@ curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_
 <Note>
   Screening list queries always return `200 OK` — a clean result is expressed as
   `"is_listed": false`, not as a `204`. (The `204` semantics on the
-  [certificate endpoints](/concepts/querying/kyc-certificate#when-you-get-a-204)
+  [certificate endpoints](/api-overview/querying/kyc-certificate#when-you-get-a-204)
   signal that *no certificate could be created*; a list check always produces a
   usable answer.) Both queries are billable events and carry the
-  [`X-Ref-Id` header](/concepts/querying/overview#the-x-ref-id-header).
+  [`X-Ref-Id` header](/api-overview/querying/overview#the-x-ref-id-header).
 </Note>
 
 ## How matching works
@@ -183,10 +183,10 @@ categories and signal levels a query considers — for example, only
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     Request anatomy, billing, and the X-Ref-Id header.
   </Card>
-  <Card title="Products" icon="box" href="/concepts/querying/products">
+  <Card title="Products" icon="box" href="/api-overview/querying/products">
     The full product catalog.
   </Card>
 </CardGroup>

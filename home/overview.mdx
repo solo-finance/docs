@@ -72,7 +72,7 @@ first.
 
 ### Product
 
-A [product](/concepts/querying/products) is the unit of data you furnish or
+A [product](/api-overview/querying/products) is the unit of data you furnish or
 query — a standardized package rather than a raw table. The network currently
 offers KYC and KYB certificates (consolidated identity-verification outcomes
 for consumers and businesses respectively) and screening lists (a bank-specific
@@ -80,7 +80,7 @@ bad-actor list and a cross-bank financial-crimes watch list). Products expose
 `query` and, where applicable, `furnish` operations under
 `/v1/products/{product}/…`. A non-billable soft check,
 `POST /v1/products/check`, reports per-furnisher field
-[coverage](/concepts/querying/coverage-check) for a product before you commit
+[coverage](/api-overview/querying/coverage-check) for a product before you commit
 to a billable query.
 
 ### Policy
@@ -145,8 +145,8 @@ sequenceDiagram
 2. **Create consent.** Record the subject's permission and hold on to the
    returned `consent_id`. Without it, product queries fail.
 3. **Furnish.** Contribute data through a product's `furnish` endpoint — or in
-   bulk via [file upload](/concepts/furnishing/file-upload) or
-   [SFTP](/concepts/sftp/overview). The network's furnishing policy validates
+   bulk via [file upload](/api-overview/furnishing/file-upload) or
+   [SFTP](/api-overview/sftp/overview). The network's furnishing policy validates
    what you send.
 4. **Query.** Ask a product for consolidated data, citing your `consent_id` and
    the network policy to run under. The result is assembled from every
@@ -196,22 +196,22 @@ integrating.
 For depth on any single building block, follow its link above into the
 concepts section. Two reading paths are worth calling out: if your organization
 primarily contributes data, continue from
-[Furnishing](/concepts/furnishing/overview) into
-[file upload](/concepts/furnishing/file-upload) and the
-[SFTP guide](/concepts/sftp/getting-started) for bulk ingestion; if it
+[Furnishing](/api-overview/furnishing/overview) into
+[file upload](/api-overview/furnishing/file-upload) and the
+[SFTP guide](/api-overview/sftp/getting-started) for bulk ingestion; if it
 primarily consumes data, continue from
-[Querying](/concepts/querying/overview) into the individual product pages —
-[KYC certificate](/concepts/querying/kyc-certificate),
-[KYB certificate](/concepts/querying/kyb-certificate), and
-[screening lists](/concepts/querying/screening-lists).
+[Querying](/api-overview/querying/overview) into the individual product pages —
+[KYC certificate](/api-overview/querying/kyc-certificate),
+[KYB certificate](/api-overview/querying/kyb-certificate), and
+[screening lists](/api-overview/querying/screening-lists).
 
 <DashboardHomeOverview />
 
 <CardGroup cols={2}>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     How a query resolves across network, policy, consent, and entitlement.
   </Card>
-  <Card title="Furnishing" icon="arrow-up-from-bracket" href="/concepts/furnishing/overview">
+  <Card title="Furnishing" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
     How contributed data is validated, stored, and made queryable.
   </Card>
 </CardGroup>

@@ -7,7 +7,7 @@ import DashboardGovernanceQueryingPolicies from '/snippets/dashboard/governance-
 
 A **querying policy** is the set of read rules a
 [network](/concepts/governance/networks) applies to a
-[product](/concepts/querying/products). It binds the product to the network and
+[product](/api-overview/querying/products). It binds the product to the network and
 defines, field by field, what queriers may read — and from which sources.
 
 The same product can be configured differently in different networks. Querying
@@ -171,7 +171,7 @@ responsibility. Queriers consume policies; they don't write them.
 
 ## How a query selects a policy
 
-When you [query a product](/concepts/querying/overview), the request body
+When you [query a product](/api-overview/querying/overview), the request body
 carries the network scope and, optionally, the policy:
 
 ```bash
@@ -281,7 +281,7 @@ All errors use the standard envelope (see [Errors](/home/errors)):
   <Card title="Entitlement" icon="key" href="/concepts/governance/entitlement">
     The per-participant layer that narrows what a policy exposes.
   </Card>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     How policies plug into a product query.
   </Card>
   <Card title="Networks" icon="sitemap" href="/concepts/governance/networks">

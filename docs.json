@@ -142,15 +142,15 @@
           {
             "group": "Furnishing API",
             "pages": [
-              "concepts/furnishing/overview",
-              "concepts/furnishing/file-upload",
+              "api-overview/furnishing/overview",
+              "api-overview/furnishing/file-upload",
               {
                 "group": "SFTP Ingestion",
                 "pages": [
-                  "concepts/sftp/getting-started",
-                  "concepts/sftp/overview",
-                  "concepts/sftp/csv-format",
-                  "concepts/sftp/schemas"
+                  "api-overview/sftp/getting-started",
+                  "api-overview/sftp/overview",
+                  "api-overview/sftp/csv-format",
+                  "api-overview/sftp/schemas"
                 ]
               }
             ]
@@ -158,24 +158,24 @@
           {
             "group": "Query API",
             "pages": [
-              "concepts/querying/overview",
-              "concepts/querying/products",
-              "concepts/querying/kyc-certificate",
-              "concepts/querying/kyb-certificate",
-              "concepts/querying/screening-lists",
-              "concepts/querying/coverage-check"
+              "api-overview/querying/overview",
+              "api-overview/querying/products",
+              "api-overview/querying/kyc-certificate",
+              "api-overview/querying/kyb-certificate",
+              "api-overview/querying/screening-lists",
+              "api-overview/querying/coverage-check"
             ]
           },
           {
             "group": "The Collect SDK",
             "pages": [
-              "concepts/collect-sdk/overview"
+              "api-overview/collect-sdk/overview"
             ]
           },
           {
             "group": "The Index Microservice",
             "pages": [
-              "concepts/index-microservice/overview"
+              "api-overview/index-microservice/overview"
             ]
           }
         ]

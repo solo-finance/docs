@@ -32,7 +32,7 @@ of normal participation:
 
 <Steps>
   <Step title="Furnishing data">
-    When you [furnish](/concepts/furnishing/overview) through a product endpoint
+    When you [furnish](/api-overview/furnishing/overview) through a product endpoint
     (for example `POST /v1/products/kyc_certificate/furnish`), the identity in
     your payload is resolved to an existing profile or a new one is created.
   </Step>
@@ -207,7 +207,7 @@ Business results carry these fields:
 <Note>
   Search returns **core identity fields only** — enough to confirm you have the
   right subject. It is not a data product: credit and verification data come
-  back through [product queries](/concepts/querying/overview), gated by consent and
+  back through [product queries](/api-overview/querying/overview), gated by consent and
   entitlement.
 </Note>
 
@@ -231,7 +231,7 @@ before consenting and querying a consumer:
     links a fresh consumer profile.
   </Step>
   <Step title="Query with the consent_id">
-    Use the returned `consent_id` on [product queries](/concepts/querying/products) for
+    Use the returned `consent_id` on [product queries](/api-overview/querying/products) for
     that subject.
   </Step>
 </Steps>
@@ -319,10 +319,10 @@ entity you can see in one network is not automatically visible in another. See
   <Card title="Entitlement" icon="key" href="/concepts/governance/entitlement">
     Why you can read a given field about an entity.
   </Card>
-  <Card title="Furnishing" icon="upload" href="/concepts/furnishing/overview">
+  <Card title="Furnishing" icon="upload" href="/api-overview/furnishing/overview">
     How contributing data creates and enriches entities.
   </Card>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     How consolidated entity data is read back.
   </Card>
 </CardGroup>

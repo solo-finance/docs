@@ -6,7 +6,7 @@ icon: 'file-excel'
 
 Every file ingested through the SFTP channel is an Excel workbook (`.xlsx`)
 with the same physical layout, regardless of
-[category](/concepts/sftp/schemas). This page is the authoritative reference
+[category](/api-overview/sftp/schemas). This page is the authoritative reference
 for that layout: row structure, header matching, cell types, and the
 formatting mistakes that account for nearly all rejected rows.
 
@@ -70,13 +70,13 @@ reorder columns freely. Three consequences of name-based matching:
   error names both column positions.
 - **Missing required headers reject the whole workbook.** The error lists
   every missing header. This is a file-level failure — fix the header row and
-  re-upload. See [Upload Categories](/concepts/sftp/schemas) for which headers
+  re-upload. See [Upload Categories](/api-overview/sftp/schemas) for which headers
   each category requires.
 
 <Tip>
   "Required column" means the **header** must be present in row 2. Whether an
   individual *cell* may be blank is a per-field rule — see the
-  required/optional markers in the [category reference](/concepts/sftp/schemas).
+  required/optional markers in the [category reference](/api-overview/sftp/schemas).
 </Tip>
 
 ## Cell types and formats
@@ -125,7 +125,7 @@ programmatically.
 | Data on the second sheet | Sheet ignored; first sheet (often empty) is parsed | Move data to the first sheet |
 | SSN/EIN in a numeric cell | Leading zeros silently dropped → wrong identifier, wrong entity match | Format identifier columns as Text |
 | US-style date text (`01/15/2026`) | Row rejected: expected an ISO date | Use Excel date cells or `2026-01-15` |
-| Misspelled header (`plicy_name`) | Treated as unknown column; workbook rejected for the missing required header | Copy headers from the [templates](/concepts/sftp/schemas) |
+| Misspelled header (`plicy_name`) | Treated as unknown column; workbook rejected for the missing required header | Copy headers from the [templates](/api-overview/sftp/schemas) |
 | Two columns normalizing to one field | Whole workbook rejected as duplicate header | Delete the duplicate column |
 | Formula never calculated | Row rejected, error lists the columns | Open + save in Excel, or write literal values |
 | Real data prefixed `Ex.` | Row silently skipped as a template example | Remove the `Ex.` prefix |
@@ -144,10 +144,10 @@ programmatically.
     spreadsheet row number (counted as Excel displays it, banner and header
     included) and a human-readable message naming the offending column. Fix
     the rows and re-upload under a new filename — data rows
-    [upsert on natural keys](/concepts/sftp/overview#what-happens-on-upload),
+    [upsert on natural keys](/api-overview/sftp/overview#what-happens-on-upload),
     so corrected rows update rather than duplicate.
   </Accordion>
 </AccordionGroup>
 
 For the exact columns each category expects, continue to
-[Upload Categories](/concepts/sftp/schemas).
+[Upload Categories](/api-overview/sftp/schemas).

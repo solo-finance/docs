@@ -19,10 +19,10 @@ networks you belong to.
 
 | Product | What it answers | Subject | Query path |
 |---|---|---|---|
-| [KYC Certificate](/concepts/querying/kyc-certificate) | "Has this consumer's identity been verified — documents, biometrics, liveness, address, and corroboration?" | Consumer | `POST /v1/products/kyc_certificate/query` |
-| [KYB Certificate](/concepts/querying/kyb-certificate) | "Has this business been verified — identity, ownership & control, and risk/compliance?" | Business | `POST /v1/products/kyb_certificate/query` |
-| [Bank-Specific Bad Actor List](/concepts/querying/screening-lists) | "Has this consumer violated a documented policy of this sponsor bank's program?" | Consumer | `POST /v1/products/bank_specific_bad_actor_list/query` |
-| [Cross-Bank Financial Crimes Watch List](/concepts/querying/screening-lists) | "Is this consumer associated with suspicious financial-crimes activity reported across participating banks?" | Consumer | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
+| [KYC Certificate](/api-overview/querying/kyc-certificate) | "Has this consumer's identity been verified — documents, biometrics, liveness, address, and corroboration?" | Consumer | `POST /v1/products/kyc_certificate/query` |
+| [KYB Certificate](/api-overview/querying/kyb-certificate) | "Has this business been verified — identity, ownership & control, and risk/compliance?" | Business | `POST /v1/products/kyb_certificate/query` |
+| [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) | "Has this consumer violated a documented policy of this sponsor bank's program?" | Consumer | `POST /v1/products/bank_specific_bad_actor_list/query` |
+| [Cross-Bank Financial Crimes Watch List](/api-overview/querying/screening-lists) | "Is this consumer associated with suspicious financial-crimes activity reported across participating banks?" | Consumer | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
 They fall into two families:
 
@@ -62,13 +62,13 @@ POST /v1/products/{product}/furnish    (certificate products)
 ```
 
 Certificate products accept structured JSON furnishing via the API, and bulk
-furnishing via [file upload](/concepts/furnishing/file-upload) or
-[SFTP](/concepts/sftp/overview). The two screening lists are query-only over
+furnishing via [file upload](/api-overview/furnishing/file-upload) or
+[SFTP](/api-overview/sftp/overview). The two screening lists are query-only over
 the API; the data behind them is contributed through governed furnishing flows.
 
 There is also one utility endpoint that is **not** a product query:
 `POST /v1/products/check`, the non-billable
-[coverage check](/concepts/querying/coverage-check), which reports whether the
+[coverage check](/api-overview/querying/coverage-check), which reports whether the
 furnished data for a subject can satisfy a policy *before* you run a billable
 query.
 
@@ -98,7 +98,7 @@ scope determines what actually comes back. What you're
 Each product's schema is defined as a set of **models** — named groups of typed
 fields such as `DocumentCaptureEvent` or `BusinessRiskComplianceEvent`. These
 model and field names are the shared vocabulary across the platform: policies
-select them, the [coverage check](/concepts/querying/coverage-check) reports
+select them, the [coverage check](/api-overview/querying/coverage-check) reports
 against them, and the per-product field reference tables document them. When a
 policy "requires liveness within 30 days," it is expressing a filter over a
 product model's fields — the same fields you'll see in the query response.
@@ -117,7 +117,7 @@ scope:
 }
 ```
 
-See [Querying](/concepts/querying/overview) for the full request anatomy,
+See [Querying](/api-overview/querying/overview) for the full request anatomy,
 `200` vs `204` semantics, the `X-Ref-Id` audit header, and billing notes.
 
 ## Furnishing a product
@@ -142,17 +142,17 @@ Furnishing contributes one or more records for an entity into a network:
 
 The network matches each record to an entity and stores the furnished data under
 your organization, building your [entitlement](/concepts/governance/entitlement)
-to query it back later. See [Furnishing](/concepts/furnishing/overview).
+to query it back later. See [Furnishing](/api-overview/furnishing/overview).
 
 ## Choosing a product
 
 | If you need to… | Use |
 |---|---|
-| Verify a consumer's identity at onboarding | [KYC Certificate](/concepts/querying/kyc-certificate) |
-| Verify a business and its beneficial owners | [KYB Certificate](/concepts/querying/kyb-certificate) |
-| Screen a consumer against your sponsor bank's program history | [Bank-Specific Bad Actor List](/concepts/querying/screening-lists) |
-| Screen a consumer for cross-bank financial-crimes signals | [Cross-Bank Financial Crimes Watch List](/concepts/querying/screening-lists) |
-| Know whether a query can succeed before paying for it | [Coverage Check](/concepts/querying/coverage-check) |
+| Verify a consumer's identity at onboarding | [KYC Certificate](/api-overview/querying/kyc-certificate) |
+| Verify a business and its beneficial owners | [KYB Certificate](/api-overview/querying/kyb-certificate) |
+| Screen a consumer against your sponsor bank's program history | [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) |
+| Screen a consumer for cross-bank financial-crimes signals | [Cross-Bank Financial Crimes Watch List](/api-overview/querying/screening-lists) |
+| Know whether a query can succeed before paying for it | [Coverage Check](/api-overview/querying/coverage-check) |
 
 In practice these compose: an onboarding flow might run both screening lists
 first, then a coverage check, then the KYC certificate query — three billable
@@ -164,18 +164,18 @@ certificate query is worth running.
 ## Product deep dives
 
 <CardGroup cols={2}>
-  <Card title="KYC Certificate" icon="id-card" href="/concepts/querying/kyc-certificate">
+  <Card title="KYC Certificate" icon="id-card" href="/api-overview/querying/kyc-certificate">
     Consolidated consumer identity verification — nine sub-products, full field
     reference.
   </Card>
-  <Card title="KYB Certificate" icon="building" href="/concepts/querying/kyb-certificate">
+  <Card title="KYB Certificate" icon="building" href="/api-overview/querying/kyb-certificate">
     Business identity, ownership & control, and risk/compliance in one
     certificate.
   </Card>
-  <Card title="Screening Lists" icon="list-check" href="/concepts/querying/screening-lists">
+  <Card title="Screening Lists" icon="list-check" href="/api-overview/querying/screening-lists">
     Bank-specific bad actor and cross-bank financial crimes watch lists.
   </Card>
-  <Card title="Coverage Check" icon="list-radio" href="/concepts/querying/coverage-check">
+  <Card title="Coverage Check" icon="list-radio" href="/api-overview/querying/coverage-check">
     Non-billable pre-flight: can this query succeed under this policy?
   </Card>
 </CardGroup>

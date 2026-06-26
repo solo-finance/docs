@@ -11,11 +11,11 @@ repeating the work.
 
 "Trust asset" is a lens, not a new API object. It names what already exists in
 the platform when you put the pieces together: a furnished
-[verification](/concepts/furnishing/overview) event, its supporting evidence,
+[verification](/api-overview/furnishing/overview) event, its supporting evidence,
 the [attestation](/concepts/trust/provenance) that records who stands behind it,
 and the [consent](/concepts/identity/consent) and
 [entitlement](/concepts/governance/entitlement) that decide who may reuse it. A
-[product query](/concepts/querying/products) assembles trust assets into a
+[product query](/api-overview/querying/products) assembles trust assets into a
 certificate.
 
 ## What makes a verification a *trust asset*
@@ -33,13 +33,13 @@ carries the context that makes reuse safe:
 | **Permission** | Who is allowed to reuse it? | The subject's [consent](/concepts/identity/consent) |
 | **Precision** | Which fields may *this* reader see? | [Entitlement](/concepts/governance/entitlement), earned by participation |
 | **Reuse eligibility** | Is it fresh and complete enough to count? | The [querying policy](/concepts/governance/querying-policies)'s field and freshness filters |
-| **Consolidation** | How is it delivered for reuse? | A [certificate](/concepts/querying/products) (`certificate_id`, with its as-of date) |
+| **Consolidation** | How is it delivered for reuse? | A [certificate](/api-overview/querying/products) (`certificate_id`, with its as-of date) |
 
 A data aggregator returns the first row of that table. SOLO returns all of it.
 
 ## A trust asset, concretely
 
-Here is one populated sub-product from a [KYB certificate](/concepts/querying/kyb-certificate)
+Here is one populated sub-product from a [KYB certificate](/api-overview/querying/kyb-certificate)
 query — a single trust asset in the wild:
 
 ```json
@@ -90,7 +90,7 @@ flowchart LR
     Policy --> Cert["Certificate issued · reused by another institution"]
 ```
 
-1. **Create.** An institution [furnishes](/concepts/furnishing/overview) the
+1. **Create.** An institution [furnishes](/api-overview/furnishing/overview) the
    verification it performed. The furnished events, their evidence, and the
    institution's attestation become a trust asset attributed to that
    contributor.
@@ -99,8 +99,8 @@ flowchart LR
    decides which fields a given reader sees; the
    [querying policy](/concepts/governance/querying-policies) decides whether the
    asset is fresh and complete enough to count.
-3. **Reuse.** A [product query](/concepts/querying/products) consolidates the
-   eligible trust assets into a [certificate](/concepts/querying/kyc-certificate).
+3. **Reuse.** A [product query](/api-overview/querying/products) consolidates the
+   eligible trust assets into a [certificate](/api-overview/querying/kyc-certificate).
    If nothing eligible exists, the query returns `204` rather than a stale or
    unattributed answer.
 
@@ -112,7 +112,7 @@ Trust assets sit in the middle of how the platform is organized:
 |---|---|---|
 | **Trust graph** | The subjects and the verifications attached to them | [Consumer graph](/concepts/trust/consumer-graph), [Business graph](/concepts/trust/business-graph) |
 | **Trust assets** | Attested, evidenced verifications that become reusable | This page, [Provenance](/concepts/trust/provenance) |
-| **Trust products** | The outcomes a query delivers | [Products](/concepts/querying/products), [KYC](/concepts/querying/kyc-certificate), [KYB](/concepts/querying/kyb-certificate) |
+| **Trust products** | The outcomes a query delivers | [Products](/api-overview/querying/products), [KYC](/api-overview/querying/kyc-certificate), [KYB](/api-overview/querying/kyb-certificate) |
 
 <Note>
   Trust assets describe data that **exists today** — furnished verification
@@ -134,7 +134,7 @@ Trust assets sit in the middle of how the platform is organized:
   <Card title="Consumer graph" icon="user" href="/concepts/trust/consumer-graph">
     The trust assets that can exist for a consumer.
   </Card>
-  <Card title="Products" icon="box" href="/concepts/querying/products">
+  <Card title="Products" icon="box" href="/api-overview/querying/products">
     How trust assets are consolidated and delivered.
   </Card>
 </CardGroup>

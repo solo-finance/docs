@@ -87,11 +87,11 @@ On a successful connection you'll land at the root of your organization's upload
 
 ## Step 3 — Download a template
 
-Every upload is an Excel workbook (`.xlsx`) that lands in one of five category directories. Workbook templates are available on the [Upload Categories](/concepts/sftp/schemas) page — they include the required header row, an example row, and the right column names already in place.
+Every upload is an Excel workbook (`.xlsx`) that lands in one of five category directories. Workbook templates are available on the [Upload Categories](/api-overview/sftp/schemas) page — they include the required header row, an example row, and the right column names already in place.
 
 For this walkthrough, start with the simplest path: defining a **KYC certificate policy** that a furnisher can later attach data to.
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyc-cert-policy-template.xlsx">
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyc-cert-policy-template.xlsx">
   KYC Certificate Policy Template (.xlsx)
 </Card>
 
@@ -107,7 +107,7 @@ Open the template in Excel (or any other spreadsheet app) and add one row of rea
 |---------------------------|---------------|---------------|--------------------|--------------------|------------------------|
 | First KYC Test Policy     | `2026-01-01`  | `Consumer`    | `true`             | `true`             | `true`                 |
 
-A few things to know about the workbook format ([full reference](/concepts/sftp/csv-format)):
+A few things to know about the workbook format ([full reference](/api-overview/sftp/csv-format)):
 
 - Only the **first sheet** of the workbook is read.
 - **Row 1** is a banner — anything you put there is ignored.
@@ -188,13 +188,13 @@ The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **D
 ## Where to go next
 
 <CardGroup cols={2}>
-  <Card title="SFTP Overview" icon="server" href="/concepts/sftp/overview">
+  <Card title="SFTP Overview" icon="server" href="/api-overview/sftp/overview">
     The full mental model — categories, environments, how routing works.
   </Card>
-  <Card title="Upload Categories" icon="list" href="/concepts/sftp/schemas">
+  <Card title="Upload Categories" icon="list" href="/api-overview/sftp/schemas">
     Required and optional columns for every category, plus downloadable templates.
   </Card>
-  <Card title="Workbook Format" icon="file-excel" href="/concepts/sftp/csv-format">
+  <Card title="Workbook Format" icon="file-excel" href="/api-overview/sftp/csv-format">
     Detailed rules for headers, data types, and the row 1 banner convention.
   </Card>
   <Card title="API Reference" icon="webhook" href="/api-reference/introduction">

@@ -32,7 +32,7 @@ Authorization: Bearer <token>
     Search consumers and businesses within a [network](/concepts/governance/networks).
   </Card>
   <Card title="Products" icon="box">
-    Query and furnish [products](/concepts/querying/products) — KYC/KYB certificates and
+    Query and furnish [products](/api-overview/querying/products) — KYC/KYB certificates and
     screening lists.
   </Card>
   <Card title="Policies" icon="sliders">
@@ -43,7 +43,7 @@ Authorization: Bearer <token>
     Create or renew an institution attestation for a product.
   </Card>
   <Card title="Bulk ingestion" icon="file-import">
-    Upload files for ingestion. See also the [SFTP guide](/concepts/sftp/overview).
+    Upload files for ingestion. See also the [SFTP guide](/api-overview/sftp/overview).
   </Card>
 </CardGroup>
 
@@ -52,7 +52,7 @@ Authorization: Bearer <token>
 - **Products** expose `query` (read) and `furnish` (write) operations under
   `/v1/products/{product}/…`.
 - **Querying** a product requires a `consent_id` and one or more `network_policy`
-  pairs. See [Querying](/concepts/querying/overview).
+  pairs. See [Querying](/api-overview/querying/overview).
 - **Furnishing** a product requires a `network_id`, `program_name`, and
-  `application_date`. See [Furnishing](/concepts/furnishing/overview).
+  `application_date`. See [Furnishing](/api-overview/furnishing/overview).
 - Errors follow a consistent JSON shape — see [Errors](/home/errors).

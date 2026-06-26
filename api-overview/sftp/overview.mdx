@@ -10,7 +10,7 @@ The SOLO Network supports bulk data ingestion via SFTP. Upload Excel workbooks
 to your organization's SFTP endpoint, and each file is automatically routed to
 the right ingestion workflow, validated row by row, and written into the
 network — through the **same furnishing pipeline** that backs the
-[REST channels](/concepts/furnishing/overview). SFTP is a transport, not a
+[REST channels](/api-overview/furnishing/overview). SFTP is a transport, not a
 separate system: a record dropped over SFTP and the same record furnished over
 HTTPS produce identical network data.
 
@@ -121,7 +121,7 @@ the workbook:
 | KYC Furnish Data | `kyc_furnish_data/` | Consumer onboarding records for KYC certificates |
 | KYB Furnish Data | `kyb_furnish_data/` | Business onboarding records for KYB certificates |
 
-See [Upload Categories](/concepts/sftp/schemas) for the expected columns in
+See [Upload Categories](/api-overview/sftp/schemas) for the expected columns in
 each category.
 
 ## What happens on upload
@@ -144,7 +144,7 @@ flowchart LR
    category — within seconds of the upload completing.
 3. **Parse.** The workbook is read: first sheet only, row 1 treated as a
    banner, row 2 as headers, row 3+ as data
-   ([format details](/concepts/sftp/csv-format)).
+   ([format details](/api-overview/sftp/csv-format)).
 4. **Ingest.** Each row runs through the same furnishing pipeline as the API
    channels. For data categories that means program routing and
    [furnishing-policy resolution](/concepts/governance/furnishing-policies)
@@ -181,7 +181,7 @@ Key behaviors:
 - **Row 2**: column headers
 - **Row 3+**: data rows
 
-See [Workbook Format](/concepts/sftp/csv-format) for the full rules, including
+See [Workbook Format](/api-overview/sftp/csv-format) for the full rules, including
 data types and common pitfalls.
 
 ## Relationship to the API channels
@@ -189,7 +189,7 @@ data types and common pitfalls.
 SFTP shares everything but the transport with the REST furnishing surface:
 
 - The five directories map one-to-one onto the `slug` values accepted by the
-  [bulk file upload endpoint](/concepts/furnishing/file-upload)
+  [bulk file upload endpoint](/api-overview/furnishing/file-upload)
   (`POST /v1/file-upload/ingest`).
 - Data rows go through the same program routing and policy resolution as a
   per-record `POST /v1/products/kyc_certificate/furnish` call — and earn the
@@ -212,7 +212,7 @@ Use plus-addressing on the email username to target an environment:
 
 Each environment writes to its own isolated storage; nothing uploaded to
 sandbox can reach production data. Start in sandbox — the
-[getting-started guide](/concepts/sftp/getting-started) walks through a first
+[getting-started guide](/api-overview/sftp/getting-started) walks through a first
 upload end to end.
 
 ## Who can upload what
@@ -230,16 +230,16 @@ The five categories split into two permission tiers:
 <DashboardSftpOverview />
 
 <CardGroup cols={2}>
-  <Card title="Getting Started" icon="rocket" href="/concepts/sftp/getting-started">
+  <Card title="Getting Started" icon="rocket" href="/api-overview/sftp/getting-started">
     Your first upload, end to end, in about 15 minutes.
   </Card>
-  <Card title="Upload Categories" icon="list" href="/concepts/sftp/schemas">
+  <Card title="Upload Categories" icon="list" href="/api-overview/sftp/schemas">
     Required and optional columns for every category.
   </Card>
-  <Card title="Workbook Format" icon="file-excel" href="/concepts/sftp/csv-format">
+  <Card title="Workbook Format" icon="file-excel" href="/api-overview/sftp/csv-format">
     Header normalization, data types, and formatting rules.
   </Card>
-  <Card title="Furnishing Overview" icon="arrow-up-from-bracket" href="/concepts/furnishing/overview">
+  <Card title="Furnishing Overview" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
     How SFTP relates to the REST furnishing channels.
   </Card>
 </CardGroup>

@@ -69,13 +69,13 @@ exists in the API today:
 
 | Claim | How SOLO actually does it |
 |---|---|
-| "Reuse verified information" | A [product](/concepts/querying/products) query *consolidates* verification events furnished by participants into a single [KYC](/concepts/querying/kyc-certificate) or [KYB](/concepts/querying/kyb-certificate) certificate, instead of re-collecting the underlying evidence. |
+| "Reuse verified information" | A [product](/api-overview/querying/products) query *consolidates* verification events furnished by participants into a single [KYC](/api-overview/querying/kyc-certificate) or [KYB](/api-overview/querying/kyb-certificate) certificate, instead of re-collecting the underlying evidence. |
 | "Preserve completed verification work" | Furnished work is stored as attested verification events and re-resolved on every future query — see [Trust assets](/concepts/trust/trust-assets). |
 | "Attributable" | Every certificate sub-product carries the `furnishing_entity_id` and `attestation_id` of its source — see [Provenance](/concepts/trust/provenance). |
 | "Permissioned" | Reads require the subject's [consent](/concepts/identity/consent), and fields are filtered by your [entitlement](/concepts/governance/entitlement). |
 | "How fresh must it be to count?" | [Querying policies](/concepts/governance/querying-policies) enforce freshness windows; data outside the window is not reused (a `204`, not a stale answer). |
 | "Contribute *and* benefit" | Furnishing earns the [entitlement](/concepts/governance/entitlement) that lets you read an entity back later — contribution and consumption are the same loop. |
-| "Know before you pay" | The non-billable [coverage check](/concepts/querying/coverage-check) answers *"does reusable verified work already exist for this subject?"* before a billable query. |
+| "Know before you pay" | The non-billable [coverage check](/api-overview/querying/coverage-check) answers *"does reusable verified work already exist for this subject?"* before a billable query. |
 
 ## What SOLO is not
 

@@ -15,7 +15,7 @@ method, and on what evidence.
 
 ## The lineage every certificate carries
 
-When a [product query](/concepts/querying/products) consolidates verifications
+When a [product query](/api-overview/querying/products) consolidates verifications
 into a certificate, each populated sub-product is self-describing:
 
 ```json
@@ -43,7 +43,7 @@ into a certificate, each populated sub-product is self-describing:
 | **Evidence** | artifact/upload fields (e.g. `…_artifact`, `paystub_upload`) | The concrete document behind the assertion |
 | **As-of date** | the certificate's `certificate_as_of_date` | How current the consolidated result is |
 
-The [coverage check](/concepts/querying/coverage-check) goes a step further and
+The [coverage check](/api-overview/querying/coverage-check) goes a step further and
 returns a human-readable `furnishing_entity_name` alongside the
 `furnishing_entity_id`, so you can see *which banks* can satisfy a product for a
 subject before you query.
@@ -123,7 +123,7 @@ when. Provenance turns "trust SOLO" into "trust the network, transparently."
   <Card title="Querying policies" icon="scale-balanced" href="/concepts/governance/querying-policies">
     Freshness windows and provenance options.
   </Card>
-  <Card title="Coverage check" icon="list-radio" href="/concepts/querying/coverage-check">
+  <Card title="Coverage check" icon="list-radio" href="/api-overview/querying/coverage-check">
     See which furnishers can satisfy a product before you query.
   </Card>
 </CardGroup>

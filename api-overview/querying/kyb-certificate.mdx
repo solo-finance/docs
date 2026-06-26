@@ -51,7 +51,7 @@ curl -X POST https://api.solo.one/v1/products/kyb_certificate/query \
   }'
 ```
 
-The request follows the standard [query anatomy](/concepts/querying/overview):
+The request follows the standard [query anatomy](/api-overview/querying/overview):
 identify the subject with `consent_id` (or `business_id` for direct
 permissible-purpose lookups), and scope the read with `network_ids` plus an
 optional `policy_id` and `furnishing_entity_ids`.
@@ -176,7 +176,7 @@ receive a `204` when:
   not populate.
 
 The body is empty; the `X-Ref-Id` header is still present and the query event
-is still recorded. Run a [coverage check](/concepts/querying/coverage-check)
+is still recorded. Run a [coverage check](/api-overview/querying/coverage-check)
 first to anticipate `204`s without spending a billable query.
 
 ## Furnishing
@@ -199,8 +199,8 @@ Participants contribute KYB data with
 ```
 
 The response is `{"success": true, "submission_id": "…"}`. Bulk contribution is
-also available via [file upload](/concepts/furnishing/file-upload) and
-[SFTP](/concepts/sftp/overview); see [Furnishing](/concepts/furnishing/overview)
+also available via [file upload](/api-overview/furnishing/file-upload) and
+[SFTP](/api-overview/sftp/overview); see [Furnishing](/api-overview/furnishing/overview)
 for the full model.
 
 ## Field reference
@@ -302,10 +302,10 @@ certificates, not data projected into the query response.
 
 <DashboardQueryingKybCertificate />
 <CardGroup cols={2}>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     Request anatomy, 200 vs 204, billing, and the X-Ref-Id header.
   </Card>
-  <Card title="Coverage check" icon="list-radio" href="/concepts/querying/coverage-check">
+  <Card title="Coverage check" icon="list-radio" href="/api-overview/querying/coverage-check">
     Check field coverage before running a billable query.
   </Card>
 </CardGroup>

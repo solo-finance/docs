@@ -137,7 +137,7 @@ consumer.
 
     Any furnisher with `complete: true` can satisfy the product's data
     requirements for this consumer. See
-    [Coverage check](/concepts/querying/coverage-check) for the full
+    [Coverage check](/api-overview/querying/coverage-check) for the full
     semantics.
   </Step>
 
@@ -342,7 +342,7 @@ with different identity data, create a new record instead.
   <Accordion title="204 — query ran but no certificate">
     Empty body, status `204`, with an `X-Ref-Id` header identifying the query
     event. The data you're entitled to read didn't satisfy the policy. Run the
-    [coverage check](/concepts/querying/coverage-check) to see which furnishers
+    [coverage check](/api-overview/querying/coverage-check) to see which furnishers
     and fields fall short, or revisit which networks and `policy_id` you're
     querying with.
   </Accordion>
@@ -353,16 +353,16 @@ with different identity data, create a new record instead.
 
 <DashboardQuickstartQueryAProduct />
 <CardGroup cols={2}>
-  <Card title="How querying works" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="How querying works" icon="magnifying-glass" href="/api-overview/querying/overview">
     Network + policy + product + consumer, end to end.
   </Card>
   <Card title="Why consent is needed" icon="file-signature" href="/concepts/identity/consent">
     The permission layer behind every query.
   </Card>
-  <Card title="Coverage check" icon="list-check" href="/concepts/querying/coverage-check">
+  <Card title="Coverage check" icon="list-check" href="/api-overview/querying/coverage-check">
     The non-billable soft check in depth.
   </Card>
-  <Card title="Products" icon="boxes-stacked" href="/concepts/querying/products">
+  <Card title="Products" icon="boxes-stacked" href="/api-overview/querying/products">
     KYB certificates, screening lists, and the rest of the catalog.
   </Card>
 </CardGroup>

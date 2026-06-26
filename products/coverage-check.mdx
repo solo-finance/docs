@@ -25,7 +25,7 @@ intend to query.
 ## Why it exists
 
 A product query that resolves but cannot satisfy the policy returns
-[`204 No Content`](/concepts/querying/overview#200-vs-204-here-is-data-vs-nothing-usable)
+[`204 No Content`](/api-overview/querying/overview#200-vs-204-here-is-data-vs-nothing-usable)
 — and that resolved query is still a billable event. The coverage check lets you
 avoid predictable `204`s for free.
 
@@ -67,7 +67,7 @@ A `200 OK` returns one entry per furnisher that has relevant data, each with a
   `200` — data can change between the check and the query.
 </Warning>
 
-<Card title="Full request & response schema" icon="book" href="/concepts/querying/coverage-check">
+<Card title="Full request & response schema" icon="book" href="/api-overview/querying/coverage-check">
   The complete coverage check deep dive — full request fields, the response
   shape, and when to use it.
 </Card>
@@ -78,7 +78,7 @@ A `200 OK` returns one entry per furnisher that has relevant data, each with a
   <Card title="Products" icon="box" href="/products/overview">
     The full product catalog.
   </Card>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     The billable query the coverage check pre-flights.
   </Card>
 </CardGroup>

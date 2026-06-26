@@ -71,10 +71,10 @@ When to choose each:
 - **REST furnish** when furnishing is an event in your system — a consumer
   finishes onboarding, you furnish their record in the same workflow. Lowest
   latency, immediate feedback, no file handling.
-- **[Bulk file upload](/concepts/furnishing/file-upload)** when you have a
+- **[Bulk file upload](/api-overview/furnishing/file-upload)** when you have a
   periodic batch job and an HTTPS client but don't want to manage SFTP
   credentials or a file-transfer pipeline.
-- **[SFTP](/concepts/sftp/overview)** when your data already leaves your
+- **[SFTP](/api-overview/sftp/overview)** when your data already leaves your
   systems as files on a schedule. Most core-banking and data-warehouse stacks
   can target an SFTP endpoint with zero custom code, which makes it the usual
   choice for nightly or monthly drops.
@@ -243,7 +243,7 @@ hold across every channel:
 | Needs a policy you pass? | No (resolved automatically) | Yes (`network_policy`) |
 | Earns entitlement? | Yes | Yes |
 
-See [Querying](/concepts/querying/overview) for the read half.
+See [Querying](/api-overview/querying/overview) for the read half.
 
 ## Troubleshooting
 
@@ -259,7 +259,7 @@ See [Querying](/concepts/querying/overview) for the read half.
     its governor. Program names are matched within the network identified by
     `network_id` — confirm both halves. If the program genuinely doesn't exist
     yet, the governor needs to create it (over the API or a
-    [programs workbook](/concepts/sftp/schemas#programs)) before you furnish
+    [programs workbook](/api-overview/sftp/schemas#programs)) before you furnish
     against it.
   </Accordion>
   <Accordion title="Records accepted but no certificate appears">
@@ -286,10 +286,10 @@ See [Querying](/concepts/querying/overview) for the read half.
 ## Related concepts
 
 <CardGroup cols={2}>
-  <Card title="Bulk File Upload" icon="file-arrow-up" href="/concepts/furnishing/file-upload">
+  <Card title="Bulk File Upload" icon="file-arrow-up" href="/api-overview/furnishing/file-upload">
     Furnish whole files over REST with one request.
   </Card>
-  <Card title="SFTP Ingestion" icon="server" href="/concepts/sftp/overview">
+  <Card title="SFTP Ingestion" icon="server" href="/api-overview/sftp/overview">
     Recurring workbook drops, no HTTP client required.
   </Card>
   <Card title="Furnishing Policies" icon="scale-balanced" href="/concepts/governance/furnishing-policies">

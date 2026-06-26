@@ -12,7 +12,7 @@ Each category corresponds to a directory name in the upload path:
 
 The tables below are the column-by-column reference for every category. Column
 names are given in **normalized form** — headers in your workbook are matched
-after [normalization](/concepts/sftp/csv-format#header-normalization), so
+after [normalization](/api-overview/sftp/csv-format#header-normalization), so
 `KYC Policy Name`, `kyc policy name`, and `kyc_policy_name` are all the same
 column, and column order never matters.
 
@@ -40,7 +40,7 @@ policy whose operation flags control which verification steps are active.
 Policy workbooks configure the network, so they are accepted only from the
 network's [governor](/concepts/governance/network-governance).
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyc-cert-policy-template.xlsx">
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyc-cert-policy-template.xlsx">
   KYC Certificate Policy Template (.xlsx)
 </Card>
 
@@ -94,7 +94,7 @@ Defines Know Your Business verification policies. Same structure as KYC
 policies, with business-specific operation flags. Governor-only, like all
 configuration categories.
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyb-cert-policy-template.xlsx">
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyb-cert-policy-template.xlsx">
   KYB Certificate Policy Template (.xlsx)
 </Card>
 
@@ -140,7 +140,7 @@ effective date windows. One spreadsheet row becomes one program plus one
 program–policy link per filled slot. The template provides **5 KYC slots and
 5 KYB slots** per row. Governor-only.
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/programs-template.xlsx">
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/programs-template.xlsx">
   Programs Template (.xlsx)
 </Card>
 
@@ -193,7 +193,7 @@ consumer tied to a program; at ingest the row is matched against the program's
 linked policies by `application_date`, and runs once per policy whose window
 covers it (rows outside every window are filtered, not errored).
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyc-furnish-data-template.xlsx">
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyc-furnish-data-template.xlsx">
   KYC Furnish Data Template (.xlsx)
 </Card>
 
@@ -234,7 +234,7 @@ Business onboarding records furnished toward KYB certificates. Each row is one
 business tied to a program, with the same program/policy resolution behavior
 as KYC data.
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/concepts/sftp/templates/kyb-furnish-data-template.xlsx">
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyb-furnish-data-template.xlsx">
   KYB Furnish Data Template (.xlsx)
 </Card>
 
@@ -283,4 +283,4 @@ as KYC data.
 | `kyb_furnish_data` | `file` (`File #`) | `business_tax_identifier_value` + `business_jurisdiction_of_formation` | Furnisher |
 
 For layout, header normalization, and cell-type rules shared by every
-category, see [Workbook Format](/concepts/sftp/csv-format).
+category, see [Workbook Format](/api-overview/sftp/csv-format).

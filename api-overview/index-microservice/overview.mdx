@@ -42,13 +42,13 @@ existing data can serve the network in place.
 | **You want low-maintenance participation** | After the one-time connect and mapping, there's no per-record or per-file submission to operate. |
 
 If instead you want to push data as events or scheduled files, use the direct
-[furnishing channels](/concepts/furnishing/overview) (REST, bulk upload, or
+[furnishing channels](/api-overview/furnishing/overview) (REST, bulk upload, or
 SFTP). The Index Microservice is the option for *leaving the data where it is*.
 
 ## How it works
 
 The Index Microservice is effectively a fourth way to get data into a network,
-alongside the three direct [furnishing](/concepts/furnishing/overview) channels.
+alongside the three direct [furnishing](/api-overview/furnishing/overview) channels.
 The difference is *where the data lives*:
 
 | | REST / Bulk / SFTP furnish | Index Microservice |
@@ -98,7 +98,7 @@ furnished data.
 ## Related concepts
 
 <CardGroup cols={2}>
-  <Card title="Furnishing API" icon="arrow-up-from-bracket" href="/concepts/furnishing/overview">
+  <Card title="Furnishing API" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
     The direct channels for contributing data.
   </Card>
   <Card title="Products" icon="box" href="/products/overview">

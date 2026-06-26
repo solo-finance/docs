@@ -21,7 +21,7 @@ intend to query.
 ## Why it exists
 
 A product query that resolves but cannot satisfy the policy returns
-[`204 No Content`](/concepts/querying/overview#200-vs-204-here-is-data-vs-nothing-usable)
+[`204 No Content`](/api-overview/querying/overview#200-vs-204-here-is-data-vs-nothing-usable)
 — and that resolved query is still a billable event. The coverage check lets you
 avoid predictable `204`s:
 
@@ -115,8 +115,8 @@ A `200 OK` with one entry per furnisher that has relevant data:
 | `models[].fields[]` | Field-level detail: each `field_name` and whether it's `met`. |
 
 The `field_name` values trace directly to the product's field reference tables
-— see the [KYC certificate](/concepts/querying/kyc-certificate#field-reference)
-and [KYB certificate](/concepts/querying/kyb-certificate#field-reference) pages.
+— see the [KYC certificate](/api-overview/querying/kyc-certificate#field-reference)
+and [KYB certificate](/api-overview/querying/kyb-certificate#field-reference) pages.
 
 If the `product_id` cannot be resolved, the endpoint returns `404` with the
 standard error envelope (`{"detail": "…", "error_code": "RESOURCE_NOT_FOUND"}`)
@@ -156,10 +156,10 @@ standard error envelope (`{"detail": "…", "error_code": "RESOURCE_NOT_FOUND"}`
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Querying" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
     The billable query the coverage check pre-flights.
   </Card>
-  <Card title="Products" icon="box" href="/concepts/querying/products">
+  <Card title="Products" icon="box" href="/api-overview/querying/products">
     The catalog of products you can check and query.
   </Card>
 </CardGroup>

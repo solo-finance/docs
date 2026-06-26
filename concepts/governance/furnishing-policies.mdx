@@ -6,14 +6,14 @@ icon: 'arrow-up-from-bracket'
 import DashboardGovernanceFurnishingPolicies from '/snippets/dashboard/governance-furnishing-policies.mdx';
 
 A **furnishing policy** defines how furnished data for a
-[product](/concepts/querying/products) is **accepted, validated, and routed**
+[product](/api-overview/querying/products) is **accepted, validated, and routed**
 into a [network](/concepts/governance/networks). Where a
 [querying policy](/concepts/governance/querying-policies) governs what leaves
 the network on a read, a furnishing policy governs what happens to data on the
 way in.
 
 As a furnisher you never pass a furnishing policy yourself. You
-[furnish](/concepts/furnishing/overview) with a network, a program, and an
+[furnish](/api-overview/furnishing/overview) with a network, a program, and an
 application date — and the network resolves the applicable policy
 automatically. Furnishing policies are authored and managed by the network's
 [governor](/concepts/governance/network-roles).
@@ -253,15 +253,15 @@ Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
 
 - **Policy workbooks.** Governors can author policies in bulk by uploading a
   policy workbook (per product) through
-  [file upload](/concepts/furnishing/file-upload) or
-  [SFTP](/concepts/sftp/overview). Each row clones the product default and
+  [file upload](/api-overview/furnishing/file-upload) or
+  [SFTP](/api-overview/sftp/overview). Each row clones the product default and
   applies the row's step selections — equivalent to the create + configure flow
   above. Workbook ingestion is rejected when the caller doesn't govern the
   target network.
 - **Program workbooks** assign policies (by name, latest non-deprecated
   version) to the programs they define.
 - **Data files.** Records arriving in bulk — see
-  [CSV format](/concepts/sftp/csv-format) and [schemas](/concepts/sftp/schemas) —
+  [CSV format](/api-overview/sftp/csv-format) and [schemas](/api-overview/sftp/schemas) —
   go through exactly the same resolution and pipeline as API furnishes. There is
   one set of rules, regardless of transport.
 
@@ -272,23 +272,23 @@ Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
 | [Querying policies](/concepts/governance/querying-policies) | The read-side counterpart. A product in a network typically has both: a furnishing policy shaping intake, a querying policy capping reads. |
 | [Entitlement](/concepts/governance/entitlement) | Furnishing under a policy is what *earns* a furnisher read access to the subjects it contributed. |
 | [Networks & programs](/concepts/governance/networks) | Policies belong to a network; assignments bind them to programs. |
-| [Furnishing](/concepts/furnishing/overview) | The furnisher-facing view: furnish with network + program + application date, and the policy applies itself. |
+| [Furnishing](/api-overview/furnishing/overview) | The furnisher-facing view: furnish with network + program + application date, and the policy applies itself. |
 
 <DashboardGovernanceFurnishingPolicies />
 
 ## Related concepts
 
 <CardGroup cols={2}>
-  <Card title="Furnishing" icon="arrow-up-from-bracket" href="/concepts/furnishing/overview">
+  <Card title="Furnishing" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
     The furnisher's view of the same flow.
   </Card>
   <Card title="Querying Policies" icon="magnifying-glass" href="/concepts/governance/querying-policies">
     Field-level read rules — the other half of policy governance.
   </Card>
-  <Card title="SFTP Ingestion" icon="server" href="/concepts/sftp/overview">
+  <Card title="SFTP Ingestion" icon="server" href="/api-overview/sftp/overview">
     Bulk delivery of programs, policies, and data.
   </Card>
-  <Card title="File Upload" icon="file-import" href="/concepts/furnishing/file-upload">
+  <Card title="File Upload" icon="file-import" href="/api-overview/furnishing/file-upload">
     Inline workbook and CSV ingestion.
   </Card>
 </CardGroup>

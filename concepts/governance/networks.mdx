@@ -158,8 +158,8 @@ After creation, the governor typically:
 Program networks usually aren't created by hand. They are created
 **automatically by SOLO's data-furnishing workflows** when a program definition
 first arrives through bulk ingestion — typically a programs workbook delivered
-over [SFTP](/concepts/sftp/overview) or via [file
-upload](/concepts/furnishing/file-upload). The workflow creates a child network
+over [SFTP](/api-overview/sftp/overview) or via [file
+upload](/api-overview/furnishing/file-upload). The workflow creates a child network
 with `network_type: program` underneath the standard network the definition was
 furnished into, named after the program, and links it to the [furnishing
 policies](/concepts/governance/furnishing-policies) named in the definition.

@@ -20,8 +20,8 @@ through the SOLO network.
 Think of it as the "front door" where data and
 [consent](/concepts/identity/consent) are gathered directly from the consumer.
 It's the human-facing counterpart to SOLO's machine interfaces: the
-[Furnishing API](/concepts/furnishing/overview) (how data gets *into* a network)
-and the [Query API](/concepts/querying/overview) (how data is read back).
+[Furnishing API](/api-overview/furnishing/overview) (how data gets *into* a network)
+and the [Query API](/api-overview/querying/overview) (how data is read back).
 
 ## Why it's useful
 
@@ -44,12 +44,12 @@ or grant permission as part of a flow you run:
 | Situation | How the Collect SDK helps |
 |---|---|
 | **Onboarding a new customer** | Walks them through identity, phone verification, and consent in one guided flow, then makes the result available to the network. |
-| **Getting permission to query someone** | Captures the consumer's [consent](/concepts/identity/consent) so you can later run a [product query](/concepts/querying/overview) about them. |
+| **Getting permission to query someone** | Captures the consumer's [consent](/concepts/identity/consent) so you can later run a [product query](/api-overview/querying/overview) about them. |
 | **Collecting missing details** | Presents a dynamic form for exactly the fields you still need — without you designing the form. |
 | **You don't want to build or maintain intake screens** | SOLO hosts and updates the experience; you just launch it. |
 
 If your data already lives in your own systems and no consumer interaction is
-needed, you'll typically use the [Furnishing API](/concepts/furnishing/overview)
+needed, you'll typically use the [Furnishing API](/api-overview/furnishing/overview)
 instead. The Collect SDK is specifically for the moments a consumer is in the
 loop.
 
@@ -119,10 +119,10 @@ consent capture, or a full onboarding intake — without any change on your side
   <Card title="Entities" icon="user" href="/concepts/identity/entities">
     The consumer or business a Collect session concerns.
   </Card>
-  <Card title="Furnishing API" icon="arrow-up-from-bracket" href="/concepts/furnishing/overview">
+  <Card title="Furnishing API" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
     How collected data is contributed into a network.
   </Card>
-  <Card title="Query API" icon="magnifying-glass" href="/concepts/querying/overview">
+  <Card title="Query API" icon="magnifying-glass" href="/api-overview/querying/overview">
     How collected, furnished data is read back.
   </Card>
 </CardGroup>

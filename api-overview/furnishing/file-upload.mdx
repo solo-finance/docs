@@ -11,9 +11,9 @@ single HTTPS request — no SFTP credentials, no file-transfer infrastructure.
 You `POST` a CSV file plus a category slug; the network accepts it
 synchronously, queues it for ingestion, and processes the rows asynchronously.
 
-It sits between the other two [furnishing channels](/concepts/furnishing/overview):
+It sits between the other two [furnishing channels](/api-overview/furnishing/overview):
 heavier than a per-record REST furnish, lighter than standing up a recurring
-[SFTP](/concepts/sftp/overview) pipeline. Reach for it when you have a batch
+[SFTP](/api-overview/sftp/overview) pipeline. Reach for it when you have a batch
 job that already speaks HTTPS and produces files on a schedule you control.
 
 ## The endpoint
@@ -44,7 +44,7 @@ SFTP channel's directory layout:
 
 Any other value is rejected with a `400` validation error. The expected
 columns for each category are documented in the
-[upload categories reference](/concepts/sftp/schemas).
+[upload categories reference](/api-overview/sftp/schemas).
 
 ### Filename rules
 
@@ -61,7 +61,7 @@ a `400` whose body lists every rule that was violated.
 <Note>
   The request body is parsed as **CSV** — UTF-8 text with a header row (a
   leading byte-order mark is tolerated). Send CSV content. Excel workbooks
-  belong on the [SFTP channel](/concepts/sftp/overview), which parses `.xlsx`
+  belong on the [SFTP channel](/api-overview/sftp/overview), which parses `.xlsx`
   natively.
 </Note>
 
@@ -161,7 +161,7 @@ data *goes*:
 - **Data uploads** (`kyc_furnish_data`, `kyb_furnish_data`) carry a
   `program_name` and `application_date` on every row. At ingest these drive
   the same program routing and
-  [furnishing-policy resolution](/concepts/furnishing/overview#program-routing-and-policy-resolution)
+  [furnishing-policy resolution](/api-overview/furnishing/overview#program-routing-and-policy-resolution)
   as a REST furnish — each row is matched to the program's linked policies by
   application date, and rows outside every policy window are filtered rather
   than errored.
@@ -192,7 +192,7 @@ data *goes*:
   <Accordion title="Upload accepted but stuck or failed">
     A `failed` status (or rows that never appear) usually means the file's
     content didn't match the category's expected columns. Compare your header
-    row against the [category schema](/concepts/sftp/schemas) — header names
+    row against the [category schema](/api-overview/sftp/schemas) — header names
     matter, column order doesn't. The dashboard's uploads view surfaces
     row-level errors.
   </Accordion>
@@ -209,13 +209,13 @@ data *goes*:
 
 - **Furnishing one record at a time, in real time** — use the product furnish
   endpoints, e.g. `POST /v1/products/kyc_certificate/furnish`. See the
-  [furnishing overview](/concepts/furnishing/overview).
+  [furnishing overview](/api-overview/furnishing/overview).
 - **Recurring drops from systems that produce files natively** — use
-  [SFTP](/concepts/sftp/getting-started). Same categories, same ingestion
+  [SFTP](/api-overview/sftp/getting-started). Same categories, same ingestion
   pipeline, but `.xlsx` workbooks and no HTTP client required.
 
 <CardGroup cols={2}>
-  <Card title="Upload Categories" icon="list" href="/concepts/sftp/schemas">
+  <Card title="Upload Categories" icon="list" href="/api-overview/sftp/schemas">
     Column-by-column reference for every category.
   </Card>
   <Card title="API Reference" icon="webhook" href="/api-reference/introduction">
