@@ -21,7 +21,7 @@ networks you belong to.
 |---|---|---|---|
 | [KYC Certificate](/api-overview/querying/kyc-certificate) | "Has this consumer's identity been verified — documents, biometrics, liveness, address, and corroboration?" | Consumer | `POST /v1/products/kyc_certificate/query` |
 | [KYB Certificate](/api-overview/querying/kyb-certificate) | "Has this business been verified — identity, ownership & control, and risk/compliance?" | Business | `POST /v1/products/kyb_certificate/query` |
-| [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) | "Has this consumer violated a documented policy of this sponsor bank's program?" | Consumer | `POST /v1/products/bank_specific_bad_actor_list/query` |
+| [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) | "Has this consumer violated a documented policy of this sponsor bank's subnetwork?" | Consumer | `POST /v1/products/bank_specific_bad_actor_list/query` |
 | [Cross-Bank Financial Crimes Watch List](/api-overview/querying/screening-lists) | "Is this consumer associated with suspicious financial-crimes activity reported across participating banks?" | Consumer | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
 They fall into two families:
@@ -127,7 +127,7 @@ Furnishing contributes one or more records for an entity into a network:
 ```json
 {
   "network_id": "9f1c0c2e-…",
-  "program_name": "default",
+  "subnetwork_name": "default",
   "application_date": "2026-05-28",
   "records": [
     {
@@ -150,7 +150,7 @@ to query it back later. See [Furnishing](/api-overview/furnishing/overview).
 |---|---|
 | Verify a consumer's identity at onboarding | [KYC Certificate](/api-overview/querying/kyc-certificate) |
 | Verify a business and its beneficial owners | [KYB Certificate](/api-overview/querying/kyb-certificate) |
-| Screen a consumer against your sponsor bank's program history | [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) |
+| Screen a consumer against your sponsor bank's subnetwork history | [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) |
 | Screen a consumer for cross-bank financial-crimes signals | [Cross-Bank Financial Crimes Watch List](/api-overview/querying/screening-lists) |
 | Know whether a query can succeed before paying for it | [Coverage Check](/api-overview/querying/coverage-check) |
 

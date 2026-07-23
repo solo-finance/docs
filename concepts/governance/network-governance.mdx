@@ -37,7 +37,7 @@ These hold for every network. They are built into the model — there is no sett
 | A querier on network **N** | network **N** |
 | A querier on any **ancestor** of network **N** | network **N** ("query your descendants") |
 
-The intuition: a bank that holds the querier role on a network can always see data in any program it runs underneath that network, even if it doesn't separately hold the querier role on each program. A querier in a specific program can always see that program's data.
+The intuition: a bank that holds the querier role on a network can always see data in any subnetwork it runs underneath that network, even if it doesn't separately hold the querier role on each subnetwork. A querier in a specific subnetwork can always see that subnetwork's data.
 
 Everything else — querying upward, querying across to a cousin — is **denied by default** unless one of the rules below is explicitly enabled.
 
@@ -54,7 +54,7 @@ A network's governor can enable any of the following three rules.
 
 When this rule is enabled on a network, a querier on any **descendant** of that network is authorized to query data scoped to the network itself.
 
-**Example:** Coastal Bank turns on `ancestor_query` on its own network. A querier in *Coastal — Credit Cards* (a program underneath Coastal Bank) can now query *Coastal Bank* data directly.
+**Example:** Coastal Bank turns on `ancestor_query` on its own network. A querier in *Coastal — Credit Cards* (a subnetwork underneath Coastal Bank) can now query *Coastal Bank* data directly.
 
 ### `cousin` — let cousins query each other
 
@@ -76,7 +76,7 @@ The rule must sit on the *closest* common ancestor. Setting `cousin` on a higher
 
 This rule does not change *who* can query — it changes *what comes back*. When enabled, a query scoped to a network automatically pulls in data from all of its descendants as well.
 
-**Example:** Coastal Bank turns on `auto_include_descendants` on its own network. A querier authorized to read *Coastal Bank* data automatically gets data from *Coastal — Credit Cards*, *Coastal — Mortgages*, and any other program underneath Coastal in the same query — without having to query each program separately.
+**Example:** Coastal Bank turns on `auto_include_descendants` on its own network. A querier authorized to read *Coastal Bank* data automatically gets data from *Coastal — Credit Cards*, *Coastal — Mortgages*, and any other subnetwork underneath Coastal in the same query — without having to query each subnetwork separately.
 
 <Note>
 `auto_include_descendants` is a *scope expander*, not an *authorization*. The querier still needs to be separately authorized to query the parent network — via a direct querier role, a querier role on an ancestor, or one of the authorization rules above.
@@ -100,39 +100,39 @@ The third column shows **which network holds the setting** SOLO consults — tha
 | Querier on a cousin of the target | Only if `cousin` is enabled | On the closest common ancestor |
 | Querier with no relationship to the target | Never | — (no rule grants this) |
 
-## Worked example 1: a sponsor bank and its fintech programs
+## Worked example 1: a sponsor bank and its fintech subnetworks
 
-Harbor Bank sponsors two fintechs. Each fintech's offering runs as a **program** under Harbor's network:
+Harbor Bank sponsors two fintechs. Each fintech's offering runs as a **subnetwork** under Harbor's network:
 
 ```mermaid
 graph TD
     Harbor[Harbor Bank — standard network]
-    Lendly[Lendly — Personal Loans program]
-    CardCo[CardCo — Charge Cards program]
+    Lendly[Lendly — Personal Loans subnetwork]
+    CardCo[CardCo — Charge Cards subnetwork]
 
     Harbor --> Lendly
     Harbor --> CardCo
 ```
 
-Harbor holds querier (and governor) on its own network. Lendly and CardCo each hold furnisher and querier on **their own program only**.
+Harbor holds querier (and governor) on its own network. Lendly and CardCo each hold furnisher and querier on **their own subnetwork only**.
 
 **What works out of the box:**
 
 - **Lendly queries Lendly.** A querier on a network can always query it. Same for CardCo.
-- **Harbor queries either program.** Harbor is an ancestor of both, and "query your descendants" is built in. Harbor does not need a seat on each program.
+- **Harbor queries either subnetwork.** Harbor is an ancestor of both, and "query your descendants" is built in. Harbor does not need a seat on each subnetwork.
 
 **What is denied by default:**
 
 - **Lendly queries Harbor.** That's querying *upward*. It stays denied until Harbor's governor enables `ancestor_query` **on Harbor's own network** — Lendly's governor cannot flip that switch.
 - **Lendly queries CardCo.** They are cousins (siblings, sharing Harbor as parent). Denied until Harbor — their closest common ancestor — enables `cousin`. Most sponsors deliberately leave this off: it's exactly the wall that keeps one fintech's customers invisible to another.
 
-**One convenience Harbor will likely want:** enabling `auto_include_descendants` on Harbor's network means a single Harbor-scoped query also returns data flowing through *Lendly* and *CardCo*, without Harbor issuing one query per program. This is a visibility rule — it widens Harbor's already-authorized query; it grants nothing to the fintechs.
+**One convenience Harbor will likely want:** enabling `auto_include_descendants` on Harbor's network means a single Harbor-scoped query also returns data flowing through *Lendly* and *CardCo*, without Harbor issuing one query per subnetwork. This is a visibility rule — it widens Harbor's already-authorized query; it grants nothing to the fintechs.
 
 Even with every rule enabled, [entitlement](/concepts/governance/entitlement) still applies: Harbor sees consolidated results only for the subjects it has furnished or lawfully queried, and the fields are capped by the [querying policy](/concepts/governance/querying-policies). Governance opens the door to the room; it doesn't hand over the filing cabinet.
 
 ## Worked example 2: two cousin banks in a federation
 
-Coastal Bank and Summit Bank both participate in a data-sharing federation. Each bank runs programs of its own:
+Coastal Bank and Summit Bank both participate in a data-sharing federation. Each bank runs subnetworks of its own:
 
 ```mermaid
 graph TD
@@ -150,16 +150,16 @@ graph TD
 
 **Initially**, with no opt-in rules anywhere:
 
-- Coastal can query Coastal and *Coastal — Credit Cards* (descendant). It **cannot** query Summit or *Summit — Auto Loans*: Summit is a cousin, and Summit's program is also a cousin (common ancestor: the Federation).
+- Coastal can query Coastal and *Coastal — Credit Cards* (descendant). It **cannot** query Summit or *Summit — Auto Loans*: Summit is a cousin, and Summit's subnetwork is also a cousin (common ancestor: the Federation).
 - The Federation root's querier (if the federation operator holds one) can query every network in the tree — everything is its descendant.
 
-**The federation decides cousins should be able to screen against each other's data.** The fix is one switch in one place: the Federation governor enables `cousin` **on the Federation root** — the closest common ancestor of Coastal and Summit. Now a Coastal querier can scope queries to Summit (and vice versa), and likewise across the cousin programs.
+**The federation decides cousins should be able to screen against each other's data.** The fix is one switch in one place: the Federation governor enables `cousin` **on the Federation root** — the closest common ancestor of Coastal and Summit. Now a Coastal querier can scope queries to Summit (and vice versa), and likewise across the cousin subnetworks.
 
 **Common mistakes in this topology:**
 
 - **Setting `cousin` on Coastal or Summit does nothing.** The rule is consulted on the closest common ancestor, not on either leaf. Neither bank can open (or, alone, close) the cousin path — that authority sits with the Federation governor, which is the point: cross-bank sharing is a federation-level agreement.
 - **Expecting `cousin` on a network *above* the Federation to work.** If the Federation itself had a parent, enabling `cousin` there would not authorize Coastal ↔ Summit; only their *closest* shared ancestor's setting is consulted.
-- **Expecting Coastal to see Summit's programs in one query.** Authorizing Coastal → Summit doesn't bundle in *Summit — Auto Loans*. For that, Summit's governor would additionally enable `auto_include_descendants` on Summit's network, widening any authorized Summit-scoped query to include its programs.
+- **Expecting Coastal to see Summit's subnetworks in one query.** Authorizing Coastal → Summit doesn't bundle in *Summit — Auto Loans*. For that, Summit's governor would additionally enable `auto_include_descendants` on Summit's network, widening any authorized Summit-scoped query to include its subnetworks.
 
 And as always: authorization gets Coastal's query in the door at Summit; what rows come back is governed by Coastal's [entitlement](/concepts/governance/entitlement), and which fields appear is governed by the applicable [querying policy](/concepts/governance/querying-policies). A bank that has never furnished or queried a given consumer gets an empty (but successful) result, not a treasure trove.
 
@@ -182,7 +182,7 @@ The same property holds for `cousin`: the rule sits on the closest common ancest
 This is a deliberate property of the model. Access flows from the top down, configured by the senior network's governor; a junior network cannot elevate itself into a senior network's data.
 
 <Note>
-If the *same* entity happens to be the governor of both networks (for example, a bank that governs both itself and a program underneath it), that entity can edit both networks' settings — but that is the same entity already holding authority over both networks, not a child governor reaching up.
+If the *same* entity happens to be the governor of both networks (for example, a bank that governs both itself and a subnetwork underneath it), that entity can edit both networks' settings — but that is the same entity already holding authority over both networks, not a child governor reaching up.
 </Note>
 
 ## Current limitations

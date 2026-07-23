@@ -14,12 +14,12 @@ issue a reusable artifact; they are point-in-time checks.
 |---|---|---|
 | **What it is** | A sponsor-bank-scoped list of specific individuals who, as prior customers of one or more of the bank's fintech partners, violated one or more specific documented bank policies. | A cross-bank shared consortium that extends beyond one sponsor-bank network and focuses on sharing suspicious financial-crimes activity. Governed by banks as defined by 31 CFR 1020.100(d) under 314(b) permissible purpose. |
 | **Scope** | Your sponsor bank's network only — results never cross network boundaries. | All participating banks — visibility spans the consortium. |
-| **Use case** | Bad Actor Screening — catching repeat offenders re-applying within the same bank's programs. | Watch List Screening — surfacing inter-bank financial-crimes signals. |
+| **Use case** | Bad Actor Screening — catching repeat offenders re-applying within the same bank's subnetworks. | Watch List Screening — surfacing inter-bank financial-crimes signals. |
 | **Subject** | Consumer | Consumer |
 | **Query path** | `POST /v1/products/bank_specific_bad_actor_list/query` | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
 The key difference is **who can see what**. The bad actor list is scoped to one
-sponsor bank: a consumer flagged in Bank A's program is invisible to Bank B.
+sponsor bank: a consumer flagged in Bank A's network is invisible to Bank B.
 The watch list is the opposite by design — it exists so that suspicious
 financial-crimes activity observed at one bank is visible to the others, under
 the 314(b) information-sharing framework.

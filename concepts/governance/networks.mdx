@@ -42,15 +42,15 @@ graph TD
     Federation[Federation Root]
     BankA[Coastal Bank]
     BankB[Summit Bank]
-    BankAProgA[Coastal — Credit Cards]
-    BankAProgB[Coastal — Mortgages]
-    BankBProgA[Summit — Auto Loans]
+    BankASub1[Coastal — Credit Cards]
+    BankASub2[Coastal — Mortgages]
+    BankBSub1[Summit — Auto Loans]
 
     Federation --> BankA
     Federation --> BankB
-    BankA --> BankAProgA
-    BankA --> BankAProgB
-    BankB --> BankBProgA
+    BankA --> BankASub1
+    BankA --> BankASub2
+    BankB --> BankBSub1
 ```
 
 In the diagram above, *Coastal Bank* is a child of *Federation Root* and a parent
@@ -84,31 +84,31 @@ SOLO treats siblings as a special case of cousins for permissioning purposes.
 Anywhere governance rules talk about cousins, siblings are included.
 </Note>
 
-## Standard networks and programs
+## Standard networks and subnetworks
 
 Networks come in two kinds, distinguished by their `network_type`:
 
 - **Standard networks** are the default. A bank, a consortium, or a fintech
   operating in SOLO each runs as a standard network. These are typically created
   through the SOLO Dashboard.
-- **Program networks** are child networks of a standard network that represent a
-  specific product or initiative the operator runs — a credit card program, a
-  mortgage line, a partnership offering. Programs are usually created
-  automatically by SOLO's data-furnishing workflows when a program definition
+- **Subnetworks** are child networks of a standard network that represent a
+  specific product or initiative the operator runs — a credit card line, a
+  mortgage line, a partnership offering. Subnetworks are usually created
+  automatically by SOLO's data-furnishing workflows when a subnetwork definition
   first arrives through bulk ingestion (see [Network lifecycle](#network-lifecycle)).
 
-Programs always sit beneath a standard parent network. They behave like any
+Subnetworks always sit beneath a standard parent network. They behave like any
 other network in the tree — they can have their own participants, their own
 data, and their own governance settings — but their lifecycle is typically tied
 to the upstream data flow that created them.
 
-When you furnish, you name the **program** so the network can route the data and
-resolve the right [furnishing policy](/concepts/governance/furnishing-policies):
+When you furnish, you name the **subnetwork** so the network can route the data
+and resolve the right [furnishing policy](/concepts/governance/furnishing-policies):
 
 ```json
 {
   "network_id": "9f1c0c2e-…",
-  "program_name": "acme-lending",
+  "subnetwork_name": "acme-lending",
   "application_date": "2026-05-28",
   "records": [ /* … */ ]
 }
@@ -116,14 +116,14 @@ resolve the right [furnishing policy](/concepts/governance/furnishing-policies):
 
 <Tip>
 If you operate a single product line, you probably only need a standard network.
-Programs become useful when you want to keep data, participants, or rules
+Subnetworks become useful when you want to keep data, participants, or rules
 isolated between distinct product offerings under the same operator.
 </Tip>
 
 ## Network lifecycle
 
-Standard networks and programs come into existence in different ways, and it's
-worth understanding both paths.
+Standard networks and subnetworks come into existence in different ways, and
+it's worth understanding both paths.
 
 ### Standard networks: created through the dashboard
 
@@ -153,34 +153,35 @@ After creation, the governor typically:
    will use, and
 3. optionally enables governance rules to open query paths to related networks.
 
-### Programs: created by furnishing workflows
+### Subnetworks: created by furnishing workflows
 
-Program networks usually aren't created by hand. They are created
-**automatically by SOLO's data-furnishing workflows** when a program definition
-first arrives through bulk ingestion — typically a programs workbook delivered
-over [SFTP](/api-overview/sftp/overview) or via [file
+Subnetworks usually aren't created by hand. They are created
+**automatically by SOLO's data-furnishing workflows** when a subnetwork
+definition first arrives through bulk ingestion — typically a subnetworks
+workbook delivered over [SFTP](/api-overview/sftp/overview) or via [file
 upload](/api-overview/furnishing/file-upload). The workflow creates a child network
-with `network_type: program` underneath the standard network the definition was
-furnished into, named after the program, and links it to the [furnishing
+with `network_type: subnetwork` underneath the standard network the definition
+was furnished into, named after the subnetwork, and links it to the [furnishing
 policies](/concepts/governance/furnishing-policies) named in the definition.
 
 Two properties of this flow are worth knowing:
 
-- **Only the network's governor can introduce programs.** Program definitions
-  furnished by an entity that doesn't govern the target network are rejected.
-- **Program names are unique within their parent network.** A definition that
-  re-uses an existing program name in the same network fails for that row
-  rather than silently overwriting the existing program.
+- **Only the network's governor can introduce subnetworks.** Subnetwork
+  definitions furnished by an entity that doesn't govern the target network are
+  rejected.
+- **Subnetwork names are unique within their parent network.** A definition that
+  re-uses an existing subnetwork name in the same network fails for that row
+  rather than silently overwriting the existing subnetwork.
 
-From then on, every furnish that names that `program_name` is routed into the
-program network, and the program's furnishing-policy assignments determine how
+From then on, every furnish that names that `subnetwork_name` is routed into the
+subnetwork, and the subnetwork's furnishing-policy assignments determine how
 the data is accepted (see [Furnishing
 Policies](/concepts/governance/furnishing-policies)). Furnishing data with a
-`program_name` that doesn't exist in the target network is an error — the
-program definition has to arrive first.
+`subnetwork_name` that doesn't exist in the target network is an error — the
+subnetwork definition has to arrive first.
 
-Because a program's lifecycle is tied to the upstream data flow that created
-it, you generally don't delete or restructure programs directly — you stop
+Because a subnetwork's lifecycle is tied to the upstream data flow that created
+it, you generally don't delete or restructure subnetworks directly — you stop
 furnishing into them, or deprecate the policies assigned to them.
 
 ## Permissions & roles
@@ -216,8 +217,8 @@ A network ties products to participants through policies:
 When you query, you scope the request to one or more network ids and a querying
 policy, so the network knows both *where* to read and *which* reading rules
 apply. When you furnish, the network resolves the applicable furnishing policy
-from the network, program, and application date automatically — you never pass
-a furnishing policy id yourself.
+from the network, subnetwork, and application date automatically — you never
+pass a furnishing policy id yourself.
 
 ```mermaid
 flowchart LR

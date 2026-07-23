@@ -38,7 +38,7 @@ SFTP channel's directory layout:
 |---|---|
 | `kyc_cert_policy` | KYC certificate policy definitions |
 | `kyb_cert_policy` | KYB certificate policy definitions |
-| `programs` | Network program configuration |
+| `subnetworks` | Network subnetwork configuration |
 | `kyc_furnish_data` | Consumer onboarding records |
 | `kyb_furnish_data` | Business onboarding records |
 
@@ -73,7 +73,7 @@ a `400` whose body lists every rule that was violated.
     `kyc_furnish_data`:
 
     ```csv
-    file,social_security_number,date_of_birth,first_name,last_name,program_name,application_date
+    file,social_security_number,date_of_birth,first_name,last_name,subnetwork_name,application_date
     F-1001,123456789,1990-01-15,Jane,Doe,default,2026-05-28
     F-1002,987654321,1985-09-02,John,Smith,default,2026-05-29
     ```
@@ -145,31 +145,31 @@ What happens to the *rows* on a re-send depends on the category:
 - **Data rows** upsert on their natural keys (SSN for consumers; tax
   identifier + jurisdiction for businesses). Re-sending a corrected batch
   updates the affected records rather than duplicating them.
-- **Configuration rows** (policies, programs) are keyed by name. Re-sending a
-  file whose rows collide with existing names produces per-row name-conflict
+- **Configuration rows** (policies, subnetworks) are keyed by name. Re-sending
+  a file whose rows collide with existing names produces per-row name-conflict
   errors; the originals are left untouched.
 
 Because each row is processed independently, a partially bad file partially
 succeeds: fix the failed rows and re-send just those (or the whole file, given
 the upsert behavior above).
 
-## How uploads connect to programs and policies
+## How uploads connect to subnetworks and policies
 
 The `slug` decides what the rows *are*; the rows themselves decide where the
 data *goes*:
 
 - **Data uploads** (`kyc_furnish_data`, `kyb_furnish_data`) carry a
-  `program_name` and `application_date` on every row. At ingest these drive
-  the same program routing and
-  [furnishing-policy resolution](/api-overview/furnishing/overview#program-routing-and-policy-resolution)
-  as a REST furnish — each row is matched to the program's linked policies by
-  application date, and rows outside every policy window are filtered rather
+  `subnetwork_name` and `application_date` on every row. At ingest these drive
+  the same subnetwork routing and
+  [furnishing-policy resolution](/api-overview/furnishing/overview#subnetwork-routing-and-policy-resolution)
+  as a REST furnish — each row is matched to the subnetwork's linked policies
+  by application date, and rows outside every policy window are filtered rather
   than errored.
 - **Configuration uploads** (`kyc_cert_policy`, `kyb_cert_policy`,
-  `programs`) don't furnish entity data at all. They create the policies and
-  programs that data uploads later resolve against, and are restricted to the
-  network's governor. Upload policies before programs that reference them, and
-  programs before data that targets them.
+  `subnetworks`) don't furnish entity data at all. They create the policies
+  and subnetworks that data uploads later resolve against, and are restricted
+  to the network's governor. Upload policies before subnetworks that reference
+  them, and subnetworks before data that targets them.
 
 ## Failure modes
 

@@ -138,16 +138,14 @@ data. Search is an identity lookup. Reading actual data about a consumer
 always goes through a product query with a consent record — that separation is
 the core of the platform's privacy model.
 
-## Networks, programs, and subnetworks
+## Subnetworks
 
-As you scale, you'll encounter two refinements of the network boundary:
+As you scale, you'll encounter **subnetworks** — narrower trust boundaries
+nested under a parent network. You name the subnetwork when furnishing, and it
+participates in [furnishing policy](/api-overview/furnishing/overview)
+resolution.
 
-- **Programs** — partitions inside a network that separate furnishers; you name
-  the program when furnishing, and it participates in
-  [furnishing policy](/api-overview/furnishing/overview) resolution.
-- **Subnetworks** — narrower trust boundaries nested under a parent network.
-
-Both are explained in [Networks](/concepts/governance/networks), and the rules
+Subnetworks are explained in [Networks](/concepts/governance/networks), and the rules
 for who may change what are covered in
 [Network governance](/concepts/governance/network-governance).
 
@@ -213,7 +211,7 @@ With membership verified, pick the workflow that matches your role:
     For queriers — read a consolidated certificate back.
   </Card>
   <Card title="Networks" icon="sitemap" href="/concepts/governance/networks">
-    Roles, subnetworks, programs, and policy usage in depth.
+    Roles, subnetworks, and policy usage in depth.
   </Card>
   <Card title="Network roles" icon="user-shield" href="/concepts/governance/network-roles">
     What furnishers, queriers, and governors can each do.

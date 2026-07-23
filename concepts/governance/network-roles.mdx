@@ -39,7 +39,7 @@ configuration. In practice a governor:
   each product in the network.
 - **Sets governance rules** — decides whether related networks may query this
   one (see [Network Governance](/concepts/governance/network-governance)).
-- **Introduces programs** — program definitions furnished through bulk
+- **Introduces subnetworks** — subnetwork definitions furnished through bulk
   ingestion are accepted only when the caller governs the target network.
 
 A governor seat is **not** a window into other members' data. Reading data
@@ -53,13 +53,13 @@ The furnisher contributes data. A furnisher:
 - **Furnishes product records** — calls `POST /v1/products/{product}/furnish`
   (or bulk paths like [SFTP](/api-overview/sftp/overview) and
   [file upload](/api-overview/furnishing/file-upload)) naming the network,
-  program, and application date.
+  subnetwork, and application date.
 - **Earns entitlement by contributing** — each entity a furnisher contributes
   data about becomes an entity whose consolidated data the furnisher may read
   back on future queries. See [Entitlement](/concepts/governance/entitlement).
 
 A furnisher does not need to know which furnishing policy applies — the network
-resolves it automatically from the program and application date.
+resolves it automatically from the subnetwork and application date.
 
 ### Querier
 
@@ -97,7 +97,7 @@ part of that role's job.
 | `POST /v1/products/check` (coverage check) | — | — | ✓ |
 | `POST /v1/products/{product}/furnish` | — | ✓ | — |
 | `POST /v1/file-upload/ingest` (data workbooks) | — | ✓ | — |
-| `POST /v1/file-upload/ingest` (program / policy workbooks) | ✓ | — | — |
+| `POST /v1/file-upload/ingest` (subnetwork / policy workbooks) | ✓ | — | — |
 | `POST /v1/networks/policies/querying` | ✓ | — | — |
 | `PUT /v1/networks/policies/querying/{policy_id}/configuration` | ✓ | — | — |
 | `POST /v1/networks/policies/furnishing` | ✓ | — | — |
@@ -110,7 +110,7 @@ part of that role's job.
 **How to read this matrix.** It describes the *operational model* — which role
 each operation belongs to in a well-run network. Enforcement happens at
 different layers depending on the operation. Network administration (managing
-memberships, accepting program and policy definitions) is hard-enforced
+memberships, accepting subnetwork and policy definitions) is hard-enforced
 against the network's governor. Reads are enforced through network scoping,
 [consent](/concepts/identity/consent), and
 [entitlement](/concepts/governance/entitlement) — so calling a query endpoint
@@ -131,7 +131,7 @@ are independent of one another:
 
 | Role | Gates |
 |---|---|
-| **Governor** | Editing the network's settings, adding and removing participants, configuring governance rules, authoring policies, introducing programs |
+| **Governor** | Editing the network's settings, adding and removing participants, configuring governance rules, authoring policies, introducing subnetworks |
 | **Furnisher** | Writing data into the network |
 | **Querier** | Reading data from the network |
 

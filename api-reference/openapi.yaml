@@ -3254,10 +3254,10 @@ components:
           format: uuid
           title: Network Id
           description: Network scope for the furnishing.
-        program_name:
+        subnetwork_name:
           type: string
-          title: Program Name
-          description: Program name for policy resolution.
+          title: Subnetwork Name
+          description: Subnetwork name for policy resolution.
         application_date:
           type: string
           title: Application Date
@@ -3271,7 +3271,7 @@ components:
       type: object
       required:
       - network_id
-      - program_name
+      - subnetwork_name
       - application_date
       - records
       title: KYBCertificateFurnishInput
@@ -3456,10 +3456,10 @@ components:
           format: uuid
           title: Network Id
           description: Network scope for the furnishing.
-        program_name:
+        subnetwork_name:
           type: string
-          title: Program Name
-          description: Program name for policy resolution.
+          title: Subnetwork Name
+          description: Subnetwork name for policy resolution.
         application_date:
           type: string
           title: Application Date
@@ -3473,7 +3473,7 @@ components:
       type: object
       required:
       - network_id
-      - program_name
+      - subnetwork_name
       - application_date
       - records
       title: KYCCertificateFurnishInput

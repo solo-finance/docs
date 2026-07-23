@@ -13,14 +13,14 @@ the network on a read, a furnishing policy governs what happens to data on the
 way in.
 
 As a furnisher you never pass a furnishing policy yourself. You
-[furnish](/api-overview/furnishing/overview) with a network, a program, and an
+[furnish](/api-overview/furnishing/overview) with a network, a subnetwork, and an
 application date — and the network resolves the applicable policy
 automatically. Furnishing policies are authored and managed by the network's
 [governor](/concepts/governance/network-roles).
 
 ```mermaid
 flowchart LR
-    F[Furnish request<br/>network + program + application_date] --> R{Policy resolution}
+    F[Furnish request<br/>network + subnetwork + application_date] --> R{Policy resolution}
     R --> P[Furnishing policy]
     P --> S1[Step 1: validate]
     S1 --> S2[Step 2: match entity]
@@ -110,22 +110,22 @@ all from the furnish request:
 ```json
 {
   "network_id": "9f1c0c2e-…",
-  "program_name": "coastal-cards",
+  "subnetwork_name": "coastal-cards",
   "application_date": "2026-05-28",
   "records": [ { "…": "…" } ]
 }
 ```
 
 <Steps>
-  <Step title="Resolve the program">
-    `program_name` is matched to a [program network](/concepts/governance/networks#standard-networks-and-programs)
-    under `network_id`. An unknown program is an error — programs are
+  <Step title="Resolve the subnetwork">
+    `subnetwork_name` is matched to a [subnetwork](/concepts/governance/networks#standard-networks-and-subnetworks)
+    under `network_id`. An unknown subnetwork is an error — subnetworks are
     introduced ahead of time by the governor.
   </Step>
-  <Step title="Find the program's assigned policies">
-    Policies are **assigned** to programs, each assignment carrying an
+  <Step title="Find the subnetwork's assigned policies">
+    Policies are **assigned** to subnetworks, each assignment carrying an
     effective-date window (`effective_from`, optional `effective_to`). Every
-    non-deprecated policy assigned to the program for the product is a
+    non-deprecated policy assigned to the subnetwork for the product is a
     candidate.
   </Step>
   <Step title="Apply the date windows">
@@ -137,7 +137,7 @@ all from the furnish request:
 </Steps>
 
 This is why furnishers never reference policies directly: the
-(network, program, application date) triple is sufficient, and the governor
+(network, subnetwork, application date) triple is sufficient, and the governor
 controls what it maps to.
 
 ## Managing policies via the API
@@ -258,8 +258,8 @@ Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
   applies the row's step selections — equivalent to the create + configure flow
   above. Workbook ingestion is rejected when the caller doesn't govern the
   target network.
-- **Program workbooks** assign policies (by name, latest non-deprecated
-  version) to the programs they define.
+- **Subnetwork workbooks** assign policies (by name, latest non-deprecated
+  version) to the subnetworks they define.
 - **Data files.** Records arriving in bulk — see
   [CSV format](/api-overview/sftp/csv-format) and [schemas](/api-overview/sftp/schemas) —
   go through exactly the same resolution and pipeline as API furnishes. There is
@@ -271,8 +271,8 @@ Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
 |---|---|
 | [Querying policies](/concepts/governance/querying-policies) | The read-side counterpart. A product in a network typically has both: a furnishing policy shaping intake, a querying policy capping reads. |
 | [Entitlement](/concepts/governance/entitlement) | Furnishing under a policy is what *earns* a furnisher read access to the subjects it contributed. |
-| [Networks & programs](/concepts/governance/networks) | Policies belong to a network; assignments bind them to programs. |
-| [Furnishing](/api-overview/furnishing/overview) | The furnisher-facing view: furnish with network + program + application date, and the policy applies itself. |
+| [Networks & subnetworks](/concepts/governance/networks) | Policies belong to a network; assignments bind them to subnetworks. |
+| [Furnishing](/api-overview/furnishing/overview) | The furnisher-facing view: furnish with network + subnetwork + application date, and the policy applies itself. |
 
 <DashboardGovernanceFurnishingPolicies />
 
@@ -286,7 +286,7 @@ Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
     Field-level read rules — the other half of policy governance.
   </Card>
   <Card title="SFTP Ingestion" icon="server" href="/api-overview/sftp/overview">
-    Bulk delivery of programs, policies, and data.
+    Bulk delivery of subnetworks, policies, and data.
   </Card>
   <Card title="File Upload" icon="file-import" href="/api-overview/furnishing/file-upload">
     Inline workbook and CSV ingestion.

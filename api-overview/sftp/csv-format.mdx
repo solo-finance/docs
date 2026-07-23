@@ -52,7 +52,7 @@ This means the following headers are all equivalent:
 | Raw Header | Normalized |
 |---|---|
 | `KYC Policy Name` | `kyc_policy_name` |
-| `Program #` | `program` |
+| `Subnetwork #` | `subnetwork` |
 | `Date of Birth` | `date_of_birth` |
 | `End Date (if Applicable)` | `end_date_if_applicable` |
 | `Business Tax Identifier (Value)` | `business_tax_identifier_value` |
@@ -95,12 +95,12 @@ Two kinds of rows are silently skipped — they don't count as errors:
 
 - **Example rows.** Rows whose identifier column starts with **`Ex.`** are
   treated as template examples. The identifier column depends on the
-  category: `File #` for data workbooks, `Program #` for programs, and the
+  category: `File #` for data workbooks, `Subnetwork #` for subnetworks, and the
   policy-number column (`KYC Policy` / `KYB Policy`) for policy workbooks.
   Use these to keep in-workbook guidance without affecting ingestion.
 - **Blank rows.** Rows missing their identifying values entirely — a data row
-  with no file number and no program name, a program row with no program
-  name, a policy row with no policy name — are treated as empty padding and
+  with no file number and no subnetwork name, a subnetwork row with no
+  subnetwork name, a policy row with no policy name — are treated as empty padding and
   skipped.
 
 ## Formula cells

@@ -96,7 +96,7 @@ For this walkthrough, start with the simplest path: defining a **KYC certificate
 </Card>
 
 <Note>
-  Policy and program workbooks define network configuration, so they are accepted only from the network's [governor](/concepts/governance/network-governance). If your organization is a furnisher but not a governor, start with a `kyc_furnish_data` workbook instead — the steps below are the same, only the directory and columns differ.
+  Policy and subnetwork workbooks define network configuration, so they are accepted only from the network's [governor](/concepts/governance/network-governance). If your organization is a furnisher but not a governor, start with a `kyc_furnish_data` workbook instead — the steps below are the same, only the directory and columns differ.
 </Note>
 
 ## Step 4 — Fill it in
@@ -137,7 +137,7 @@ sftp.put("first-kyc-test.xlsx", "/kyc_cert_policy/first-kyc-test.xlsx")
 
 </CodeGroup>
 
-That's it — there are no intermediate folders to manage. The category directory **is** the schema selector: a file in `kyc_cert_policy/` is parsed as a KYC certificate policy workbook, a file in `programs/` as a programs workbook, and so on.
+That's it — there are no intermediate folders to manage. The category directory **is** the schema selector: a file in `kyc_cert_policy/` is parsed as a KYC certificate policy workbook, a file in `subnetworks/` as a subnetworks workbook, and so on.
 
 <Tip>
   Pick a fresh filename for every upload (a date or batch number works well). Sessions can't overwrite or delete existing files, so re-using a name from a previous drop will be rejected.
@@ -147,10 +147,10 @@ That's it — there are no intermediate folders to manage. The category director
 
 Ingestion is event-driven and asynchronous — processing starts within seconds of the file landing, and a small workbook typically completes in well under a minute.
 
-The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **Data → Uploads** page lists every workbook your organization has sent, along with row-level success, filtered, and error counts. From there you can also drill into the resulting records (policies, programs, furnish events) to confirm they showed up where you expected.
+The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **Data → Uploads** page lists every workbook your organization has sent, along with row-level success, filtered, and error counts. From there you can also drill into the resulting records (policies, subnetworks, furnish events) to confirm they showed up where you expected.
 
 <Note>
-  Re-sending data is safe at the row level. Data rows upsert on their natural keys (SSN for consumers; tax identifier + jurisdiction for businesses), so a corrected re-upload updates records rather than double-creating them. Re-uploaded **policy** or **program** rows that collide with existing names will surface per-row name-conflict errors instead — version the name (e.g. `First KYC Test Policy v2`) if you intend a new policy.
+  Re-sending data is safe at the row level. Data rows upsert on their natural keys (SSN for consumers; tax identifier + jurisdiction for businesses), so a corrected re-upload updates records rather than double-creating them. Re-uploaded **policy** or **subnetwork** rows that collide with existing names will surface per-row name-conflict errors instead — version the name (e.g. `First KYC Test Policy v2`) if you intend a new policy.
 </Note>
 
 ## Common first-upload issues
@@ -173,12 +173,12 @@ The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **D
     1. Headers are in **row 2** (not row 1), and there are no merged cells above them.
     2. The identifier column on every real data row is **not** prefixed with `Ex.` (those are skipped as examples).
     3. The file was saved as `.xlsx`, not `.xls` or `.csv`.
-    4. For data workbooks: every row's `program_name` matches a program the governor has configured, and the `application_date` falls inside an active policy window — rows outside every window are **filtered** (skipped), which is reported separately from errors.
+    4. For data workbooks: every row's `subnetwork_name` matches a subnetwork the governor has configured, and the `application_date` falls inside an active policy window — rows outside every window are **filtered** (skipped), which is reported separately from errors.
 
     The Uploads page in the dashboard surfaces the row-level reason for any failures.
   </Accordion>
-  <Accordion title='Policy or program rows fail with an access error'>
-    Configuration categories (`kyc_cert_policy`, `kyb_cert_policy`, `programs`) are governor-only. The file itself uploads fine, but every row is rejected at ingest if your organization doesn't govern the target network. Furnishers should upload to the data categories instead.
+  <Accordion title='Policy or subnetwork rows fail with an access error'>
+    Configuration categories (`kyc_cert_policy`, `kyb_cert_policy`, `subnetworks`) are governor-only. The file itself uploads fine, but every row is rejected at ingest if your organization doesn't govern the target network. Furnishers should upload to the data categories instead.
   </Accordion>
   <Accordion title='Row rejected with formula cells that have no cached value'>
     Workbooks are read using cached formula results. If a workbook was generated programmatically and never opened in Excel, formula cells may have no cached value — the row is rejected and the error names the offending columns. Open and save the file in Excel (or set cached values when generating it) before uploading.

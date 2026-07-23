@@ -24,9 +24,9 @@ Two kinds of "required" apply:
   row is rejected (or skipped, for identifier columns that mark blank rows).
 
 <Note>
-  Upload order matters across categories: **policies → programs → data**.
-  Programs reference policies by name, and data rows reference programs by
-  name. A reference to something not yet ingested fails at the row level.
+  Upload order matters across categories: **policies → subnetworks → data**.
+  Subnetworks reference policies by name, and data rows reference subnetworks
+  by name. A reference to something not yet ingested fails at the row level.
 </Note>
 
 ---
@@ -131,25 +131,25 @@ permitted purpose scopes).
 
 ---
 
-## Programs
+## Subnetworks
 
-**Directory**: `programs/`
+**Directory**: `subnetworks/`
 
-Configures network programs that link KYC and KYB policies together with
-effective date windows. One spreadsheet row becomes one program plus one
-program–policy link per filled slot. The template provides **5 KYC slots and
+Configures network subnetworks that link KYC and KYB policies together with
+effective date windows. One spreadsheet row becomes one subnetwork plus one
+subnetwork–policy link per filled slot. The template provides **5 KYC slots and
 5 KYB slots** per row. Governor-only.
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/programs-template.xlsx">
-  Programs Template (.xlsx)
+<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/subnetworks-template.xlsx">
+  Subnetworks Template (.xlsx)
 </Card>
 
 ### Required columns
 
 | Column | Type | Value required | Description |
 |---|---|---|---|
-| `program_number` | string | No | Program identifier. The template header `Program #` normalizes to `program`, which is also accepted. Values starting with `Ex.` mark example rows. |
-| `program_name` | string | Yes | Display name of the program; rows with a blank name are skipped. Must be unique within the network. |
+| `subnetwork_number` | string | No | Subnetwork identifier. The template header `Subnetwork #` normalizes to `subnetwork`, which is also accepted. Values starting with `Ex.` mark example rows. |
+| `subnetwork_name` | string | Yes | Display name of the subnetwork; rows with a blank name are skipped. Must be unique within the network. |
 | `kyc_policy_1_name` | string | No | First KYC slot's policy name (header must exist; the slot may be left blank) |
 | `kyb_policy_1_name` | string | No | First KYB slot's policy name (header must exist; the slot may be left blank) |
 
@@ -176,7 +176,7 @@ Per-slot rules, enforced row by row:
 
 <Tip>
   Policy names must match policies already ingested via the KYC or KYB
-  Certificate Policy categories. Upload policies before programs. These slot
+  Certificate Policy categories. Upload policies before subnetworks. These slot
   date windows are what later decide which policy applies to a furnished
   record's `application_date` — see
   [furnishing policies](/concepts/governance/furnishing-policies).
@@ -189,8 +189,9 @@ Per-slot rules, enforced row by row:
 **Directory**: `kyc_furnish_data/`
 
 Consumer onboarding records furnished toward KYC certificates. Each row is one
-consumer tied to a program; at ingest the row is matched against the program's
-linked policies by `application_date`, and runs once per policy whose window
+consumer tied to a subnetwork; at ingest the row is matched against the
+subnetwork's linked policies by `application_date`, and runs once per policy
+whose window
 covers it (rows outside every window are filtered, not errored).
 
 <Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyc-furnish-data-template.xlsx">
@@ -204,7 +205,7 @@ covers it (rows outside every window are filtered, not errored).
 | `file` | string | Furnisher file number (the template's `File #` column). Unique row identifier; `Ex.` prefix marks skipped example rows. |
 | `social_security_number` | string | Consumer SSN — the upsert key that matches the row to a consumer [entity](/concepts/identity/entities). **Format the column as Text** so leading zeros survive. |
 | `date_of_birth` | date | Consumer date of birth |
-| `program_name` | string | Program this record belongs to (must exist in the network) |
+| `subnetwork_name` | string | Subnetwork this record belongs to (must exist in the network) |
 | `application_date` | date | When the consumer applied. Drives policy resolution; time-of-day is not preserved. |
 
 ### Optional columns
@@ -231,8 +232,8 @@ covers it (rows outside every window are filtered, not errored).
 **Directory**: `kyb_furnish_data/`
 
 Business onboarding records furnished toward KYB certificates. Each row is one
-business tied to a program, with the same program/policy resolution behavior
-as KYC data.
+business tied to a subnetwork, with the same subnetwork/policy resolution
+behavior as KYC data.
 
 <Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyb-furnish-data-template.xlsx">
   KYB Furnish Data Template (.xlsx)
@@ -246,7 +247,7 @@ as KYC data.
 | `business_tax_identifier_value` | string | Tax identifier (e.g. EIN). Read as a string so leading zeros are preserved — format as Text. |
 | `business_tax_identifier_type` | string | Identifier kind, e.g. `EIN`. Only `EIN` rows proceed through the pipeline today; rows with other types are filtered out. |
 | `business_jurisdiction_of_formation` | string | Jurisdiction where the business is formed — part of the business's matching key alongside the EIN. |
-| `program_name` | string | Program this record belongs to |
+| `subnetwork_name` | string | Subnetwork this record belongs to |
 | `application_date` | date | When the business applied; drives policy resolution |
 
 ### Optional columns
@@ -278,7 +279,7 @@ as KYC data.
 |---|---|---|---|
 | `kyc_cert_policy` | `kyc_policy` (Policy #) | Policy name (conflicts error per row) | Governor |
 | `kyb_cert_policy` | `kyb_policy` (Policy #) | Policy name (conflicts error per row) | Governor |
-| `programs` | `program` (`Program #`) | Program name (conflicts error per row) | Governor |
+| `subnetworks` | `subnetwork` (`Subnetwork #`) | Subnetwork name (conflicts error per row) | Governor |
 | `kyc_furnish_data` | `file` (`File #`) | `social_security_number` | Furnisher |
 | `kyb_furnish_data` | `file` (`File #`) | `business_tax_identifier_value` + `business_jurisdiction_of_formation` | Furnisher |
 

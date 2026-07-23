@@ -88,13 +88,13 @@ When to choose each:
 
 ## How a furnish works
 
-A furnish brings together a **network**, a **program**, a resolved **furnishing
-policy**, and a **consumer** (or business):
+A furnish brings together a **network**, a **subnetwork**, a resolved
+**furnishing policy**, and a **consumer** (or business):
 
 ```mermaid
 flowchart LR
     Rec[Your records] --> F[Product furnish]
-    N[Network + program] --> F
+    N[Network + subnetwork] --> F
     P[Furnishing policy] -. resolved .-> F
     F --> M[Matched to entity]
     M --> Store[(Network data)]
@@ -104,8 +104,8 @@ flowchart LR
 |---|---|
 | **Product** | *What* you're contributing (e.g. a KYC certificate). Determines the endpoint and record schema. |
 | **Network** | *Where* the data is contributed. You must be a [furnisher](/concepts/governance/network-roles) of it. |
-| **Program** | *Which partition* inside the network the data belongs to. Programs link to the policies that govern acceptance. |
-| **Policy** | The [furnishing policy](/concepts/governance/furnishing-policies) the network resolves automatically from program + application date. |
+| **Subnetwork** | *Which partition* inside the network the data belongs to. Subnetworks link to the policies that govern acceptance. |
+| **Policy** | The [furnishing policy](/concepts/governance/furnishing-policies) the network resolves automatically from subnetwork + application date. |
 | **Consumer / Business** | *Who* the data is about — matched from the identifiers in each record. |
 
 ### Anatomy of a REST furnish
@@ -119,35 +119,35 @@ curl -X POST https://api.solo.one/v1/products/kyc_certificate/furnish \
   -H "Content-Type: application/json" \
   -d '{
     "network_id": "9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7",
-    "program_name": "default",
-    "application_date": "2026-05-28",
-    "records": [
-      {
-        "first_name": "Jane",
-        "last_name": "Doe",
-        "date_of_birth": "1990-01-15",
-        "social_security_number": "123-45-6789"
-      }
-    ]
-  }'
-```
+        "subnetwork_name": "default",
+        "application_date": "2026-05-28",
+        "records": [
+          {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "date_of_birth": "1990-01-15",
+            "social_security_number": "123-45-6789"
+          }
+        ]
+      }'
+    ```
 
-A successful furnish returns a submission acknowledgment:
+    A successful furnish returns a submission acknowledgment:
 
-```json
-{
-  "success": true,
-  "submission_id": "5b2e9f10-3c7d-4e8a-b1f6-2d9c0a47e831"
-}
-```
+    ```json
+    {
+      "success": true,
+      "submission_id": "5b2e9f10-3c7d-4e8a-b1f6-2d9c0a47e831"
+    }
+    ```
 
-Field by field:
+    Field by field:
 
-- `network_id` — the network you're furnishing into. You must hold the
-  furnisher role there.
-- `program_name` — names the program inside that network. Together with
-  `application_date`, this is what the network uses to resolve the applicable
-  furnishing policy.
+    - `network_id` — the network you're furnishing into. You must hold the
+      furnisher role there.
+    - `subnetwork_name` — names the subnetwork inside that network. Together with
+      `application_date`, this is what the network uses to resolve the applicable
+      furnishing policy.
 - `application_date` — when the consumer applied. Used in policy resolution
   (see below), not as a record timestamp.
 - `records` — one or more consumer records. For KYC certificates each record
@@ -158,26 +158,26 @@ Field by field:
 The same shape applies to `POST /v1/products/kyb_certificate/furnish` for
 business records.
 
-### Program routing and policy resolution
+### Subnetwork routing and policy resolution
 
 You never attach a furnishing policy yourself. At ingest, the network resolves
 it in two steps:
 
-1. **Program lookup.** `program_name` is resolved to a program inside the
-   network identified by `network_id`. An unknown program name fails the
-   record — programs must be configured by the network's governor before
+1. **Subnetwork lookup.** `subnetwork_name` is resolved to a subnetwork inside
+   the network identified by `network_id`. An unknown subnetwork name fails the
+   record — subnetworks must be configured by the network's governor before
    furnishers can target them.
-2. **Policy matching.** Each program is linked to one or more
+2. **Policy matching.** Each subnetwork is linked to one or more
    [furnishing policies](/concepts/governance/furnishing-policies), each link
    carrying an effective date window. Your record's `application_date` is
-   compared against the policy's active window and the program-link's
+   compared against the policy's active window and the subnetwork-link's
    effective window. Policies whose windows cover the application date apply;
    records that fall outside every window are *filtered* — skipped without
    being treated as errors.
 
 ```mermaid
 flowchart TD
-    R[Record: program_name + application_date] --> PG[Resolve program in network]
+    R[Record: subnetwork_name + application_date] --> PG[Resolve subnetwork in network]
     PG -->|not found| ERR[Record fails]
     PG --> PM[Match linked furnishing policies]
     PM -->|application_date in window| RUN[Ingest under policy]
@@ -186,8 +186,8 @@ flowchart TD
 
 This is why the policy is "optional" from your perspective: it's always
 applied, but never something you pass in. As a furnisher you state *facts*
-(program, date, record); the governor's configuration decides *rules*. If a
-program links several policies whose windows overlap your application date,
+(subnetwork, date, record); the governor's configuration decides *rules*. If a
+subnetwork links several policies whose windows overlap your application date,
 the record is ingested under each matching policy.
 
 ## What happens after ingest
@@ -254,18 +254,18 @@ See [Querying](/api-overview/querying/overview) for the read half.
     `network_id` is the network where you were granted the role — roles don't
     carry across networks.
   </Accordion>
-  <Accordion title="Record fails with an unknown program">
-    `program_name` must exactly match a program configured in the network by
-    its governor. Program names are matched within the network identified by
-    `network_id` — confirm both halves. If the program genuinely doesn't exist
-    yet, the governor needs to create it (over the API or a
-    [programs workbook](/api-overview/sftp/schemas#programs)) before you furnish
-    against it.
+  <Accordion title="Record fails with an unknown subnetwork">
+    `subnetwork_name` must exactly match a subnetwork configured in the network
+    by its governor. Subnetwork names are matched within the network identified
+    by `network_id` — confirm both halves. If the subnetwork genuinely doesn't
+    exist yet, the governor needs to create it (over the API or a
+    [subnetworks workbook](/api-overview/sftp/schemas#subnetworks)) before you
+    furnish against it.
   </Accordion>
   <Accordion title="Records accepted but no certificate appears">
     Most often the record was **filtered**: its `application_date` fell outside
     every linked policy's effective window. Filtered records are skipped
-    deliberately, not errored. Check the program's policy links and their date
+    deliberately, not errored. Check the subnetwork's policy links and their date
     windows against the application dates you're sending.
   </Accordion>
   <Accordion title="Validation errors on individual records">

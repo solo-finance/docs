@@ -22,8 +22,8 @@ about a consumer, you can read that consumer's data back on future queries.
     [Joining a network](/home/quickstart/join-a-network)).
   - **A bearer token** (SDK token) exported as `SOLO_TOKEN`. See
     [Authentication](/home/authentication).
-  - **Your `network_id`**, plus the **program name** you furnish under (many
-    setups use a single default program — ask your account manager if unsure).
+  - **Your `network_id`**, plus the **subnetwork name** you furnish under (many
+    setups use a single default subnetwork — ask your account manager if unsure).
 </Note>
 
 ## Record consent and furnish
@@ -127,7 +127,7 @@ about a consumer, you can read that consumer's data back on future queries.
   </Step>
 
   <Step title="Furnish into the network">
-    Call the product's furnish endpoint with your network scope, program, and
+    Call the product's furnish endpoint with your network scope, subnetwork, and
     records:
 
     ```bash
@@ -136,7 +136,7 @@ about a consumer, you can read that consumer's data back on future queries.
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
-        "program_name": "default",
+        "subnetwork_name": "default",
         "application_date": "2026-06-09",
         "records": [
           {
@@ -156,10 +156,10 @@ about a consumer, you can read that consumer's data back on future queries.
     }
     ```
 
-    Three fields route the furnish — this is **program routing**:
+    Three fields route the furnish — this is **subnetwork routing**:
 
     - `network_id` — the network you're furnishing into.
-    - `program_name` — the program (partition) within that network that
+    - `subnetwork_name` — the subnetwork (partition) within that network that
       separates your submissions from other furnishers'.
     - `application_date` — the date the data applies to.
 
@@ -297,7 +297,7 @@ integration patterns. For recurring volume:
 
     A required field is missing or the wrong type. The `detail` string names
     the first failing field as `location -> field: message` — common culprits
-    are omitting `program_name` or `application_date`, or leaving an identity
+    are omitting `subnetwork_name` or `application_date`, or leaving an identity
     field out of `consumer_consent_identity`.
   </Accordion>
 </AccordionGroup>
@@ -309,7 +309,7 @@ integration patterns. For recurring volume:
     Reuse the `consent_id` and read this consumer's data back.
   </Card>
   <Card title="How furnishing works" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
-    Program routing and policy resolution in depth.
+    Subnetwork routing and policy resolution in depth.
   </Card>
   <Card title="SFTP getting started" icon="folder-arrow-up" href="/api-overview/sftp/getting-started">
     Automated, recurring bulk ingestion.
