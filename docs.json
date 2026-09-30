@@ -89,8 +89,8 @@
           {
             "group": "Catalog",
             "pages": [
-              "products/kyc-certificate",
-              "products/kyb-certificate",
+              "products/kyc-certificate-snapshot",
+              "products/kyb-certificate-snapshot",
               "products/bank-specific-bad-actor-list",
               "products/cross-bank-financial-crimes-watch-list",
               "products/confirmed-fraud-attribute-list"
@@ -148,9 +148,7 @@
                 "group": "SFTP Ingestion",
                 "pages": [
                   "api-overview/sftp/getting-started",
-                  "api-overview/sftp/overview",
-                  "api-overview/sftp/csv-format",
-                  "api-overview/sftp/schemas"
+                  "api-overview/sftp/overview"
                 ]
               }
             ]
@@ -160,8 +158,8 @@
             "pages": [
               "api-overview/querying/overview",
               "api-overview/querying/products",
-              "api-overview/querying/kyc-certificate",
-              "api-overview/querying/kyb-certificate",
+              "api-overview/querying/kyc-certificate-snapshot",
+              "api-overview/querying/kyb-certificate-snapshot",
               "api-overview/querying/screening-lists",
               "api-overview/querying/coverage-check"
             ]
@@ -190,69 +188,34 @@
             ]
           },
           {
-            "group": "Consent",
+            "group": "Other",
             "pages": [
-              "api-reference/consumer/consumer",
-              "api-reference/consumer/{consent_id}",
-              "api-reference/consumer/update",
-              "api-reference/business/business"
-            ]
-          },
-          {
-            "group": "Entities",
-            "pages": [
-              "api-reference/entities/consumer-search",
-              "api-reference/entities/business-search"
-            ]
-          },
-          {
-            "group": "Products",
-            "pages": [
-              {
-                "group": "KYC Certificate",
-                "pages": [
-                  "api-reference/kyc-certificate/query",
-                  "api-reference/kyc-certificate/furnish"
-                ]
-              },
-              {
-                "group": "KYB Certificate",
-                "pages": [
-                  "api-reference/kyb-certificate/query",
-                  "api-reference/kyb-certificate/furnish"
-                ]
-              },
-              {
-                "group": "Screening Lists",
-                "pages": [
-                  "api-reference/bank-specific-bad-actor-list/query",
-                  "api-reference/cross-bank-financial-crimes-watch-list/query"
-                ]
-              },
-              "api-reference/products/check"
-            ]
-          },
-          {
-            "group": "Policies",
-            "pages": [
-              "api-reference/querying-policies/querying",
-              "api-reference/querying-policies/configuration",
+              "api-reference/bank-specific-bad-actor-list/query",
+              "api-reference/cross-bank-financial-crimes-watch-list/query",
+              "api-reference/kyb-certificate-snapshot/query",
+              "api-reference/kyc-certificate-snapshot/query",
+              "api-reference/business-identity/business_identity",
+              "api-reference/consumer-identity/consumer_identity",
+              "api-reference/consumer-identity/{consent_id}",
+              "api-reference/consumer-identity/{consent_id}",
+              "api-reference/entities/search",
+              "api-reference/entities/search",
               "api-reference/furnishing-policies/furnishing",
               "api-reference/furnishing-policies/{policy_id}",
-              "api-reference/furnishing-policies/create",
-              "api-reference/furnishing-policies/configuration"
-            ]
-          },
-          {
-            "group": "Attestations",
-            "pages": [
-              "api-reference/institution-attestation/institution-attestation"
-            ]
-          },
-          {
-            "group": "Bulk Ingestion",
-            "pages": [
-              "api-reference/file-upload/ingest"
+              "api-reference/furnishing-\u2014-mapping-dry-run/suggest",
+              "api-reference/furnishing-\u2014-mapping-dry-run/trace",
+              "api-reference/furnishing-\u2014-mapping-dry-run/verify",
+              "api-reference/graph/models",
+              "api-reference/graph/{object_id}",
+              "api-reference/graph/{resource}",
+              "api-reference/institution-attestation-event/institution-attestation-event",
+              "api-reference/kyb-certificate-snapshot/furnish",
+              "api-reference/kyb-certificate-snapshot/soft",
+              "api-reference/kyc-certificate-snapshot/furnish",
+              "api-reference/kyc-certificate-snapshot/soft",
+              "api-reference/product-coverage-check/check",
+              "api-reference/querying-policies/configuration",
+              "api-reference/querying-policies/querying"
             ]
           }
         ]

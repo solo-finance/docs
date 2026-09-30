@@ -22,8 +22,8 @@ about a consumer, you can read that consumer's data back on future queries.
     [Joining a network](/home/quickstart/join-a-network)).
   - **A bearer token** (SDK token) exported as `SOLO_TOKEN`. See
     [Authentication](/home/authentication).
-  - **Your `network_id`**, plus the **subnetwork name** you furnish under (many
-    setups use a single default subnetwork — ask your account manager if unsure).
+  - **Your `network_id`** — the network you furnish into (ask your account
+    manager if unsure).
 </Note>
 
 ## Record consent and furnish
@@ -34,13 +34,13 @@ about a consumer, you can read that consumer's data back on future queries.
     gathered their permission before contributing their data:
 
     ```bash
-    curl -X POST https://api.solo.one/v1/consent/consumer \
+    curl -X POST https://api.solo.one/v1/consent/consumer_identity \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
         "did_gather_consent_from_consumer_prior": true,
-        "consumer_consent_identity": {
+        "consumer_consent_event_identity": {
           "first_name": "Jane",
           "last_name": "Doe",
           "date_of_birth": "1990-01-15T00:00:00",
@@ -78,7 +78,7 @@ about a consumer, you can read that consumer's data back on future queries.
     All six identity fields are required. If you already know the consumer's
     UUID (for example from an
     [entity search](/home/quickstart/join-a-network)), pass it as the optional
-    `consumer_id` to link the consent to that existing profile.
+    `consumer_identity_id` to link the consent to that existing profile.
 
     <Warning>
       `did_gather_consent_from_consumer_prior` is an attestation, not a flag.
@@ -90,7 +90,7 @@ about a consumer, you can read that consumer's data back on future queries.
     to the create response:
 
     ```bash
-    curl -G https://api.solo.one/v1/consent/consumer/5f3a8c21-09d4-4b7a-9d52-6e8b1f4c2a30 \
+    curl -G https://api.solo.one/v1/consent/consumer_identity/5f3a8c21-09d4-4b7a-9d52-6e8b1f4c2a30 \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       --data-urlencode "network_id=9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21"
     ```
@@ -127,16 +127,14 @@ about a consumer, you can read that consumer's data back on future queries.
   </Step>
 
   <Step title="Furnish into the network">
-    Call the product's furnish endpoint with your network scope, subnetwork, and
-    records:
+    Call the product's furnish endpoint with your network scope and records:
 
     ```bash
-    curl -X POST https://api.solo.one/v1/products/kyc_certificate/furnish \
+    curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/furnish \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
-        "subnetwork_name": "default",
         "application_date": "2026-06-09",
         "records": [
           {
@@ -156,25 +154,22 @@ about a consumer, you can read that consumer's data back on future queries.
     }
     ```
 
-    Three fields route the furnish — this is **subnetwork routing**:
+    Two fields scope the furnish:
 
-    - `network_id` — the network you're furnishing into.
-    - `subnetwork_name` — the subnetwork (partition) within that network that
-      separates your submissions from other furnishers'.
-    - `application_date` — the date the data applies to.
+    - `network_id` — the network you're furnishing into. The certificate is
+      written straight into it.
+    - `application_date` — when the consumer applied. Required.
 
-    Together they resolve the right furnishing policy automatically; you never
-    pass a policy yourself. See
-    [How furnishing works](/api-overview/furnishing/overview) for the resolution
-    rules and [Furnishing policies](/concepts/governance/furnishing-policies)
-    for how governors configure them.
+    See [How furnishing works](/api-overview/furnishing/overview) for every
+    channel, and [Furnishing policies](/concepts/governance/furnishing-policies)
+    for how governors map file records into the network.
   </Step>
 
   <Step title="Confirm the consumer is visible">
     The furnished consumer now appears in network-scoped entity search:
 
     ```bash
-    curl -G https://api.solo.one/v1/entities/consumer/search \
+    curl -G https://api.solo.one/v1/entities/consumer_identity/search \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       --data-urlencode "network_id=9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21" \
       --data-urlencode "social_security_number=123-45-6789"
@@ -196,7 +191,7 @@ about a consumer, you can read that consumer's data back on future queries.
 | `field_access_grants` | The access grants attached to the consent. Each grant lists its `field_definitions` (as `table.column` strings), the `furnishing_entity_id` it's scoped to (`null` = not furnisher-specific), and its `effective_from` / `effective_to` window. |
 | `created_at` | When the consent record was created. |
 | `events` | The consent's event log reference (empty for a brand-new consent). |
-| `scope` | The consent's scope label. Starts unset; updatable later via `PUT /v1/consent/consumer/{consent_id}`. |
+| `scope` | The consent's scope label. Starts unset; updatable later via `PUT /v1/consent/consumer_identity/{consent_id}`. |
 | `expires_at` | When the consent lapses. `null` means no expiry has been set. |
 | `consented_fields` | An optional comma-separated restriction of consented fields. `null` means no field-level restriction. |
 
@@ -233,8 +228,8 @@ integration patterns. For recurring volume:
 - **SFTP ingestion** — drop CSV files on a schedule and let the platform ingest
   them automatically. Start with
   [SFTP getting started](/api-overview/sftp/getting-started).
-- **Bulk file workflows** — formats, templates, and validation behavior are
-  covered in [File upload](/api-overview/furnishing/file-upload).
+- **Bulk file workflows** — the JSONL format, record types, and per-record
+  results are covered in [JSONL files](/api-overview/furnishing/file-upload).
 
 ## Troubleshooting
 
@@ -271,7 +266,7 @@ integration patterns. For recurring volume:
     }
     ```
 
-    Returned by `GET /v1/consent/consumer/{consent_id}` when the `network_id`
+    Returned by `GET /v1/consent/consumer_identity/{consent_id}` when the `network_id`
     query parameter doesn't match the network the consent was created in.
     Consents are network-scoped — look them up with the same `network_id` you
     created them under.
@@ -297,8 +292,8 @@ integration patterns. For recurring volume:
 
     A required field is missing or the wrong type. The `detail` string names
     the first failing field as `location -> field: message` — common culprits
-    are omitting `subnetwork_name` or `application_date`, or leaving an identity
-    field out of `consumer_consent_identity`.
+    are omitting `application_date`, or leaving an identity
+    field out of `consumer_consent_event_identity`.
   </Accordion>
 </AccordionGroup>
 
@@ -309,7 +304,7 @@ integration patterns. For recurring volume:
     Reuse the `consent_id` and read this consumer's data back.
   </Card>
   <Card title="How furnishing works" icon="arrow-up-from-bracket" href="/api-overview/furnishing/overview">
-    Subnetwork routing and policy resolution in depth.
+    Channels, network routing, and what happens after ingest.
   </Card>
   <Card title="SFTP getting started" icon="folder-arrow-up" href="/api-overview/sftp/getting-started">
     Automated, recurring bulk ingestion.

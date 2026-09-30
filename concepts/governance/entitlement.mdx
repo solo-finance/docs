@@ -175,12 +175,11 @@ each example.
 Coastal Bank furnishes a KYC record for Jane Doe into its network:
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/kyc_certificate/furnish \
+curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/furnish \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "network_id": "9f1c0c2e-…",
-    "subnetwork_name": "coastal-cards",
     "application_date": "2026-05-28",
     "records": [{ "first_name": "Jane", "last_name": "Doe", "date_of_birth": "1990-01-15", "social_security_number": "123-45-6789" }]
   }'

@@ -33,16 +33,16 @@ of normal participation:
 <Steps>
   <Step title="Furnishing data">
     When you [furnish](/api-overview/furnishing/overview) through a product endpoint
-    (for example `POST /v1/products/kyc_certificate/furnish`), the identity in
+    (for example `POST /v1/products/kyc_certificate_snapshot/furnish`), the identity in
     your payload is resolved to an existing profile or a new one is created.
   </Step>
   <Step title="Creating consent">
     When you create a [consent](/concepts/identity/consent) record with
-    `POST /v1/consent/consumer`, the identity payload is used to create and link
+    `POST /v1/consent/consumer_identity`, the identity payload is used to create and link
     a consumer profile if you don't point at an existing one.
   </Step>
   <Step title="Linking an existing profile">
-    Consent creation accepts an optional `consumer_id`. If you've already found
+    Consent creation accepts an optional `consumer_identity_id`. If you've already found
     the subject via search, pass its `id` and the consent links to that profile
     instead of creating a new one.
   </Step>
@@ -83,8 +83,8 @@ A business represents a legal entity, identified by:
 Before furnishing or querying, look up subjects that already exist with the
 search endpoints:
 
-- `GET /v1/entities/consumer/search`
-- `GET /v1/entities/business/search`
+- `GET /v1/entities/consumer_identity/search`
+- `GET /v1/entities/business_identity/search`
 
 Both endpoints share the same mechanics:
 
@@ -116,7 +116,7 @@ exact-match fields like SSN and EIN must be supplied in full.
 ### Searching consumers
 
 ```bash
-curl -G https://api.solo.one/v1/entities/consumer/search \
+curl -G https://api.solo.one/v1/entities/consumer_identity/search \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   --data-urlencode "network_id=9f1c0c2e-…" \
   --data-urlencode "first_name=Jane" \
@@ -159,7 +159,7 @@ Consumer results carry these fields:
 ### Searching businesses
 
 ```bash
-curl -G https://api.solo.one/v1/entities/business/search \
+curl -G https://api.solo.one/v1/entities/business_identity/search \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   --data-urlencode "network_id=9f1c0c2e-…" \
   --data-urlencode "business_legal_name=Acme" \
@@ -218,16 +218,16 @@ before consenting and querying a consumer:
 
 <Steps>
   <Step title="Search first">
-    Call `GET /v1/entities/consumer/search` with the strongest identifiers you
+    Call `GET /v1/entities/consumer_identity/search` with the strongest identifiers you
     hold (SSN and date of birth where possible).
   </Step>
   <Step title="Found a match? Link it">
-    Pass the result's `id` as `consumer_id` when calling
-    `POST /v1/consent/consumer`. The consent attaches to the existing profile,
+    Pass the result's `id` as `consumer_identity_id` when calling
+    `POST /v1/consent/consumer_identity`. The consent attaches to the existing profile,
     keeping the subject's history consolidated.
   </Step>
   <Step title="No match? Let consent create the profile">
-    Omit `consumer_id`. The identity payload on the consent request creates and
+    Omit `consumer_identity_id`. The identity payload on the consent request creates and
     links a fresh consumer profile.
   </Step>
   <Step title="Query with the consent_id">
@@ -297,7 +297,7 @@ entity you can see in one network is not automatically visible in another. See
     Partial matching on names and emails can surface several candidates.
     Disambiguate with the exact-match identifiers — SSN or date of birth for
     consumers, federal EIN for businesses — before linking a profile to a
-    consent record. When in doubt, omit `consumer_id` and let consent creation
+    consent record. When in doubt, omit `consumer_identity_id` and let consent creation
     work from the identity payload you trust.
   </Accordion>
   <Accordion title="Can I list entities without any criteria?">

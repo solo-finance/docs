@@ -21,7 +21,7 @@ into a certificate, each populated sub-product is self-describing:
 ```json
 "business_identity_verification": {
   "furnishing_entity_id": "e1d2c3b4-…",
-  "attestation_id": "f0a1b2c3-…",
+  "attestation_event_id": "f0a1b2c3-…",
   "assertions": {
     "business_identity_verification_assertion": true,
     "business_identity_verification_performed_timestamp": "2026-05-02T00:00:00Z"
@@ -37,7 +37,7 @@ into a certificate, each populated sub-product is self-describing:
 | Lineage element | Field | What it tells the reader |
 |---|---|---|
 | **Contributor / verifier** | `furnishing_entity_id` | Which participant furnished and stands behind this verification |
-| **Attestation** | `attestation_id` | The attestation record linking that participant to the asserted facts |
+| **Attestation** | `attestation_event_id` | The attestation record linking that participant to the asserted facts |
 | **Assertion + time** | `assertions.*` and its `…_timestamp` | What was asserted, and when the verification was performed |
 | **Method & sources** | `data.*_sources`, `*_method`, `*_result` | How it was verified (e.g. `state_registry`, `automated_ocr`, `match`) |
 | **Evidence** | artifact/upload fields (e.g. `…_artifact`, `paystub_upload`) | The concrete document behind the assertion |
@@ -106,7 +106,7 @@ when. Provenance turns "trust SOLO" into "trust the network, transparently."
 
 <Note>
   Provenance here means the lineage that exists today — `furnishing_entity_id`,
-  `attestation_id`, assertion timestamps, source/method/evidence fields, and
+  `attestation_event_id`, assertion timestamps, source/method/evidence fields, and
   policy freshness. It does not include reuse counters, dispute counts, or
   contributor reputation scores, which are not part of the current platform.
 </Note>

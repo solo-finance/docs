@@ -29,7 +29,7 @@ carries the context that makes reuse safe:
 | **Subject** | Who is this about? | The [entity](/concepts/identity/entities) (consumer or business) |
 | **Assertion** | What was attested, and when? | The verification event's `assertions` block (e.g. `business_identity_verification_assertion`, with its `…_timestamp`) |
 | **Evidence** | Why should anyone believe it? | The verification event's `data` block and artifact fields (e.g. `business_formation_document_artifact`) |
-| **Attribution** | Who verified it? | `furnishing_entity_id` + `attestation_id` on every populated sub-product |
+| **Attribution** | Who verified it? | `furnishing_entity_id` + `attestation_event_id` on every populated sub-product |
 | **Permission** | Who is allowed to reuse it? | The subject's [consent](/concepts/identity/consent) |
 | **Precision** | Which fields may *this* reader see? | [Entitlement](/concepts/governance/entitlement), earned by participation |
 | **Reuse eligibility** | Is it fresh and complete enough to count? | The [querying policy](/concepts/governance/querying-policies)'s field and freshness filters |
@@ -39,13 +39,13 @@ A data aggregator returns the first row of that table. SOLO returns all of it.
 
 ## A trust asset, concretely
 
-Here is one populated sub-product from a [KYB certificate](/api-overview/querying/kyb-certificate)
+Here is one populated sub-product from a [KYB certificate](/api-overview/querying/kyb-certificate-snapshot)
 query — a single trust asset in the wild:
 
 ```json
 "business_identity_verification": {
   "furnishing_entity_id": "e1d2c3b4-…",
-  "attestation_id": "f0a1b2c3-…",
+  "attestation_event_id": "f0a1b2c3-…",
   "assertions": {
     "business_identity_verification_assertion": true,
     "business_identity_verification_performed_timestamp": "2026-05-02T00:00:00Z"
@@ -63,13 +63,13 @@ query — a single trust asset in the wild:
 
 Read it as a trust asset:
 
-- **Subject** — the business the certificate was issued for (`business_id` on
+- **Subject** — the business the certificate was issued for (`business_identity_id` on
   the enclosing response).
 - **Assertion** — business identity *was* verified, on `2026-05-02`.
 - **Evidence** — backed by an articles-of-organization artifact, a state
   registry source, and a tax-ID match.
 - **Attribution** — furnished and attested by the participant identified by
-  `furnishing_entity_id` / `attestation_id`.
+  `furnishing_entity_id` / `attestation_event_id`.
 - **Reuse** — surfaced to you only because consent permitted the read, your
   entitlement covered these fields, and the data passed the policy's freshness
   window.
@@ -100,7 +100,7 @@ flowchart LR
    [querying policy](/concepts/governance/querying-policies) decides whether the
    asset is fresh and complete enough to count.
 3. **Reuse.** A [product query](/api-overview/querying/products) consolidates the
-   eligible trust assets into a [certificate](/api-overview/querying/kyc-certificate).
+   eligible trust assets into a [certificate](/api-overview/querying/kyc-certificate-snapshot).
    If nothing eligible exists, the query returns `204` rather than a stale or
    unattributed answer.
 
@@ -112,7 +112,7 @@ Trust assets sit in the middle of how the platform is organized:
 |---|---|---|
 | **Trust graph** | The subjects and the verifications attached to them | [Consumer graph](/concepts/trust/consumer-graph), [Business graph](/concepts/trust/business-graph) |
 | **Trust assets** | Attested, evidenced verifications that become reusable | This page, [Provenance](/concepts/trust/provenance) |
-| **Trust products** | The outcomes a query delivers | [Products](/api-overview/querying/products), [KYC](/api-overview/querying/kyc-certificate), [KYB](/api-overview/querying/kyb-certificate) |
+| **Trust products** | The outcomes a query delivers | [Products](/api-overview/querying/products), [KYC](/api-overview/querying/kyc-certificate-snapshot), [KYB](/api-overview/querying/kyb-certificate-snapshot) |
 
 <Note>
   Trust assets describe data that **exists today** — furnished verification

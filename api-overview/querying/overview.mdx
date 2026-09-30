@@ -17,8 +17,8 @@ You query to reuse work, not to "buy data." A query returns a
 [trust asset](/concepts/trust/trust-assets) — an attested verification with its
 provenance intact — so the outcome is operational, not informational:
 
-- **Faster onboarding** — reuse a verified [KYC](/api-overview/querying/kyc-certificate)
-  or [KYB](/api-overview/querying/kyb-certificate) certificate instead of repeating
+- **Faster onboarding** — reuse a verified [KYC](/api-overview/querying/kyc-certificate-snapshot)
+  or [KYB](/api-overview/querying/kyb-certificate-snapshot) certificate instead of repeating
   document collection and review.
 - **Less manual review** — start from another institution's completed,
   evidenced verification rather than from zero.
@@ -59,7 +59,7 @@ to read.
 | Field | Type | Required | Purpose |
 |---|---|---|---|
 | `consent_id` | string | one of¹ | Consent token identifying the subject and your permission to query them. See [Consent](/concepts/identity/consent). |
-| `consumer_id` / `business_id` | UUID | one of¹ | Direct profile reference for permissible-purpose queries, as an alternative to `consent_id`. |
+| `consumer_identity_id` / `business_identity_id` | UUID | one of¹ | Direct profile reference for permissible-purpose queries, as an alternative to `consent_id`. |
 | `network_ids` | UUID[] | yes | One or more networks to read across. You must hold the querier role in each. |
 | `policy_id` | UUID | no | The [querying policy](/concepts/governance/querying-policies) applied across every network in `network_ids`. If omitted, each network's default policy is used. |
 | `furnishing_entity_ids` | UUID[] | no | Optional furnisher scope. When omitted, data from all furnishers is considered. |
@@ -85,7 +85,7 @@ Why both halves matter:
 ### Full example
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/kyc_certificate/query \
+curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/query \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -101,8 +101,8 @@ A successful query returns `200 OK` with the consolidated result and an
 ```json
 {
   "certificate_id": "1c9f4e2a-…",
-  "query_event_id": "7b2d9c4e-…",
-  "consumer_id": "c2a4e8d0-…",
+  "provenance_event_id": "7b2d9c4e-…",
+  "consumer_identity_id": "c2a4e8d0-…",
   "result": {
     "meta": {
       "network_id": "9f1c0c2e-…",
@@ -110,7 +110,7 @@ A successful query returns `200 OK` with the consolidated result and an
     },
     "document_capture": {
       "furnishing_entity_id": "e1d2c3b4-…",
-      "attestation_id": "f0a1b2c3-…",
+      "attestation_event_id": "f0a1b2c3-…",
       "assertions": {
         "document_capture_assertion": true,
         "document_capture_timestamp": "2026-04-15T00:00:00Z"
@@ -127,7 +127,7 @@ A successful query returns `200 OK` with the consolidated result and an
     },
     "biometric_capture": {
       "furnishing_entity_id": "e1d2c3b4-…",
-      "attestation_id": "f0a1b2c3-…",
+      "attestation_event_id": "f0a1b2c3-…",
       "assertions": {
         "biometric_capture_assertion": true,
         "biometric_capture_timestamp": "2026-04-15T00:00:00Z"
@@ -149,8 +149,8 @@ A successful query returns `200 OK` with the consolidated result and an
 ```
 
 The shape of `result` is product-specific — see the per-product pages for the
-[KYC certificate](/api-overview/querying/kyc-certificate),
-[KYB certificate](/api-overview/querying/kyb-certificate), and
+[KYC certificate](/api-overview/querying/kyc-certificate-snapshot),
+[KYB certificate](/api-overview/querying/kyb-certificate-snapshot), and
 [screening lists](/api-overview/querying/screening-lists).
 
 ## 200 vs 204 — "here is data" vs "nothing usable"
@@ -179,7 +179,7 @@ nothing to show" without inspecting product-specific fields.
 Every product query response — `200` and `204` alike — includes an `X-Ref-Id`
 response header. Its value is the **query event id**: the durable identifier of
 this query in the network's audit trail. On `200` responses the same value also
-appears in the body as `query_event_id`.
+appears in the body as `provenance_event_id`.
 
 ```text
 HTTP/1.1 200 OK
@@ -286,7 +286,7 @@ Product query endpoints accept two identity-resolution paths:
 - **`consent_id`** — the standard path. The consent token both identifies the
   subject and proves your permission to query them. Use this for any flow where
   the subject interacts with you (onboarding, re-verification).
-- **`consumer_id` / `business_id`** — a direct reference to a profile you can
+- **`consumer_identity_id` / `business_identity_id`** — a direct reference to a profile you can
   already see, for permissible-purpose queries where consent was established
   through another channel. The subject must resolve within your scope or the
   query returns `404`.
@@ -322,7 +322,7 @@ A robust querying integration usually looks like this:
    your budget — it's free and uses the same scope fields as the query.
 3. **Handle `204` as a first-class outcome**, not an error: branch your product
    flow on "no usable result" rather than retrying.
-4. **Persist `query_event_id` / `X-Ref-Id`** alongside your own decision
+4. **Persist `provenance_event_id` / `X-Ref-Id`** alongside your own decision
    records for audit, support, and billing reconciliation.
 5. **Treat missing fields as an entitlement question first** — check what
    you've furnished and what the policy exposes before raising a data issue.

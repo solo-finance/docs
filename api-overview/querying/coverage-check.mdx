@@ -57,15 +57,15 @@ curl -X POST https://api.solo.one/v1/products/check \
 |---|---|---|---|
 | `product_id` | UUID | yes | The product to coverage-check. |
 | `consent_id` | string | one of¹ | Consent token — the system resolves the subject's identity. |
-| `consumer_id` | UUID | one of¹ | Direct consumer profile reference (for consumer-targeted products). |
-| `business_id` | UUID | one of¹ | Direct business profile reference (for business-targeted products). |
+| `consumer_identity_id` | UUID | one of¹ | Direct consumer profile reference (for consumer-targeted products). |
+| `business_identity_id` | UUID | one of¹ | Direct business profile reference (for business-targeted products). |
 | `network_ids` | UUID[] | yes | Networks to check across. |
 | `policy_id` | UUID | no | The [querying policy](/concepts/governance/querying-policies) whose requirements to check against. If omitted, each network's default policy is used. |
 | `furnishing_entity_ids` | UUID[] | no | Restrict the check to specific furnishers. When omitted, all furnishers are considered. |
 
 ¹ Identify the subject the same way you would on the query itself: a
 `consent_id`, or the direct profile id matching the product's target
-(`consumer_id` for consumer products, `business_id` for business products).
+(`consumer_identity_id` for consumer products, `business_identity_id` for business products).
 
 ## Response
 
@@ -74,8 +74,8 @@ A `200 OK` with one entry per furnisher that has relevant data:
 ```json
 {
   "product_id": "3e8a1d5f-…",
-  "consumer_id": "c2a4e8d0-…",
-  "business_id": null,
+  "consumer_identity_id": "c2a4e8d0-…",
+  "business_identity_id": null,
   "entities": [
     {
       "furnishing_entity_id": "e1d2c3b4-…",
@@ -115,8 +115,8 @@ A `200 OK` with one entry per furnisher that has relevant data:
 | `models[].fields[]` | Field-level detail: each `field_name` and whether it's `met`. |
 
 The `field_name` values trace directly to the product's field reference tables
-— see the [KYC certificate](/api-overview/querying/kyc-certificate#field-reference)
-and [KYB certificate](/api-overview/querying/kyb-certificate#field-reference) pages.
+— see the [KYC certificate](/api-overview/querying/kyc-certificate-snapshot#field-reference)
+and [KYB certificate](/api-overview/querying/kyb-certificate-snapshot#field-reference) pages.
 
 If the `product_id` cannot be resolved, the endpoint returns `404` with the
 standard error envelope (`{"detail": "…", "error_code": "RESOURCE_NOT_FOUND"}`)

@@ -22,7 +22,7 @@ database — it becomes an **attributed, governed asset** you still have a stake
 in:
 
 - **You keep attribution.** Every certificate sub-product your data backs
-  carries your `furnishing_entity_id` and `attestation_id`. The verification
+  carries your `furnishing_entity_id` and `attestation_event_id`. The verification
   travels with your name on it — see [Provenance](/concepts/trust/provenance).
 - **You keep governance.** Contributed data is still gated by the subject's
   [consent](/concepts/identity/consent), the network's
@@ -58,54 +58,51 @@ There are three ways to get records into a network. All three converge on the
 same ingestion machinery — the differences are in transport, batch size, and
 how much automation you want to build.
 
-| | REST furnish | Bulk file upload | SFTP drops |
+| | REST furnish | Dashboard upload | SFTP drops |
 |---|---|---|---|
-| **Endpoint / transport** | `POST /v1/products/{product}/furnish` | `POST /v1/file-upload/ingest` | SFTP server (`sftp.solo.one`) |
-| **Payload** | JSON records in the request body | One file per request (multipart) | Excel workbooks dropped into category directories |
-| **Batch size** | One to a few records per call | One file, many rows | One workbook, many rows; many workbooks per session |
-| **Processing** | Synchronous — response reflects the furnish | Asynchronous — returns an upload record to track | Asynchronous — ingestion triggers on upload |
-| **Best for** | Real-time furnishing from your onboarding flow | Programmatic batch jobs that already speak HTTPS | Recurring scheduled drops from core-banking or data-warehouse exports |
+| **Endpoint / transport** | `POST /v1/products/{product}/furnish` | The SOLO dashboard's upload dialog | SFTP server (`sftp.solo.one`) |
+| **Payload** | JSON records in the request body | One [JSONL file](/api-overview/furnishing/file-upload) per upload | JSONL files dropped into `jsonl_furnish_data/` |
+| **Batch size** | One to a few records per call | One file, many records | One file, many records; many files per session |
+| **Processing** | Synchronous — response reflects the furnish | Asynchronous — tracked on the Uploads page | Asynchronous — ingestion triggers on upload |
+| **Best for** | Real-time furnishing from your onboarding flow | Occasional batches and backfills | Recurring scheduled drops from core-banking or data-warehouse exports |
 
 When to choose each:
 
 - **REST furnish** when furnishing is an event in your system — a consumer
   finishes onboarding, you furnish their record in the same workflow. Lowest
   latency, immediate feedback, no file handling.
-- **[Bulk file upload](/api-overview/furnishing/file-upload)** when you have a
-  periodic batch job and an HTTPS client but don't want to manage SFTP
-  credentials or a file-transfer pipeline.
+- **[Dashboard upload](/api-overview/furnishing/file-upload)** when you have a
+  file in hand — a one-off backfill or a periodic batch you'd rather not
+  automate.
 - **[SFTP](/api-overview/sftp/overview)** when your data already leaves your
   systems as files on a schedule. Most core-banking and data-warehouse stacks
   can target an SFTP endpoint with zero custom code, which makes it the usual
   choice for nightly or monthly drops.
 
 <Note>
-  All three channels feed the same furnishing pipeline. A record furnished over
-  REST and the same record uploaded in a workbook over SFTP end up as identical
-  data in the network — same validation, same policy resolution, same
-  entitlement effect.
+  All three channels write the same network data. A record furnished over REST
+  and the same record uploaded in a JSONL file end up identical in the network —
+  same entity matching, same attribution, same entitlement effect.
 </Note>
 
 ## How a furnish works
 
-A furnish brings together a **network**, a **subnetwork**, a resolved
-**furnishing policy**, and a **consumer** (or business):
+A furnish brings together a **network**, your **records**, and the **consumer**
+(or business) they describe:
 
 ```mermaid
 flowchart LR
-    Rec[Your records] --> F[Product furnish]
-    N[Network + subnetwork] --> F
-    P[Furnishing policy] -. resolved .-> F
+    Rec[Your records] --> F[Furnish]
+    N[Network] --> F
     F --> M[Matched to entity]
     M --> Store[(Network data)]
 ```
 
 | Concept | Role in the furnish |
 |---|---|
-| **Product** | *What* you're contributing (e.g. a KYC certificate). Determines the endpoint and record schema. |
+| **Product** | *What* you're contributing over REST (e.g. a KYC certificate). Determines the endpoint and record schema. |
 | **Network** | *Where* the data is contributed. You must be a [furnisher](/concepts/governance/network-roles) of it. |
-| **Subnetwork** | *Which partition* inside the network the data belongs to. Subnetworks link to the policies that govern acceptance. |
-| **Policy** | The [furnishing policy](/concepts/governance/furnishing-policies) the network resolves automatically from subnetwork + application date. |
+| **Mapping** | For files only: the network's [furnishing policy](/concepts/governance/furnishing-policies) that claims each record's `_type` and turns it into network data. |
 | **Consumer / Business** | *Who* the data is about — matched from the identifiers in each record. |
 
 ### Anatomy of a REST furnish
@@ -114,89 +111,73 @@ You call the product's furnish endpoint with the network scope and one or more
 records. For a KYC certificate:
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/kyc_certificate/furnish \
+curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/furnish \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "network_id": "9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7",
-        "subnetwork_name": "default",
-        "application_date": "2026-05-28",
-        "records": [
-          {
-            "first_name": "Jane",
-            "last_name": "Doe",
-            "date_of_birth": "1990-01-15",
-            "social_security_number": "123-45-6789"
-          }
-        ]
-      }'
-    ```
+    "application_date": "2026-05-28",
+    "records": [
+      {
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "date_of_birth": "1990-01-15",
+        "social_security_number": "123-45-6789"
+      }
+    ]
+  }'
+```
 
-    A successful furnish returns a submission acknowledgment:
+A successful furnish returns a submission acknowledgment:
 
-    ```json
-    {
-      "success": true,
-      "submission_id": "5b2e9f10-3c7d-4e8a-b1f6-2d9c0a47e831"
-    }
-    ```
+```json
+{
+  "success": true,
+  "submission_id": "5b2e9f10-3c7d-4e8a-b1f6-2d9c0a47e831"
+}
+```
 
-    Field by field:
+Field by field:
 
-    - `network_id` — the network you're furnishing into. You must hold the
-      furnisher role there.
-    - `subnetwork_name` — names the subnetwork inside that network. Together with
-      `application_date`, this is what the network uses to resolve the applicable
-      furnishing policy.
-- `application_date` — when the consumer applied. Used in policy resolution
-  (see below), not as a record timestamp.
+- `network_id` — the network you're furnishing into. You must hold the
+  furnisher role there. The certificate is written straight into this network;
+  no furnishing policy is involved.
+- `application_date` — when the consumer applied. Required.
 - `records` — one or more consumer records. For KYC certificates each record
   carries `first_name`, `last_name`, `date_of_birth`, and
   `social_security_number` — all strings. The SSN is the matching key that
   connects your record to a consumer [entity](/concepts/identity/entities).
 
-The same shape applies to `POST /v1/products/kyb_certificate/furnish` for
+The same shape applies to `POST /v1/products/kyb_certificate_snapshot/furnish` for
 business records.
 
-### Subnetwork routing and policy resolution
+### How file records reach a mapping
 
-You never attach a furnishing policy yourself. At ingest, the network resolves
-it in two steps:
-
-1. **Subnetwork lookup.** `subnetwork_name` is resolved to a subnetwork inside
-   the network identified by `network_id`. An unknown subnetwork name fails the
-   record — subnetworks must be configured by the network's governor before
-   furnishers can target them.
-2. **Policy matching.** Each subnetwork is linked to one or more
-   [furnishing policies](/concepts/governance/furnishing-policies), each link
-   carrying an effective date window. Your record's `application_date` is
-   compared against the policy's active window and the subnetwork-link's
-   effective window. Policies whose windows cover the application date apply;
-   records that fall outside every window are *filtered* — skipped without
-   being treated as errors.
+You never name a mapping in a file. Each record's `_type` does it: the network's
+active [furnishing policies](/concepts/governance/furnishing-policies) (mappings)
+each claim a record type, and every record goes to each mapping that claims its
+type. Records no mapping claims are counted as unmatched — skipped without being
+treated as errors.
 
 ```mermaid
 flowchart TD
-    R[Record: subnetwork_name + application_date] --> PG[Resolve subnetwork in network]
-    PG -->|not found| ERR[Record fails]
-    PG --> PM[Match linked furnishing policies]
-    PM -->|application_date in window| RUN[Ingest under policy]
-    PM -->|outside all windows| FIL[Filtered — skipped, not an error]
+    R[File record: _type] --> PM[The network's active mappings]
+    PM -->|a mapping claims the type| RUN[Ingest under each claiming mapping]
+    PM -->|no mapping claims it| UN[Unmatched — skipped, not an error]
 ```
 
-This is why the policy is "optional" from your perspective: it's always
-applied, but never something you pass in. As a furnisher you state *facts*
-(subnetwork, date, record); the governor's configuration decides *rules*. If a
-subnetwork links several policies whose windows overlap your application date,
-the record is ingested under each matching policy.
+As a furnisher you state *facts* (network, record type, record); the governor's
+mappings decide *rules*. See [record types](/api-overview/furnishing/file-upload#record-types)
+for the details.
 
 ## What happens after ingest
 
 Once a record is accepted, the furnishing pipeline takes over:
 
-1. **Validation.** The record is checked against the resolved policy's
-   requirements. Each record is processed independently — one bad record in a
-   batch doesn't fail its neighbors.
+1. **Validation.** REST records are checked against the product's record
+   schema; file records against the mapping that claimed them. Each record is
+   processed independently — one bad record in a batch doesn't fail its
+   neighbors.
 2. **Entity matching.** Identifiers in the record (SSN for consumers; tax
    identifier and jurisdiction for businesses) are matched to an existing
    [entity](/concepts/identity/entities), or a new entity profile is created.
@@ -205,8 +186,8 @@ Once a record is accepted, the furnishing pipeline takes over:
 3. **Records become network data.** The furnished attributes are written as
    that entity's data, attributed to your organization as furnisher.
 4. **Certificates and attestations.** For certificate products, the furnished
-   operations (document capture, address verification, and so on — whatever
-   the policy requires) become the evidence behind KYC/KYB certificates that
+   operations (document capture, address verification, and so on) become the
+   evidence behind KYC/KYB certificates that
    queriers later receive. Where your organization has attested to the data,
    the attestation is linked to the resulting certificates.
 5. **Entitlement is recorded.** Your organization becomes
@@ -222,13 +203,9 @@ hold across every channel:
   are matching keys. A typo doesn't just corrupt one record — it creates a
   phantom entity or pollutes a real one.
 - **Treat identifiers as text.** SSNs and tax identifiers are strings, not
-  integers. This matters in spreadsheets especially: a numeric cell silently
-  drops leading zeros.
-- **`application_date` should be the genuine application date.** It drives
-  policy resolution; backdating or defaulting it to "today" routes records to
-  the wrong policy version.
-- **Furnish what the policy asks for.** Policies enumerate required
-  verification operations. Records that don't satisfy them won't produce
+  integers. Exporting them as JSON numbers silently drops leading zeros.
+- **Furnish what the certificate needs.** Certificates are built from specific
+  verification operations. Records that don't carry them won't produce
   certificates, even if they ingest cleanly.
 - **Idempotency is on natural keys.** Re-submitting a consumer record with the
   same SSN updates rather than duplicates. Don't "fix" a bad record by
@@ -240,7 +217,7 @@ hold across every channel:
 |---|---|---|
 | Direction | Write into the network | Read from the network |
 | Needs consent? | No | Yes |
-| Needs a policy you pass? | No (resolved automatically) | Yes (`network_policy`) |
+| Needs a policy you pass? | No (file records route by `_type`) | Yes (`network_policy`) |
 | Earns entitlement? | Yes | Yes |
 
 See [Querying](/api-overview/querying/overview) for the read half.
@@ -254,19 +231,11 @@ See [Querying](/api-overview/querying/overview) for the read half.
     `network_id` is the network where you were granted the role — roles don't
     carry across networks.
   </Accordion>
-  <Accordion title="Record fails with an unknown subnetwork">
-    `subnetwork_name` must exactly match a subnetwork configured in the network
-    by its governor. Subnetwork names are matched within the network identified
-    by `network_id` — confirm both halves. If the subnetwork genuinely doesn't
-    exist yet, the governor needs to create it (over the API or a
-    [subnetworks workbook](/api-overview/sftp/schemas#subnetworks)) before you
-    furnish against it.
-  </Accordion>
-  <Accordion title="Records accepted but no certificate appears">
-    Most often the record was **filtered**: its `application_date` fell outside
-    every linked policy's effective window. Filtered records are skipped
-    deliberately, not errored. Check the subnetwork's policy links and their date
-    windows against the application dates you're sending.
+  <Accordion title="File accepted but no certificate appears">
+    Most often the records were **unmatched**: no active mapping in the target
+    network claims their `_type`. Unmatched records are skipped deliberately,
+    not errored. The upload's results name the unmatched types — compare them
+    with the record types your network's feeds declare.
   </Accordion>
   <Accordion title="Validation errors on individual records">
     Records are validated independently, so a batch can partially succeed.
@@ -286,11 +255,11 @@ See [Querying](/api-overview/querying/overview) for the read half.
 ## Related concepts
 
 <CardGroup cols={2}>
-  <Card title="Bulk File Upload" icon="file-arrow-up" href="/api-overview/furnishing/file-upload">
-    Furnish whole files over REST with one request.
+  <Card title="JSONL Files" icon="file-arrow-up" href="/api-overview/furnishing/file-upload">
+    Furnish whole files of records from the dashboard.
   </Card>
   <Card title="SFTP Ingestion" icon="server" href="/api-overview/sftp/overview">
-    Recurring workbook drops, no HTTP client required.
+    Recurring JSONL drops, no HTTP client required.
   </Card>
   <Card title="Furnishing Policies" icon="scale-balanced" href="/concepts/governance/furnishing-policies">
     The rules the network applies to what you contribute.

@@ -49,7 +49,6 @@ flowchart LR
 | **Network membership + role** | Arranged with your SOLO account manager | Furnisher role to furnish, querier role to query |
 | **Bearer token (SDK token)** | Issued by your SOLO account manager | The `Authorization` header on every request |
 | **`network_id`** | Provided when your organization joins a network | Scoping every consent, search, furnish, and query |
-| **Subnetwork name** (furnishers only) | Your network configuration | Routing furnished data to the right [furnishing policy](/api-overview/furnishing/overview) |
 
 Export your token once so every example in these guides works as-is:
 
@@ -61,18 +60,18 @@ All endpoints live under `https://api.solo.one/v1` and authenticate with the
 token as a Bearer credential:
 
 ```bash
-curl https://api.solo.one/v1/entities/consumer/search \
+curl https://api.solo.one/v1/entities/consumer_identity/search \
   -H "Authorization: Bearer $SOLO_TOKEN"
 ```
 
 See [Authentication](/home/authentication) for token claims and lifetimes, and
 [Errors](/home/errors) for the error envelope every endpoint shares.
 
-The walkthroughs use the consumer-side endpoints (`/v1/consent/consumer`,
-`/v1/entities/consumer/search`, `/v1/products/kyc_certificate/...`). The
-business-side equivalents — `POST /v1/consent/business`,
-`GET /v1/entities/business/search`, and the KYB certificate under
-`/v1/products/kyb_certificate` — follow the same patterns, so everything you
+The walkthroughs use the consumer-side endpoints (`/v1/consent/consumer_identity`,
+`/v1/entities/consumer_identity/search`, `/v1/products/kyc_certificate_snapshot/...`). The
+business-side equivalents — `POST /v1/consent/business_identity`,
+`GET /v1/entities/business_identity/search`, and the KYB certificate under
+`/v1/products/kyb_certificate_snapshot` — follow the same patterns, so everything you
 learn here transfers directly.
 
 <Note>

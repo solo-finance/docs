@@ -84,50 +84,27 @@ SOLO treats siblings as a special case of cousins for permissioning purposes.
 Anywhere governance rules talk about cousins, siblings are included.
 </Note>
 
-## Standard networks and subnetworks
+## Kinds of network
 
-Networks come in two kinds, distinguished by their `network_type`:
+Every network carries a `network_type` describing its place in an arrangement:
+**standard** networks are the default, while **sponsor** and **partner**
+networks describe a sponsor bank and the fintechs it sponsors, nested under it
+in the tree. All kinds behave the same way — they can have their own
+participants, their own data, and their own governance settings.
 
-- **Standard networks** are the default. A bank, a consortium, or a fintech
-  operating in SOLO each runs as a standard network. These are typically created
-  through the SOLO Dashboard.
-- **Subnetworks** are child networks of a standard network that represent a
-  specific product or initiative the operator runs — a credit card line, a
-  mortgage line, a partnership offering. Subnetworks are usually created
-  automatically by SOLO's data-furnishing workflows when a subnetwork definition
-  first arrives through bulk ingestion (see [Network lifecycle](#network-lifecycle)).
-
-Subnetworks always sit beneath a standard parent network. They behave like any
-other network in the tree — they can have their own participants, their own
-data, and their own governance settings — but their lifecycle is typically tied
-to the upstream data flow that created them.
-
-When you furnish, you name the **subnetwork** so the network can route the data
-and resolve the right [furnishing policy](/concepts/governance/furnishing-policies):
-
-```json
-{
-  "network_id": "9f1c0c2e-…",
-  "subnetwork_name": "acme-lending",
-  "application_date": "2026-05-28",
-  "records": [ /* … */ ]
-}
-```
+When you furnish, the upload targets a network directly, and that network's
+mapping assignments determine how the data is accepted and routed (see
+[Furnishing Policies](/concepts/governance/furnishing-policies)).
 
 <Tip>
-If you operate a single product line, you probably only need a standard network.
-Subnetworks become useful when you want to keep data, participants, or rules
-isolated between distinct product offerings under the same operator.
+If you operate a single product line, you probably only need one network. Child
+networks become useful when you want to keep data, participants, or rules
+isolated between distinct offerings under the same operator.
 </Tip>
 
 ## Network lifecycle
 
-Standard networks and subnetworks come into existence in different ways, and
-it's worth understanding both paths.
-
-### Standard networks: created through the dashboard
-
-Standard networks are created deliberately, through the **SOLO Dashboard**, as
+Networks are created deliberately, through the **SOLO Dashboard**, as
 part of onboarding your organization or standing up a new arrangement (a
 consortium, a sponsorship structure, a new line of business). A new network
 needs:
@@ -152,37 +129,6 @@ After creation, the governor typically:
    policies](/concepts/governance/furnishing-policies) for the products the network
    will use, and
 3. optionally enables governance rules to open query paths to related networks.
-
-### Subnetworks: created by furnishing workflows
-
-Subnetworks usually aren't created by hand. They are created
-**automatically by SOLO's data-furnishing workflows** when a subnetwork
-definition first arrives through bulk ingestion — typically a subnetworks
-workbook delivered over [SFTP](/api-overview/sftp/overview) or via [file
-upload](/api-overview/furnishing/file-upload). The workflow creates a child network
-with `network_type: subnetwork` underneath the standard network the definition
-was furnished into, named after the subnetwork, and links it to the [furnishing
-policies](/concepts/governance/furnishing-policies) named in the definition.
-
-Two properties of this flow are worth knowing:
-
-- **Only the network's governor can introduce subnetworks.** Subnetwork
-  definitions furnished by an entity that doesn't govern the target network are
-  rejected.
-- **Subnetwork names are unique within their parent network.** A definition that
-  re-uses an existing subnetwork name in the same network fails for that row
-  rather than silently overwriting the existing subnetwork.
-
-From then on, every furnish that names that `subnetwork_name` is routed into the
-subnetwork, and the subnetwork's furnishing-policy assignments determine how
-the data is accepted (see [Furnishing
-Policies](/concepts/governance/furnishing-policies)). Furnishing data with a
-`subnetwork_name` that doesn't exist in the target network is an error — the
-subnetwork definition has to arrive first.
-
-Because a subnetwork's lifecycle is tied to the upstream data flow that created
-it, you generally don't delete or restructure subnetworks directly — you stop
-furnishing into them, or deprecate the policies assigned to them.
 
 ## Permissions & roles
 
@@ -212,13 +158,13 @@ A network ties products to participants through policies:
 - A **[querying policy](/concepts/governance/querying-policies)** binds a product
   to the network and defines, field by field, what queriers may read.
 - A **[furnishing policy](/concepts/governance/furnishing-policies)** defines how
-  furnished data for a product is accepted, validated, and routed.
+  one type of furnished record is mapped, validated, and persisted.
 
 When you query, you scope the request to one or more network ids and a querying
 policy, so the network knows both *where* to read and *which* reading rules
-apply. When you furnish, the network resolves the applicable furnishing policy
-from the network, subnetwork, and application date automatically — you never
-pass a furnishing policy id yourself.
+apply. When you furnish a file, each record's `_type` routes it to the network's
+furnishing policies that claim that type — you never pass a furnishing policy id
+yourself.
 
 ```mermaid
 flowchart LR

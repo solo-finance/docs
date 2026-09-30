@@ -37,13 +37,13 @@ consumer.
     reuse it and skip to the next step. Otherwise, create one:
 
     ```bash
-    curl -X POST https://api.solo.one/v1/consent/consumer \
+    curl -X POST https://api.solo.one/v1/consent/consumer_identity \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
         "did_gather_consent_from_consumer_prior": true,
-        "consumer_consent_identity": {
+        "consumer_consent_event_identity": {
           "first_name": "Jane",
           "last_name": "Doe",
           "date_of_birth": "1990-01-15T00:00:00",
@@ -80,7 +80,7 @@ consumer.
 
     Keep the `consent_id` — it identifies the consumer on every query while
     the consent remains valid. You can confirm it later with
-    `GET /v1/consent/consumer/{consent_id}?network_id=...`.
+    `GET /v1/consent/consumer_identity/{consent_id}?network_id=...`.
 
     <Warning>
       `did_gather_consent_from_consumer_prior` is an attestation. Only send
@@ -109,8 +109,8 @@ consumer.
     ```json Response
     {
       "product_id": "b4a1d6e8-2c7f-4e93-8a05-d9c3f1b7e642",
-      "consumer_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-      "business_id": null,
+      "consumer_identity_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "business_identity_id": null,
       "entities": [
         {
           "furnishing_entity_id": "3e2d1c0b-9a87-4654-b321-0f9e8d7c6b5a",
@@ -148,7 +148,7 @@ consumer.
     network with that policy (omit it to use each network's default policy):
 
     ```bash
-    curl -X POST https://api.solo.one/v1/products/kyc_certificate/query \
+    curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/query \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
@@ -161,8 +161,8 @@ consumer.
     ```json Response
     {
       "certificate_id": "8a6f4c2e-1b9d-4730-a5e8-3c7f0d2b6491",
-      "query_event_id": "c1e8f5a3-7d20-4b96-8c44-e6a9b3d1f728",
-      "consumer_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "provenance_event_id": "c1e8f5a3-7d20-4b96-8c44-e6a9b3d1f728",
+      "consumer_identity_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
       "result": {
         "meta": {
           "network_id": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
@@ -170,7 +170,7 @@ consumer.
         },
         "document_capture": {
           "furnishing_entity_id": "3e2d1c0b-9a87-4654-b321-0f9e8d7c6b5a",
-          "attestation_id": "f0a9b8c7-d6e5-4432-a1b0-c9d8e7f6a5b4",
+          "attestation_event_id": "f0a9b8c7-d6e5-4432-a1b0-c9d8e7f6a5b4",
           "assertions": {
             "document_capture_assertion": true,
             "document_capture_timestamp": "2026-04-15T00:00:00"
@@ -186,7 +186,7 @@ consumer.
         },
         "document_review": {
           "furnishing_entity_id": "3e2d1c0b-9a87-4654-b321-0f9e8d7c6b5a",
-          "attestation_id": "f0a9b8c7-d6e5-4432-a1b0-c9d8e7f6a5b4",
+          "attestation_event_id": "f0a9b8c7-d6e5-4432-a1b0-c9d8e7f6a5b4",
           "assertions": {
             "document_attribute_review_assertion": true,
             "document_attribute_review_timestamp": "2026-04-16T00:00:00"
@@ -199,7 +199,7 @@ consumer.
         },
         "biometric_capture": {
           "furnishing_entity_id": "3e2d1c0b-9a87-4654-b321-0f9e8d7c6b5a",
-          "attestation_id": "a7b6c5d4-e3f2-4109-b8a7-c6d5e4f3a2b1",
+          "attestation_event_id": "a7b6c5d4-e3f2-4109-b8a7-c6d5e4f3a2b1",
           "assertions": {
             "biometric_capture_assertion": true,
             "biometric_capture_timestamp": "2026-04-15T00:00:00"
@@ -235,7 +235,7 @@ A query has two healthy outcomes:
   is empty.
 
 Both outcomes carry an **`X-Ref-Id` response header** — the UUID of the
-recorded query event. On a `200` it equals the body's `query_event_id`; on a
+recorded provenance event. On a `200` it equals the body's `provenance_event_id`; on a
 `204` it's the only identifier you get, so log it. Quote the `X-Ref-Id` when
 raising an issue with SOLO, and use it to reconcile query activity.
 
@@ -253,10 +253,10 @@ raising an issue with SOLO, and use it to reconcile query activity.
 | Field | Meaning |
 |---|---|
 | `certificate_id` | UUID of the certificate created by this query. |
-| `query_event_id` | UUID of the recorded query event; matches the `X-Ref-Id` header. |
-| `consumer_id` | UUID of the consumer the consent resolved to. |
+| `provenance_event_id` | UUID of the recorded provenance event; matches the `X-Ref-Id` header. |
+| `consumer_identity_id` | UUID of the consumer the consent resolved to. |
 | `result.meta` | The anchor `network_id` the result is attributed to and the `policy_id` applied (`null` when the default policy was used). |
-| `result.document_capture` … `result.identity_corroboration` | The nine certificate sub-products: document capture/review, biometric capture/review, liveness capture/review, address capture/verification, and identity corroboration. Each populated sub-product carries the `furnishing_entity_id` and `attestation_id` of its source, an `assertions` block (what was asserted and when), and a `data` block with the underlying detail fields. |
+| `result.document_capture` … `result.identity_corroboration` | The nine certificate sub-products: document capture/review, biometric capture/review, liveness capture/review, address capture/verification, and identity corroboration. Each populated sub-product carries the `furnishing_entity_id` and `attestation_event_id` of its source, an `assertions` block (what was asserted and when), and a `data` block with the underlying detail fields. |
 
 A sub-product is `null` when no furnisher's data satisfied it — which is
 expected, not a failure, as long as the policy doesn't require it. If a field
@@ -272,7 +272,7 @@ is valid. Its identity fields are immutable, but you can adjust `scope`,
 evolves:
 
 ```bash
-curl -X PUT https://api.solo.one/v1/consent/consumer/5f3a8c21-09d4-4b7a-9d52-6e8b1f4c2a30 \
+curl -X PUT https://api.solo.one/v1/consent/consumer_identity/5f3a8c21-09d4-4b7a-9d52-6e8b1f4c2a30 \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -322,7 +322,7 @@ with different identity data, create a new record instead.
     ```
 
     Two common causes: you looked up a consent with
-    `GET /v1/consent/consumer/{consent_id}` using a `network_id` other than
+    `GET /v1/consent/consumer_identity/{consent_id}` using a `network_id` other than
     the one it was created in (consents are network-scoped), or your query's
     `consent_id` doesn't resolve to a known consumer. Verify the `consent_id`
     and use the originating `network_id`.

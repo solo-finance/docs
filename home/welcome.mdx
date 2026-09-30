@@ -118,9 +118,9 @@ You contribute data: KYC or KYB outcomes your institution has already verified.
 Start with the [Furnishing overview](/api-overview/furnishing/overview) to learn
 how contributed data is validated and stored, then run the
 [Furnish an entity](/home/quickstart/furnish-an-entity) quickstart to push your
-first record through `POST /v1/products/kyc_certificate/furnish`. High-volume
-furnishers can ingest files through `POST /v1/file-upload/ingest` or automated
-SFTP delivery instead of per-record API calls.
+first record through `POST /v1/products/kyc_certificate_snapshot/furnish`. High-volume
+furnishers can deliver [JSONL files](/api-overview/furnishing/file-upload) from the
+dashboard or by automated SFTP delivery instead of per-record API calls.
 
 ### Queriers
 
@@ -131,8 +131,8 @@ across network, policy, and consent, and read
 [Consent](/concepts/identity/consent) — you must record consent and obtain a
 `consent_id` before any query. Then run the
 [Query a product](/home/quickstart/query-a-product) quickstart, which takes you
-from `POST /v1/consent/consumer` to
-`POST /v1/products/kyc_certificate/query` end to end.
+from `POST /v1/consent/consumer_identity` to
+`POST /v1/products/kyc_certificate_snapshot/query` end to end.
 
 <Tip>
   Not sure which role you hold? Your network governor assigned it when your

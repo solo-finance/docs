@@ -37,7 +37,7 @@ flowchart LR
     and contributed work consolidate on one subject.
 
     ```bash
-    curl -G https://api.solo.one/v1/entities/business/search \
+    curl -G https://api.solo.one/v1/entities/business_identity/search \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       --data-urlencode "network_id=9f1c0c2e-…" \
       --data-urlencode "business_legal_name=Acme Coffee" \
@@ -52,12 +52,12 @@ flowchart LR
     Capture permission to query the business and get a `consent_id`.
 
     ```bash
-    curl -X POST https://api.solo.one/v1/consent/business \
+    curl -X POST https://api.solo.one/v1/consent/business_identity \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "did_gather_consent_from_business_prior": true,
-        "business_consent_identity": {
+        "business_consent_event_identity": {
           "business_legal_name": "Acme Coffee LLC",
           "business_jurisdiction_of_formation": "DE",
           "business_registration_identifier_from_jurisdiction_of_formation": 7423918,
@@ -96,10 +96,10 @@ flowchart LR
   <Step title="Query the KYB certificate (reuse)">
     Read the consolidated certificate. This reuses identity, ownership & control,
     and risk/compliance verification already furnished by participants, each
-    block carrying its source's `furnishing_entity_id` and `attestation_id`.
+    block carrying its source's `furnishing_entity_id` and `attestation_event_id`.
 
     ```bash
-    curl -X POST https://api.solo.one/v1/products/kyb_certificate/query \
+    curl -X POST https://api.solo.one/v1/products/kyb_certificate_snapshot/query \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
@@ -119,12 +119,11 @@ flowchart LR
     contribute it back:
 
     ```bash
-    curl -X POST https://api.solo.one/v1/products/kyb_certificate/furnish \
+    curl -X POST https://api.solo.one/v1/products/kyb_certificate_snapshot/furnish \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-…",
-        "subnetwork_name": "default",
         "application_date": "2026-05-28",
         "records": [
           { "business_legal_name": "Acme Coffee LLC", "business_ein": "12-3456789" }
@@ -139,7 +138,7 @@ flowchart LR
 
   <Step title="Re-query and underwrite">
     Re-run the step 4 query to assemble the now-complete certificate, then use it
-    in your underwriting decision. The `query_event_id` / `X-Ref-Id` ties the
+    in your underwriting decision. The `provenance_event_id` / `X-Ref-Id` ties the
     network's record of the read to your internal decision record.
   </Step>
 </Steps>
@@ -157,7 +156,7 @@ last means your one verification compounds for every future participant.
   <Card title="Network consumption" icon="magnifying-glass" href="/api-overview/querying/overview">
     The reuse-first read model in depth.
   </Card>
-  <Card title="KYB Certificate" icon="building" href="/api-overview/querying/kyb-certificate">
+  <Card title="KYB Certificate" icon="building" href="/api-overview/querying/kyb-certificate-snapshot">
     The business trust asset, field by field.
   </Card>
   <Card title="Coverage check" icon="list-radio" href="/api-overview/querying/coverage-check">

@@ -1,6 +1,6 @@
 ---
 title: 'SFTP Getting Started'
-description: 'Send your first workbook to the SOLO Network over SFTP'
+description: 'Send your first JSONL file to the SOLO Network over SFTP'
 icon: 'rocket'
 ---
 
@@ -78,79 +78,71 @@ Host solo-sftp-sandbox
 On a successful connection you'll land at the root of your organization's upload area.
 
 <Warning>
-  Your SFTP session is **upload-only**: you can `put` files into the category directories and create directories, but `ls`, `get`, overwriting, and deleting are not permitted. Don't be surprised when a directory listing is denied — that's policy, not a fault. Verification happens in the dashboard (Step 6), not over SFTP.
+  Your SFTP session is **upload-only**: you can `put` files and create directories, but `ls`, `get`, overwriting, and deleting are not permitted. Don't be surprised when a directory listing is denied — that's policy, not a fault. Verification happens in the dashboard (Step 5), not over SFTP.
 </Warning>
 
 <Tip>
   If the server rejects you immediately, the most common causes are (1) the API key has been revoked, (2) your organization isn't provisioned in SOLO yet, or (3) the plus-tag is misspelled (only `+sandbox`, `+prod`, or no tag are accepted). Re-check the username and key, then reach out to your account manager if it persists.
 </Tip>
 
-## Step 3 — Download a template
+## Step 3 — Write a JSONL file
 
-Every upload is an Excel workbook (`.xlsx`) that lands in one of five category directories. Workbook templates are available on the [Upload Categories](/api-overview/sftp/schemas) page — they include the required header row, an example row, and the right column names already in place.
+Every upload is a [JSONL file](/api-overview/furnishing/file-upload): UTF-8 text with one JSON object per line. Each record carries a `_type` naming the kind of record it is — that's how the network decides which mappings receive it.
 
-For this walkthrough, start with the simplest path: defining a **KYC certificate policy** that a furnisher can later attach data to.
+Find the record type in the dashboard: open **Feeds**, pick the feed you're delivering, and read its sample record. The sample's `_type` is the value to use, and its other fields are the ones the feed's mapping reads.
 
-<Card title="Download Template" icon="download" href="https://raw.githubusercontent.com/solo-finance/docs/dev/api-overview/sftp/templates/kyc-cert-policy-template.xlsx">
-  KYC Certificate Policy Template (.xlsx)
-</Card>
+For this walkthrough, write one consumer record for a feed whose record type is `consumers`:
 
-<Note>
-  Policy and subnetwork workbooks define network configuration, so they are accepted only from the network's [governor](/concepts/governance/network-governance). If your organization is a furnisher but not a governor, start with a `kyc_furnish_data` workbook instead — the steps below are the same, only the directory and columns differ.
-</Note>
+```json first_upload.jsonl
+{"_type":"consumers","ssn":"123456789","dob":"1990-01-15","first_name":"Jane","last_name":"Doe"}
+```
 
-## Step 4 — Fill it in
+A few things to know about the format ([full reference](/api-overview/furnishing/file-upload#file-format)):
 
-Open the template in Excel (or any other spreadsheet app) and add one row of real data below the example row:
+- **One compact object per line** — not a JSON array, and not pretty-printed across lines.
+- **Blank lines are skipped.** Every other line is processed independently, so a single bad line won't fail the rest of the file.
+- **Identifiers are strings.** Write SSNs and tax identifiers as `"012345678"`, never as numbers — a number drops the leading zero.
+- **Filenames** use letters, digits, `_`, and `-`, with a single `.jsonl` extension.
 
-| `kyc_policy_name`         | `start_date`  | `entity_type` | `document_capture` | `liveness_capture` | `address_verification` |
-|---------------------------|---------------|---------------|--------------------|--------------------|------------------------|
-| First KYC Test Policy     | `2026-01-01`  | `Consumer`    | `true`             | `true`             | `true`                 |
+## Step 4 — Upload
 
-A few things to know about the workbook format ([full reference](/api-overview/sftp/csv-format)):
-
-- Only the **first sheet** of the workbook is read.
-- **Row 1** is a banner — anything you put there is ignored.
-- **Row 2** must contain the column headers.
-- **Row 3 and below** are data rows. Each row is processed independently, so a single bad row won't fail the rest of the file.
-- Headers are normalized (lowercased, non-alphanumerics collapsed to `_`), so `KYC Policy Name`, `kyc_policy_name`, and `KYC-Policy-Name` are all equivalent.
-- Rows whose identifier column starts with `Ex.` are treated as in-workbook examples and skipped.
-
-Save the file as `first-kyc-test.xlsx`.
-
-## Step 5 — Upload
-
-Drop the workbook into the directory that matches its category:
+Drop the file into `network_{network_id}/jsonl_furnish_data/`, where `{network_id}` is the network the records go to. The feed's detail page in the dashboard shows the network id in its drop path. Your session is already scoped to your organization, so leave off the drop path's leading `entity_…/` segment:
 
 <CodeGroup>
 
 ```bash sftp (CLI)
-sftp> cd kyc_cert_policy
-sftp> put first-kyc-test.xlsx
-Uploading first-kyc-test.xlsx to /kyc_cert_policy/first-kyc-test.xlsx
+sftp> mkdir network_9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7
+sftp> cd network_9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7
+sftp> mkdir jsonl_furnish_data
+sftp> cd jsonl_furnish_data
+sftp> put first_upload.jsonl
 sftp> bye
 ```
 
 ```python Python (paramiko)
-sftp.put("first-kyc-test.xlsx", "/kyc_cert_policy/first-kyc-test.xlsx")
+network_dir = "network_9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7"
+for directory in (network_dir, f"{network_dir}/jsonl_furnish_data"):
+    try:
+        sftp.mkdir(directory)
+    except OSError:
+        pass  # already exists
+sftp.put("first_upload.jsonl", f"/{network_dir}/jsonl_furnish_data/first_upload.jsonl", confirm=False)
 ```
 
 </CodeGroup>
 
-That's it — there are no intermediate folders to manage. The category directory **is** the schema selector: a file in `kyc_cert_policy/` is parsed as a KYC certificate policy workbook, a file in `subnetworks/` as a subnetworks workbook, and so on.
-
 <Tip>
-  Pick a fresh filename for every upload (a date or batch number works well). Sessions can't overwrite or delete existing files, so re-using a name from a previous drop will be rejected.
+  Pick a fresh filename for every upload (a date or batch number works well). Sessions can't overwrite or delete existing files, so re-using a name from a previous drop will be rejected. Pass `confirm=False` in Paramiko — its post-upload check lists the file, which upload-only sessions don't allow.
 </Tip>
 
-## Step 6 — Verify ingestion
+## Step 5 — Verify ingestion
 
-Ingestion is event-driven and asynchronous — processing starts within seconds of the file landing, and a small workbook typically completes in well under a minute.
+Ingestion is event-driven and asynchronous — processing starts within seconds of the file landing, and a small file typically completes in well under a minute.
 
-The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **Data → Uploads** page lists every workbook your organization has sent, along with row-level success, filtered, and error counts. From there you can also drill into the resulting records (policies, subnetworks, furnish events) to confirm they showed up where you expected.
+The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **Uploads** page lists every file your organization has sent, with the records read and the succeeded, filtered, failed, and unmatched counts. The feed's detail page shows its recent deliveries and names any record types no mapping claimed.
 
 <Note>
-  Re-sending data is safe at the row level. Data rows upsert on their natural keys (SSN for consumers; tax identifier + jurisdiction for businesses), so a corrected re-upload updates records rather than double-creating them. Re-uploaded **policy** or **subnetwork** rows that collide with existing names will surface per-row name-conflict errors instead — version the name (e.g. `First KYC Test Policy v2`) if you intend a new policy.
+  Re-sending data is safe. Identity records resolve to the existing consumer or business on their natural keys (SSN and date of birth for consumers; tax identifier and jurisdiction for businesses), so a corrected re-upload attaches to the same profiles instead of creating duplicates.
 </Note>
 
 ## Common first-upload issues
@@ -168,20 +160,14 @@ The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **D
     ssh-keyscan sftp.solo.one >> ~/.ssh/known_hosts
     ```
   </Accordion>
-  <Accordion title="File uploaded but no records appear">
-    Open the workbook in Excel and confirm:
-    1. Headers are in **row 2** (not row 1), and there are no merged cells above them.
-    2. The identifier column on every real data row is **not** prefixed with `Ex.` (those are skipped as examples).
-    3. The file was saved as `.xlsx`, not `.xls` or `.csv`.
-    4. For data workbooks: every row's `subnetwork_name` matches a subnetwork the governor has configured, and the `application_date` falls inside an active policy window — rows outside every window are **filtered** (skipped), which is reported separately from errors.
-
-    The Uploads page in the dashboard surfaces the row-level reason for any failures.
+  <Accordion title="File uploaded but no upload appears in the dashboard">
+    The file landed outside `jsonl_furnish_data/`, so it was stored but never ingested. Re-upload it into the feed's drop path.
   </Accordion>
-  <Accordion title='Policy or subnetwork rows fail with an access error'>
-    Configuration categories (`kyc_cert_policy`, `kyb_cert_policy`, `subnetworks`) are governor-only. The file itself uploads fine, but every row is rejected at ingest if your organization doesn't govern the target network. Furnishers should upload to the data categories instead.
+  <Accordion title="Records are counted as unmatched">
+    No active mapping in the target network claims their `_type`. Compare the value with the feed's sample record, confirm the feed's mapping is active rather than a draft, and confirm the drop path names the network you expected.
   </Accordion>
-  <Accordion title='Row rejected with formula cells that have no cached value'>
-    Workbooks are read using cached formula results. If a workbook was generated programmatically and never opened in Excel, formula cells may have no cached value — the row is rejected and the error names the offending columns. Open and save the file in Excel (or set cached values when generating it) before uploading.
+  <Accordion title="The upload fails with an access error">
+    Your organization doesn't hold the furnisher or governor role in the network named by the drop path. Check the network id in the path, or ask the network's governor to add your organization as a furnisher.
   </Accordion>
 </AccordionGroup>
 
@@ -189,15 +175,15 @@ The cleanest way to check is the [SOLO dashboard](https://app.solo.one): the **D
 
 <CardGroup cols={2}>
   <Card title="SFTP Overview" icon="server" href="/api-overview/sftp/overview">
-    The full mental model — categories, environments, how routing works.
+    The full mental model — directories, environments, how routing works.
   </Card>
-  <Card title="Upload Categories" icon="list" href="/api-overview/sftp/schemas">
-    Required and optional columns for every category, plus downloadable templates.
+  <Card title="JSONL Files" icon="file-arrow-up" href="/api-overview/furnishing/file-upload">
+    The file format, record types, and results reference.
   </Card>
-  <Card title="Workbook Format" icon="file-excel" href="/api-overview/sftp/csv-format">
-    Detailed rules for headers, data types, and the row 1 banner convention.
+  <Card title="Furnishing Policies" icon="shield-check" href="/concepts/governance/furnishing-policies">
+    How mappings turn records into network data.
   </Card>
   <Card title="API Reference" icon="webhook" href="/api-reference/introduction">
-    Prefer to integrate over HTTPS? The same operations are available as REST endpoints.
+    Prefer to furnish over HTTPS? Records can be sent one at a time as REST calls.
   </Card>
 </CardGroup>

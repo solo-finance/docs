@@ -1,149 +1,96 @@
 ---
 title: 'Furnishing Policies'
-description: 'How a network accepts and routes furnished data for a product'
+description: 'How a network turns furnished records into network data'
 icon: 'arrow-up-from-bracket'
 ---
 import DashboardGovernanceFurnishingPolicies from '/snippets/dashboard/governance-furnishing-policies.mdx';
 
-A **furnishing policy** defines how furnished data for a
-[product](/api-overview/querying/products) is **accepted, validated, and routed**
-into a [network](/concepts/governance/networks). Where a
+A **furnishing policy** — called a **mapping** in the dashboard — defines how
+one type of furnished record is **mapped, validated, and persisted** into a
+[network](/concepts/governance/networks). Where a
 [querying policy](/concepts/governance/querying-policies) governs what leaves
 the network on a read, a furnishing policy governs what happens to data on the
 way in.
 
-As a furnisher you never pass a furnishing policy yourself. You
-[furnish](/api-overview/furnishing/overview) with a network, a subnetwork, and an
-application date — and the network resolves the applicable policy
-automatically. Furnishing policies are authored and managed by the network's
+As a furnisher you never name a mapping yourself. Every record in a
+[JSONL file](/api-overview/furnishing/file-upload) carries a `_type`, and the
+network sends the record to each active mapping that claims that type.
+Mappings are authored and managed by the network's
 [governor](/concepts/governance/network-roles).
 
 ```mermaid
 flowchart LR
-    F[Furnish request<br/>network + subnetwork + application_date] --> R{Policy resolution}
-    R --> P[Furnishing policy]
-    P --> S1[Step 1: validate]
-    S1 --> S2[Step 2: match entity]
-    S2 --> S3[Step 3: persist + route]
-    S3 --> Store[(Network data)]
+    F[File record<br/>_type] --> R{Routing}
+    R --> P[Mapping]
+    P --> S1[Map identity]
+    S1 --> S2[Match or create entity]
+    S2 --> S3[Map events]
+    S3 --> S4[Persist]
+    S4 --> Store[(Network data)]
 ```
+
+## Feeds and record types
+
+Mappings are created from a **feed** — a stream of records arriving from one
+source, such as an SFTP drop path. The feed declares a sample record:
+
+- The sample's `_type` is the **record type** the feed's mappings claim.
+- The sample's fields are the **source schema** the mapping reads from.
+
+A record whose `_type` no active mapping claims is counted as unmatched and
+skipped; it never fails the file.
 
 ## The pipeline model
 
-Under the hood, a furnishing policy is a **pipeline**: an ordered sequence of
-processing steps that every furnished record runs through. The pipeline for a
-policy is derived from a **product default** — a SOLO-maintained template
-pipeline for the product, identified by the policy's `source_default_slug`
-(resolved from the product's catalogue path when the policy is created).
+Under the hood, a mapping is a **pipeline**: an ordered sequence of steps that
+every claimed record runs through. Each mapping is derived from a
+SOLO-maintained default pipeline, identified by its `source_default_slug`:
 
-A policy customizes the default at three levels, which is exactly the surface
-the configuration API exposes:
-
-| Configuration | What it controls |
+| `source_default_slug` | Records it ingests |
 |---|---|
-| `enabled_step_names` | Which of the default pipeline's steps run for this policy. Some steps are mandatory and are always retained, whether or not they are listed. |
-| `step_model_defaults` | Per-step default values applied to the models a step processes. |
-| `step_field_configuration` | Per-step, per-field settings — the field-level knobs a step exposes. |
+| `jsonl_mapping_default` | Consumer records — identity plus KYC verification events |
+| `jsonl_mapping_business_default` | Business records — identity plus KYB verification events |
 
-Alongside the steps, a policy carries optional **runtime context** (named
-inputs resolved when the pipeline runs) and an optional **filter** that rejects
-records up front — this is what enforces the application-date windows described
-below. You don't author these directly through the REST API; they come from
-the product default and from workbook-based authoring.
+The governor authors two mapping documents, in the mapping's **Mapping** tab in
+the dashboard:
 
-<Note>
-The step names and their available settings are product-specific — they come
-from the product's default pipeline. List an existing policy (below) or
-consult your SOLO account manager for the step catalogue of the products you
-operate.
-</Note>
+| Document | What it controls |
+|---|---|
+| **Identity mapping** | Which record fields identify the consumer or business (for example SSN and date of birth), used to match an existing profile or create one. |
+| **Tree mapping** | Which verification events the record becomes, and which record fields fill each event's fields. |
 
-## Policy fields and versioning
+The dashboard verifies both documents against the source schema; a mapping
+can't be activated until they verify.
+
+## Lifecycle
+
+A mapping moves between two states:
+
+```mermaid
+flowchart LR
+    D[Draft<br/>editable, not routing] -->|activate| A[Active<br/>frozen, routing]
+    A -->|deactivate| D
+```
+
+- **Draft** — the configuration can be edited freely. Drafts never receive
+  records.
+- **Active** — the configuration is frozen and the mapping receives every
+  record that carries its record type. To change it, deactivate it, edit, and
+  activate again.
 
 | Field | Meaning |
 |---|---|
 | `name` | Display name. Together with `network_id` and `version`, must be unique. |
-| `version` | Integer version, starting at 1. New revisions of the same policy increment it. |
-| `schema_version` | Version of the pipeline document schema the policy conforms to. |
-| `source_default_slug` | Which product default pipeline this policy is derived from. |
-| `active_on` | When the policy takes effect. **Once set, the policy is immutable.** |
-| `deprecated_on` | When the policy is retired. Resolution skips deprecated policies. |
-| `policy_metadata` | Free-form metadata recorded by the author. |
+| `version` | Integer version, starting at 1. |
+| `schema_version` | Version of the pipeline document schema the mapping conforms to. |
+| `source_default_slug` | Which default pipeline the mapping is derived from. |
+| `is_active` | Whether the mapping currently receives records. |
+| `mapping_metadata` | Routing and authoring metadata, including the claimed record type. |
 
-Versioning follows a simple rule: **activated policies never change**. While a
-policy is a draft (`active_on` unset), its configuration can be replaced
-freely. Setting `active_on` freezes it; further configuration writes are
-rejected:
+## Reading policies via the API
 
-```json
-{
-  "detail": "Activated furnishing policies are immutable; create a new version",
-  "error_code": "VALIDATION_ERROR"
-}
-```
-
-To evolve an active policy, create a new version with the same `name` and a
-higher `version`, configure it, and activate it. When SOLO needs "the current
-policy named X in network Y", it picks the **highest-version, non-deprecated**
-one.
-
-A typical revision cycle looks like this:
-
-```mermaid
-flowchart LR
-    D[Draft<br/>configuration replaceable] -->|set active_on| A[Active<br/>immutable]
-    A -->|set deprecated_on| R[Retired<br/>skipped by resolution]
-    A -.->|need changes?| D2[New draft<br/>same name, version + 1]
-    D2 -->|activate| A2[Active v2]
-```
-
-Because activation freezes a policy, every furnish is reproducible after the
-fact: the policy version that processed a record can be read back exactly as
-it was when the record came in. Deprecating the old version (rather than
-deleting it) keeps that audit trail intact while taking it out of resolution.
-
-## How a policy is resolved at furnish time
-
-Resolution is automatic and happens on every furnish. Three inputs drive it —
-all from the furnish request:
-
-```json
-{
-  "network_id": "9f1c0c2e-…",
-  "subnetwork_name": "coastal-cards",
-  "application_date": "2026-05-28",
-  "records": [ { "…": "…" } ]
-}
-```
-
-<Steps>
-  <Step title="Resolve the subnetwork">
-    `subnetwork_name` is matched to a [subnetwork](/concepts/governance/networks#standard-networks-and-subnetworks)
-    under `network_id`. An unknown subnetwork is an error — subnetworks are
-    introduced ahead of time by the governor.
-  </Step>
-  <Step title="Find the subnetwork's assigned policies">
-    Policies are **assigned** to subnetworks, each assignment carrying an
-    effective-date window (`effective_from`, optional `effective_to`). Every
-    non-deprecated policy assigned to the subnetwork for the product is a
-    candidate.
-  </Step>
-  <Step title="Apply the date windows">
-    The record's `application_date` is checked against the policy and
-    assignment windows. Records that fall outside every window are
-    **filtered** — not failed — so a furnish can legitimately result in
-    "accepted under policy v2, filtered by policy v1".
-  </Step>
-</Steps>
-
-This is why furnishers never reference policies directly: the
-(network, subnetwork, application date) triple is sufficient, and the governor
-controls what it maps to.
-
-## Managing policies via the API
-
-Five routes cover the lifecycle. Listing and reading are available to any
-member of the network; creating and configuring are governor operations.
+Any member of a network can list and read its furnishing policies. Authoring
+happens in the dashboard.
 
 ### List policies in a network
 
@@ -164,12 +111,13 @@ curl -G https://api.solo.one/v1/networks/policies/furnishing \
     "entity_id": "7c2d91e4-…",
     "network_id": "9f1c0c2e-…",
     "name": "Coastal KYC intake",
-    "version": 2,
+    "version": 1,
     "schema_version": "1",
-    "source_default_slug": "kyc_certificate",
-    "active_on": "2026-01-01T00:00:00Z",
-    "deprecated_on": null,
-    "policy_metadata": {},
+    "source_default_slug": "jsonl_mapping_default",
+    "is_active": true,
+    "mapping_metadata": {
+      "selector": { "path": "/_type", "op": "eq", "value": "kyc_certificate" }
+    },
     "created_at": "2025-12-12T18:03:11Z",
     "updated_at": "2025-12-30T09:41:00Z"
   }
@@ -187,92 +135,14 @@ curl -G https://api.solo.one/v1/networks/policies/furnishing/4f6e2a90-… \
 The `network_id` query parameter scopes the lookup; a policy that exists but
 isn't visible in that network returns `404` `RESOURCE_NOT_FOUND`.
 
-### Create a policy
-
-`POST /v1/networks/policies/furnishing` creates an empty policy **shell** for a
-(product, network) pair. The server derives `source_default_slug` from the
-product; pipeline steps are added afterwards via configuration (or workbook
-ingestion).
-
-```bash
-curl -X POST https://api.solo.one/v1/networks/policies/furnishing \
-  -H "Authorization: Bearer $SOLO_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "product_id": "1b9a4c33-…",
-    "network_id": "9f1c0c2e-…",
-    "name": "Coastal KYC intake"
-  }'
-```
-
-```json
-{
-  "id": "4f6e2a90-…",
-  "entity_id": "7c2d91e4-…",
-  "network_id": "9f1c0c2e-…",
-  "name": "Coastal KYC intake",
-  "source_default_slug": "kyc_certificate"
-}
-```
-
-### Configure a policy
-
-`PUT /v1/networks/policies/furnishing/{policy_id}/configuration` replaces the
-draft policy's pipeline configuration. `enabled_step_names` is required; the
-rest is optional.
-
-```bash
-curl -X PUT https://api.solo.one/v1/networks/policies/furnishing/4f6e2a90-…/configuration \
-  -H "Authorization: Bearer $SOLO_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "enabled_step_names": ["validate_identity", "match_entity", "persist_records"],
-    "step_model_defaults": { "validate_identity": { "strictness": "high" } },
-    "step_field_configuration": { "match_entity": { "match_on": ["ssn", "dob"] } },
-    "active_on": "2026-07-01T00:00:00Z"
-  }'
-```
-
-```json
-{
-  "id": "4f6e2a90-…",
-  "name": "Coastal KYC intake",
-  "step_count": 3
-}
-```
-
-Like querying-policy configuration, this is a **replace**, not a patch — submit
-the full intended step selection each time. Step names shown above are
-illustrative; use the names from your product's default pipeline. Including
-`active_on` activates the policy, after which it is immutable; `deprecated_on`
-retires it from resolution.
-
-## Bulk authoring and ingestion
-
-Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
-
-- **Policy workbooks.** Governors can author policies in bulk by uploading a
-  policy workbook (per product) through
-  [file upload](/api-overview/furnishing/file-upload) or
-  [SFTP](/api-overview/sftp/overview). Each row clones the product default and
-  applies the row's step selections — equivalent to the create + configure flow
-  above. Workbook ingestion is rejected when the caller doesn't govern the
-  target network.
-- **Subnetwork workbooks** assign policies (by name, latest non-deprecated
-  version) to the subnetworks they define.
-- **Data files.** Records arriving in bulk — see
-  [CSV format](/api-overview/sftp/csv-format) and [schemas](/api-overview/sftp/schemas) —
-  go through exactly the same resolution and pipeline as API furnishes. There is
-  one set of rules, regardless of transport.
-
 ## Relationship to other concepts
 
 | Concept | Relationship |
 |---|---|
-| [Querying policies](/concepts/governance/querying-policies) | The read-side counterpart. A product in a network typically has both: a furnishing policy shaping intake, a querying policy capping reads. |
-| [Entitlement](/concepts/governance/entitlement) | Furnishing under a policy is what *earns* a furnisher read access to the subjects it contributed. |
-| [Networks & subnetworks](/concepts/governance/networks) | Policies belong to a network; assignments bind them to subnetworks. |
-| [Furnishing](/api-overview/furnishing/overview) | The furnisher-facing view: furnish with network + subnetwork + application date, and the policy applies itself. |
+| [Querying policies](/concepts/governance/querying-policies) | The read-side counterpart. A network typically has both: mappings shaping intake, querying policies capping reads. |
+| [Entitlement](/concepts/governance/entitlement) | Furnishing is what *earns* a furnisher read access to the subjects it contributed. |
+| [Networks](/concepts/governance/networks) | Mappings belong to a network and only receive records furnished into it. |
+| [Furnishing](/api-overview/furnishing/overview) | The furnisher-facing view: send records with a `_type`, and the mapping applies itself. |
 
 <DashboardGovernanceFurnishingPolicies />
 
@@ -285,10 +155,10 @@ Furnishing policies sit at the heart of SOLO's bulk-ingestion paths:
   <Card title="Querying Policies" icon="magnifying-glass" href="/concepts/governance/querying-policies">
     Field-level read rules — the other half of policy governance.
   </Card>
-  <Card title="SFTP Ingestion" icon="server" href="/api-overview/sftp/overview">
-    Bulk delivery of subnetworks, policies, and data.
+  <Card title="JSONL Files" icon="file-arrow-up" href="/api-overview/furnishing/file-upload">
+    The file format mappings read.
   </Card>
-  <Card title="File Upload" icon="file-import" href="/api-overview/furnishing/file-upload">
-    Inline workbook and CSV ingestion.
+  <Card title="SFTP Ingestion" icon="server" href="/api-overview/sftp/overview">
+    Scheduled delivery of JSONL files.
   </Card>
 </CardGroup>

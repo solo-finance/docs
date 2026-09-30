@@ -101,10 +101,10 @@ Use the base URL for the environment your credentials were issued in:
 ## Example request
 
 A complete authenticated call — searching for a consumer by name within a
-network using `GET /v1/entities/consumer/search`:
+network using `GET /v1/entities/consumer_identity/search`:
 
 ```bash
-curl -G "https://api.sandbox.solo.one/v1/entities/consumer/search" \
+curl -G "https://api.sandbox.solo.one/v1/entities/consumer_identity/search" \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   --data-urlencode "network_id=2f6f6a3e-9d6b-4a4e-8a6f-3a1d1f2b9c10" \
   --data-urlencode "first_name=Ada" \
@@ -131,7 +131,7 @@ A successful response returns matching consumer identities:
 The same header works on every endpoint — swap the path and method:
 
 ```bash
-curl -X POST "https://api.sandbox.solo.one/v1/consent/consumer" \
+curl -X POST "https://api.sandbox.solo.one/v1/consent/consumer_identity" \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{ ... }'

@@ -42,7 +42,7 @@ flowchart TB
     one consumer.
 
     ```bash
-    curl -G https://api.solo.one/v1/entities/consumer/search \
+    curl -G https://api.solo.one/v1/entities/consumer_identity/search \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       --data-urlencode "network_id=9f1c0c2e-…" \
       --data-urlencode "social_security_number=123-45-6789"
@@ -53,13 +53,13 @@ flowchart TB
     Capture the subject's permission and keep the `consent_id`.
 
     ```bash
-    curl -X POST https://api.solo.one/v1/consent/consumer \
+    curl -X POST https://api.solo.one/v1/consent/consumer_identity \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-…",
         "did_gather_consent_from_consumer_prior": true,
-        "consumer_consent_identity": {
+        "consumer_consent_event_identity": {
           "first_name": "Jane",
           "last_name": "Doe",
           "date_of_birth": "1990-01-15",
@@ -93,7 +93,7 @@ flowchart TB
 
   <Step title="Reuse: query the certificate">
     ```bash
-    curl -X POST https://api.solo.one/v1/products/kyc_certificate/query \
+    curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/query \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
@@ -104,7 +104,7 @@ flowchart TB
     ```
 
     - **`200`** — reuse the consolidated certificate. Each populated sub-product
-      carries its source's `furnishing_entity_id` and `attestation_id`, so the
+      carries its source's `furnishing_entity_id` and `attestation_event_id`, so the
       reuse is fully attributed.
     - **`204`** — nothing you're entitled to read satisfied the policy. Treat it
       as "do the missing work," not as an error.
@@ -116,12 +116,11 @@ flowchart TB
     [entitlement](/concepts/governance/entitlement) to read this subject later.
 
     ```bash
-    curl -X POST https://api.solo.one/v1/products/kyc_certificate/furnish \
+    curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/furnish \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{
         "network_id": "9f1c0c2e-…",
-        "subnetwork_name": "default",
         "application_date": "2026-05-28",
         "records": [
           {

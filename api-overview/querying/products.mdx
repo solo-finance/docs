@@ -19,9 +19,9 @@ networks you belong to.
 
 | Product | What it answers | Subject | Query path |
 |---|---|---|---|
-| [KYC Certificate](/api-overview/querying/kyc-certificate) | "Has this consumer's identity been verified — documents, biometrics, liveness, address, and corroboration?" | Consumer | `POST /v1/products/kyc_certificate/query` |
-| [KYB Certificate](/api-overview/querying/kyb-certificate) | "Has this business been verified — identity, ownership & control, and risk/compliance?" | Business | `POST /v1/products/kyb_certificate/query` |
-| [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) | "Has this consumer violated a documented policy of this sponsor bank's subnetwork?" | Consumer | `POST /v1/products/bank_specific_bad_actor_list/query` |
+| [KYC Certificate](/api-overview/querying/kyc-certificate-snapshot) | "Has this consumer's identity been verified — documents, biometrics, liveness, address, and corroboration?" | Consumer | `POST /v1/products/kyc_certificate_snapshot/query` |
+| [KYB Certificate](/api-overview/querying/kyb-certificate-snapshot) | "Has this business been verified — identity, ownership & control, and risk/compliance?" | Business | `POST /v1/products/kyb_certificate_snapshot/query` |
+| [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) | "Has this consumer violated a documented policy of this sponsor bank's network?" | Consumer | `POST /v1/products/bank_specific_bad_actor_list/query` |
 | [Cross-Bank Financial Crimes Watch List](/api-overview/querying/screening-lists) | "Is this consumer associated with suspicious financial-crimes activity reported across participating banks?" | Consumer | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
 They fall into two families:
@@ -127,7 +127,6 @@ Furnishing contributes one or more records for an entity into a network:
 ```json
 {
   "network_id": "9f1c0c2e-…",
-  "subnetwork_name": "default",
   "application_date": "2026-05-28",
   "records": [
     {
@@ -148,9 +147,9 @@ to query it back later. See [Furnishing](/api-overview/furnishing/overview).
 
 | If you need to… | Use |
 |---|---|
-| Verify a consumer's identity at onboarding | [KYC Certificate](/api-overview/querying/kyc-certificate) |
-| Verify a business and its beneficial owners | [KYB Certificate](/api-overview/querying/kyb-certificate) |
-| Screen a consumer against your sponsor bank's subnetwork history | [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) |
+| Verify a consumer's identity at onboarding | [KYC Certificate](/api-overview/querying/kyc-certificate-snapshot) |
+| Verify a business and its beneficial owners | [KYB Certificate](/api-overview/querying/kyb-certificate-snapshot) |
+| Screen a consumer against your sponsor bank's network history | [Bank-Specific Bad Actor List](/api-overview/querying/screening-lists) |
 | Screen a consumer for cross-bank financial-crimes signals | [Cross-Bank Financial Crimes Watch List](/api-overview/querying/screening-lists) |
 | Know whether a query can succeed before paying for it | [Coverage Check](/api-overview/querying/coverage-check) |
 
@@ -164,11 +163,11 @@ certificate query is worth running.
 ## Product deep dives
 
 <CardGroup cols={2}>
-  <Card title="KYC Certificate" icon="id-card" href="/api-overview/querying/kyc-certificate">
+  <Card title="KYC Certificate" icon="id-card" href="/api-overview/querying/kyc-certificate-snapshot">
     Consolidated consumer identity verification — nine sub-products, full field
     reference.
   </Card>
-  <Card title="KYB Certificate" icon="building" href="/api-overview/querying/kyb-certificate">
+  <Card title="KYB Certificate" icon="building" href="/api-overview/querying/kyb-certificate-snapshot">
     Business identity, ownership & control, and risk/compliance in one
     certificate.
   </Card>

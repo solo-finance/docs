@@ -7,14 +7,14 @@ icon: 'list-check'
 SOLO offers two **screening list** products in the Fraud & Financial Crime
 category. Both answer a narrow question — *is this consumer on a list?* — and
 return a listing indicator plus a small set of context fields. Unlike
-[certificates](/api-overview/querying/kyc-certificate), screening list queries never
+[certificates](/api-overview/querying/kyc-certificate-snapshot), screening list queries never
 issue a reusable artifact; they are point-in-time checks.
 
 | | Bank-Specific Bad Actor List | Cross-Bank Financial Crimes Watch List |
 |---|---|---|
 | **What it is** | A sponsor-bank-scoped list of specific individuals who, as prior customers of one or more of the bank's fintech partners, violated one or more specific documented bank policies. | A cross-bank shared consortium that extends beyond one sponsor-bank network and focuses on sharing suspicious financial-crimes activity. Governed by banks as defined by 31 CFR 1020.100(d) under 314(b) permissible purpose. |
 | **Scope** | Your sponsor bank's network only — results never cross network boundaries. | All participating banks — visibility spans the consortium. |
-| **Use case** | Bad Actor Screening — catching repeat offenders re-applying within the same bank's subnetworks. | Watch List Screening — surfacing inter-bank financial-crimes signals. |
+| **Use case** | Bad Actor Screening — catching repeat offenders re-applying within the same bank's networks. | Watch List Screening — surfacing inter-bank financial-crimes signals. |
 | **Subject** | Consumer | Consumer |
 | **Query path** | `POST /v1/products/bank_specific_bad_actor_list/query` | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
@@ -30,7 +30,7 @@ contributed by network participants through governed furnishing flows.
 ## Querying
 
 Both endpoints take the standard [query request](/api-overview/querying/overview):
-a `consent_id` (or `consumer_id` for permissible-purpose lookups) plus the
+a `consent_id` (or `consumer_identity_id` for permissible-purpose lookups) plus the
 `network_ids` scope, with optional `policy_id` and `furnishing_entity_ids`.
 
 ### Bank-Specific Bad Actor List
@@ -47,8 +47,8 @@ curl -X POST https://api.solo.one/v1/products/bank_specific_bad_actor_list/query
 
 ```json
 {
-  "query_event_id": "7b2d9c4e-…",
-  "consumer_id": "c2a4e8d0-…",
+  "provenance_event_id": "7b2d9c4e-…",
+  "consumer_identity_id": "c2a4e8d0-…",
   "furnishing_entity_id": null,
   "is_listed": false,
   "bad_actor_list_placement_date": null,
@@ -58,8 +58,8 @@ curl -X POST https://api.solo.one/v1/products/bank_specific_bad_actor_list/query
 
 | Response field | Type | Meaning |
 |---|---|---|
-| `query_event_id` | UUID | The billable query event id — also in the `X-Ref-Id` header. |
-| `consumer_id` | UUID | The resolved subject. |
+| `provenance_event_id` | UUID | The billable provenance event id — also in the `X-Ref-Id` header. |
+| `consumer_identity_id` | UUID | The resolved subject. |
 | `furnishing_entity_id` | UUID, nullable | The participant whose listing backed the result, when listed. |
 | `is_listed` | boolean | Whether the consumer appears on the list. |
 | `bad_actor_list_placement_date` | date, nullable | When the consumer was placed on the list. |
@@ -69,8 +69,8 @@ When the consumer is listed, the context fields are populated:
 
 ```json
 {
-  "query_event_id": "7b2d9c4e-…",
-  "consumer_id": "c2a4e8d0-…",
+  "provenance_event_id": "7b2d9c4e-…",
+  "consumer_identity_id": "c2a4e8d0-…",
   "furnishing_entity_id": "e1d2c3b4-…",
   "is_listed": true,
   "bad_actor_list_placement_date": "2025-11-04",
@@ -92,8 +92,8 @@ curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_
 
 ```json
 {
-  "query_event_id": "7b2d9c4e-…",
-  "consumer_id": "c2a4e8d0-…",
+  "provenance_event_id": "7b2d9c4e-…",
+  "consumer_identity_id": "c2a4e8d0-…",
   "furnishing_entity_id": null,
   "is_listed": false,
   "entity_level_adverse_action_eligible_indicator": null,
@@ -103,8 +103,8 @@ curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_
 
 | Response field | Type | Meaning |
 |---|---|---|
-| `query_event_id` | UUID | The billable query event id — also in the `X-Ref-Id` header. |
-| `consumer_id` | UUID | The resolved subject. |
+| `provenance_event_id` | UUID | The billable provenance event id — also in the `X-Ref-Id` header. |
+| `consumer_identity_id` | UUID | The resolved subject. |
 | `furnishing_entity_id` | UUID, nullable | The participant whose listing backed the result, when listed. |
 | `is_listed` | boolean | Whether the consumer appears on the watch list. |
 | `entity_level_adverse_action_eligible_indicator` | boolean, nullable | Whether the signal is eligible to support adverse action at the entity level. |
@@ -113,7 +113,7 @@ curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_
 <Note>
   Screening list queries always return `200 OK` — a clean result is expressed as
   `"is_listed": false`, not as a `204`. (The `204` semantics on the
-  [certificate endpoints](/api-overview/querying/kyc-certificate#when-you-get-a-204)
+  [certificate endpoints](/api-overview/querying/kyc-certificate-snapshot#when-you-get-a-204)
   signal that *no certificate could be created*; a list check always produces a
   usable answer.) Both queries are billable events and carry the
   [`X-Ref-Id` header](/api-overview/querying/overview#the-x-ref-id-header).

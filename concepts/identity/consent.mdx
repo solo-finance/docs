@@ -31,11 +31,11 @@ for each transition you control:
 
 ```mermaid
 flowchart LR
-    A[Gather permission<br/>from the subject] --> B["Create<br/>POST /v1/consent/consumer"]
+    A[Gather permission<br/>from the subject] --> B["Create<br/>POST /v1/consent/consumer_identity"]
     B --> C[consent_id]
     C --> D["Query products<br/>POST /v1/products/…/query"]
-    C --> E["Read back<br/>GET /v1/consent/consumer/{consent_id}"]
-    C --> F["Update scope / expiry / fields<br/>PUT /v1/consent/consumer/{consent_id}"]
+    C --> E["Read back<br/>GET /v1/consent/consumer_identity/{consent_id}"]
+    C --> F["Update scope / expiry / fields<br/>PUT /v1/consent/consumer_identity/{consent_id}"]
     F --> D
     F --> G[Expired<br/>per expires_at]
 ```
@@ -61,24 +61,24 @@ All three consumer endpoints return the same shape:
 
 ## Creating consent
 
-`POST /v1/consent/consumer` records consent server-to-server. You supply the
+`POST /v1/consent/consumer_identity` records consent server-to-server. You supply the
 subject's identity and attest that you gathered their permission beforehand.
 
 | Body field | Required | Notes |
 |---|---|---|
 | `network_id` | Yes | The [network](/concepts/governance/networks) this consent belongs to |
 | `did_gather_consent_from_consumer_prior` | Yes | Must be `true` — see warning below |
-| `consumer_consent_identity` | Yes | `first_name`, `last_name`, `date_of_birth`, `personal_email`, `phone_number`, `social_security_number` |
-| `consumer_id` | No | Link to an existing consumer profile found via [entity search](/concepts/identity/entities) |
+| `consumer_consent_event_identity` | Yes | `first_name`, `last_name`, `date_of_birth`, `personal_email`, `phone_number`, `social_security_number` |
+| `consumer_identity_id` | No | Link to an existing consumer profile found via [entity search](/concepts/identity/entities) |
 
 ```bash
-curl -X POST https://api.solo.one/v1/consent/consumer \
+curl -X POST https://api.solo.one/v1/consent/consumer_identity \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "network_id": "9f1c0c2e-…",
     "did_gather_consent_from_consumer_prior": true,
-    "consumer_consent_identity": {
+    "consumer_consent_event_identity": {
       "first_name": "Jane",
       "last_name": "Doe",
       "date_of_birth": "1990-01-15",
@@ -122,16 +122,16 @@ created alongside the consent:
   consent record that asserts no consent was gathered.
 </Warning>
 
-### Linking identity: `consumer_id` vs. the identity payload
+### Linking identity: `consumer_identity_id` vs. the identity payload
 
 How the consent attaches to an [entity](/concepts/identity/entities) depends on whether
-you pass `consumer_id`:
+you pass `consumer_identity_id`:
 
-- **With `consumer_id`** — the consent links to that existing consumer profile.
+- **With `consumer_identity_id`** — the consent links to that existing consumer profile.
   Use this after a successful
-  `GET /v1/entities/consumer/search`, so the subject's history stays
+  `GET /v1/entities/consumer_identity/search`, so the subject's history stays
   consolidated on one profile.
-- **Without `consumer_id`** — a new consumer profile is created from the
+- **Without `consumer_identity_id`** — a new consumer profile is created from the
   identity payload and linked to the consent.
 
 Either way, the identity details you submitted are stamped onto the consent
@@ -144,7 +144,7 @@ consent to the subject's identity and applies the appropriate field access — y
 don't repeat the subject's identifying details on every call.
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/kyc_certificate/query \
+curl -X POST https://api.solo.one/v1/products/kyc_certificate_snapshot/query \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -160,12 +160,12 @@ end-to-end walkthrough.
 
 ## Reading consent back
 
-`GET /v1/consent/consumer/{consent_id}` returns the current state of a consent
+`GET /v1/consent/consumer_identity/{consent_id}` returns the current state of a consent
 record. The `network_id` query parameter is **required** — the lookup is scoped
 to that network:
 
 ```bash
-curl -G https://api.solo.one/v1/consent/consumer/a3f0b9c7-… \
+curl -G https://api.solo.one/v1/consent/consumer_identity/a3f0b9c7-… \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   --data-urlencode "network_id=9f1c0c2e-…"
 ```
@@ -188,7 +188,7 @@ The response is the same shape as create. If the `consent_id` doesn't exist
 
 ## Updating consent
 
-`PUT /v1/consent/consumer/{consent_id}` changes the **mutable attributes** of a
+`PUT /v1/consent/consumer_identity/{consent_id}` changes the **mutable attributes** of a
 consent record: its scope, its expiry, and the description of consented fields.
 
 | Body field | Required | Notes |
@@ -199,7 +199,7 @@ consent record: its scope, its expiry, and the description of consented fields.
 | `consented_fields` | | New consented-fields description |
 
 ```bash
-curl -X PUT https://api.solo.one/v1/consent/consumer/a3f0b9c7-… \
+curl -X PUT https://api.solo.one/v1/consent/consumer_identity/a3f0b9c7-… \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -289,7 +289,7 @@ definitions. Grants outside their effective window no longer apply.
 | `400` | `VALIDATION_ERROR` | `did_gather_consent_from_consumer_prior` is `false` on create | `Consent cannot be created without prior consumer consent gathering` |
 | `400` | `VALIDATION_ERROR` | Update with none of `scope`, `expires_at`, `consented_fields` | `At least one of scope, expires_at, or consented_fields must be provided` |
 | `404` | `RESOURCE_NOT_FOUND` | Unknown `consent_id`, or a consent from a different network | `Consent record not found` |
-| `422` | — | Request shape errors: missing required fields, wrong types | `body -> consumer_consent_identity -> date_of_birth: value is not a valid datetime` |
+| `422` | — | Request shape errors: missing required fields, wrong types | `body -> consumer_consent_event_identity -> date_of_birth: value is not a valid datetime` |
 
 Error responses follow the standard envelope — see
 [Errors](/home/errors):
@@ -303,16 +303,16 @@ Error responses follow the standard envelope — see
 
 ## Business consent
 
-`POST /v1/consent/business` records consent to query a business, mirroring the
+`POST /v1/consent/business_identity` records consent to query a business, mirroring the
 consumer flow:
 
 ```bash
-curl -X POST https://api.solo.one/v1/consent/business \
+curl -X POST https://api.solo.one/v1/consent/business_identity \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "did_gather_consent_from_business_prior": true,
-    "business_consent_identity": {
+    "business_consent_event_identity": {
       "business_legal_name": "Acme Corp",
       "business_jurisdiction_of_formation": "DE",
       "business_registration_identifier_from_jurisdiction_of_formation": 1234567,
@@ -333,7 +333,7 @@ would a consumer one.
 
 <Note>
   Business consent currently supports **create only**. There is no
-  `GET` or `PUT /v1/consent/business/{consent_id}` today — read-back and
+  `GET` or `PUT /v1/consent/business_identity/{consent_id}` today — read-back and
   updates are consumer-only. If you need to change a business consent's
   attributes, create a new record and switch to its `consent_id`.
 </Note>

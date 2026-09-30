@@ -15,19 +15,19 @@
     }
   ],
   "paths": {
-    "/v1/consent/business": {
+    "/v1/consent/business_identity": {
       "post": {
         "tags": [
-          "Business"
+          "Business Identity"
         ],
         "summary": "Create a business consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries.",
         "description": "Create a business consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries.",
-        "operationId": "consent_business_create_v1_consent_business_post",
+        "operationId": "consent_business_identity_create_v1_consent_business_identity_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConsentBusinessCreateInput"
+                "$ref": "#/components/schemas/ConsentBusinessIdentityCreateInput"
               }
             }
           },
@@ -39,7 +39,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentBusinessCreateOutput"
+                  "$ref": "#/components/schemas/ConsentBusinessIdentityCreateOutput"
                 }
               }
             }
@@ -62,19 +62,19 @@
         ]
       }
     },
-    "/v1/consent/consumer": {
+    "/v1/consent/consumer_identity": {
       "post": {
         "tags": [
-          "Consumer"
+          "Consumer Identity"
         ],
         "summary": "Create a consumer consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries.",
         "description": "Create a consumer consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries.",
-        "operationId": "consent_consumer_create_v1_consent_consumer_post",
+        "operationId": "consent_consumer_identity_create_v1_consent_consumer_identity_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConsentConsumerCreateInput"
+                "$ref": "#/components/schemas/ConsentConsumerIdentityCreateInput"
               }
             }
           },
@@ -86,7 +86,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentConsumerCreateOutput"
+                  "$ref": "#/components/schemas/ConsentConsumerIdentityCreateOutput"
                 }
               }
             }
@@ -109,14 +109,14 @@
         ]
       }
     },
-    "/v1/consent/consumer/{consent_id}": {
+    "/v1/consent/consumer_identity/{consent_id}": {
       "get": {
         "tags": [
-          "Consumer"
+          "Consumer Identity"
         ],
         "summary": "Read a consumer consent record by consent_id.",
         "description": "Read a consumer consent record by consent_id.",
-        "operationId": "consent_consumer_read_v1_consent_consumer__consent_id__get",
+        "operationId": "consent_consumer_identity_read_v1_consent_consumer_identity__consent_id__get",
         "security": [
           {
             "HTTPBearer": []
@@ -151,7 +151,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentConsumerCreateOutput"
+                  "$ref": "#/components/schemas/ConsentConsumerIdentityCreateOutput"
                 }
               }
             }
@@ -170,11 +170,11 @@
       },
       "put": {
         "tags": [
-          "Consumer"
+          "Consumer Identity"
         ],
         "summary": "Update a consumer consent record's scope, expiry, or consented fields. Identity fields are immutable.",
         "description": "Update a consumer consent record's scope, expiry, or consented fields. Identity fields are immutable.",
-        "operationId": "consent_consumer_update_v1_consent_consumer__consent_id__put",
+        "operationId": "consent_consumer_identity_update_v1_consent_consumer_identity__consent_id__put",
         "security": [
           {
             "HTTPBearer": []
@@ -196,7 +196,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConsentConsumerUpdateInput"
+                "$ref": "#/components/schemas/ConsentConsumerIdentityUpdateInput"
               }
             }
           }
@@ -207,7 +207,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentConsumerCreateOutput"
+                  "$ref": "#/components/schemas/ConsentConsumerIdentityCreateOutput"
                 }
               }
             }
@@ -225,14 +225,14 @@
         }
       }
     },
-    "/v1/entities/consumer/search": {
+    "/v1/entities/consumer_identity/search": {
       "get": {
         "tags": [
           "Entities"
         ],
         "summary": "Search consumer core identities by name, email, SSN, or date of birth.",
-        "description": "Search consumer core identities using partial or exact field matches.\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\n`first_name` : `str`, optional.\n    Case-insensitive partial match on first name.\n\n`last_name` : `str`, optional.\n    Case-insensitive partial match on last name.\n\n`personal_email` : `str`, optional.\n    Case-insensitive partial match on email.\n\n`social_security_number` : `str`, optional.\n    Exact match on SSN.\n\n`date_of_birth` : `str`, optional.\n    Exact match on date of birth (``YYYY-MM-DD``).\n\n`limit` : `int`.\n    Maximum number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` : `list[ConsumerSearchResult]`.\n    Matching consumer core identities.\n\nExamples\n-----\n```\nGET /entities/consumer/search?network_id=...&first_name=John&last_name=Doe&limit=10\n```",
-        "operationId": "search_consumers_v1_entities_consumer_search_get",
+        "description": "Search consumer core identities using partial or exact field matches.\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\n`first_name` : `str`, optional.\n    Case-insensitive partial match on first name.\n\n`last_name` : `str`, optional.\n    Case-insensitive partial match on last name.\n\n`personal_email` : `str`, optional.\n    Case-insensitive partial match on email.\n\n`social_security_number` : `str`, optional.\n    Exact match on SSN.\n\n`date_of_birth` : `str`, optional.\n    Exact match on date of birth (``YYYY-MM-DD``).\n\n`limit` : `int`.\n    Maximum number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` : `list[ConsumerIdentitySearchResult]`.\n    Matching consumer core identities.\n\nExamples\n-----\n```\nGET /entities/consumer_identity/search?network_id=...&first_name=John&last_name=Doe&limit=10\n```",
+        "operationId": "search_consumer_identities_v1_entities_consumer_identity_search_get",
         "security": [
           {
             "HTTPBearer": []
@@ -364,9 +364,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ConsumerSearchResult"
+                    "$ref": "#/components/schemas/ConsumerIdentitySearchResult"
                   },
-                  "title": "Response Search Consumers V1 Entities Consumer Search Get"
+                  "title": "Response Search Consumer Identities V1 Entities Consumer Identity Search Get"
                 }
               }
             }
@@ -384,14 +384,14 @@
         }
       }
     },
-    "/v1/entities/business/search": {
+    "/v1/entities/business_identity/search": {
       "get": {
         "tags": [
           "Entities"
         ],
         "summary": "Search business core identities by name, EIN, or email.",
-        "description": "Search business core identities using partial or exact field matches.\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\n`business_legal_name` : `str`, optional.\n    Case-insensitive partial match on legal name.\n\n`business_dba_name` : `str`, optional.\n    Case-insensitive partial match on DBA name.\n\n`business_email` : `str`, optional.\n    Case-insensitive partial match on email.\n\n`federal_ein` : `int`, optional.\n    Exact match on federal EIN.\n\n`limit` : `int`.\n    Maximum number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessSearchResult]`.\n    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business/search?network_id=...&business_legal_name=Acme&limit=10\n```",
-        "operationId": "search_businesses_v1_entities_business_search_get",
+        "description": "Search business core identities using partial or exact field matches.\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\n`business_legal_name` : `str`, optional.\n    Case-insensitive partial match on legal name.\n\n`business_dba_name` : `str`, optional.\n    Case-insensitive partial match on DBA name.\n\n`business_email` : `str`, optional.\n    Case-insensitive partial match on email.\n\n`federal_ein` : `int`, optional.\n    Exact match on federal EIN.\n\n`limit` : `int`.\n    Maximum number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessIdentitySearchResult]`.\n    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business_identity/search?network_id=...&business_legal_name=Acme&limit=10\n```",
+        "operationId": "search_business_identities_v1_entities_business_identity_search_get",
         "security": [
           {
             "HTTPBearer": []
@@ -505,9 +505,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/BusinessSearchResult"
+                    "$ref": "#/components/schemas/BusinessIdentitySearchResult"
                   },
-                  "title": "Response Search Businesses V1 Entities Business Search Get"
+                  "title": "Response Search Business Identities V1 Entities Business Identity Search Get"
                 }
               }
             }
@@ -525,19 +525,19 @@
         }
       }
     },
-    "/v1/institution-attestation": {
+    "/v1/institution-attestation-event": {
       "post": {
         "tags": [
-          "Institution Attestation"
+          "Institution Attestation Event"
         ],
         "summary": "Create or renew an institution attestation for a product.",
-        "description": "Create a new institution-level attestation scoped to the caller's entity and product.\n\nThe attestation is valid for 12 months from the time it is created.\nCreating a new attestation does not revoke prior ones; the most\nrecently created active attestation for a given product is treated\nas the current one.\n\nParameters\n----------\n`body` : `InstitutionAttestationCreateRequest`.\n    Attestation payload.\n\nReturns\n-------\n`response` : `InstitutionAttestationResponse`.\n    The newly created attestation record.",
-        "operationId": "create_institution_attestation_v1_institution_attestation_post",
+        "description": "Create a new institution-level attestation scoped to the caller's entity and product.\n\nThe attestation is valid for 12 months from the time it is created.\nCreating a new attestation does not revoke prior ones; the most\nrecently created active attestation for a given product is treated\nas the current one.\n\nParameters\n----------\n`body` : `InstitutionAttestationEventCreateRequest`.\n    Attestation payload.\n\nReturns\n-------\n`response` : `InstitutionAttestationEventResponse`.\n    The newly created attestation record.",
+        "operationId": "create_institution_attestation_event_v1_institution_attestation_event_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/InstitutionAttestationCreateRequest"
+                "$ref": "#/components/schemas/InstitutionAttestationEventCreateRequest"
               }
             }
           },
@@ -549,7 +549,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InstitutionAttestationResponse"
+                  "$ref": "#/components/schemas/InstitutionAttestationEventResponse"
                 }
               }
             }
@@ -577,14 +577,14 @@
         "tags": [
           "Querying Policies"
         ],
-        "summary": "Create a querying policy for a (product, network) pair.",
-        "description": "Create a new querying policy for a (product, network) pair.\n\nThe ``(network_id, product_id)`` pair is resolved server-side to its\nnetwork-product association (auto-creating it if missing). Per-model\nand per-field selections for the policy are authored separately via\n``PUT /networks/policies/querying/{policy_id}/configuration``.",
-        "operationId": "create_querying_policy_v1_networks_policies_querying_post",
+        "summary": "Create a network-wide querying policy.",
+        "description": "Create a new network-wide querying policy.\n\nPer-model and per-field selections for the policy \u2014 which may span any\nproduct's models \u2014 are authored separately via\n``PUT /networks/policies/querying/{policy_id}/configuration``.",
+        "operationId": "create_policy_v1_networks_policies_querying_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateQueryingPolicyInput"
+                "$ref": "#/components/schemas/CreatePolicyInput"
               }
             }
           },
@@ -596,7 +596,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateQueryingPolicyResult"
+                  "$ref": "#/components/schemas/CreatePolicyResult"
                 }
               }
             }
@@ -626,7 +626,7 @@
         ],
         "summary": "Save per-field selections onto an existing querying policy.",
         "description": "Persist per-field selections onto an existing querying policy.\n\nReplaces the policy's per-model and per-field selections with the\nsubmitted set. The policy is left in ``published`` status.",
-        "operationId": "save_querying_policy_configuration_v1_networks_policies_querying__policy_id__configuration_put",
+        "operationId": "save_policy_configuration_v1_networks_policies_querying__policy_id__configuration_put",
         "security": [
           {
             "HTTPBearer": []
@@ -649,7 +649,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SaveQueryingPolicyConfigurationInput"
+                "$ref": "#/components/schemas/SavePolicyConfigurationInput"
               }
             }
           }
@@ -660,7 +660,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SaveQueryingPolicyConfigurationResult"
+                  "$ref": "#/components/schemas/SavePolicyConfigurationResult"
                 }
               }
             }
@@ -684,8 +684,8 @@
           "Furnishing Policies"
         ],
         "summary": "List furnishing policies in a network.",
-        "description": "List furnishing policies visible within a network scope.\n\nResults are paginated with ``limit`` (1-100, default 20) and\n``offset`` (>=0, default 0).\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the listing.\n\n`limit` : `int`.\n    Maximum number of results. Defaults to 20.\n\n`offset` : `int`.\n    Number of results to skip. Defaults to 0.\n\nReturns\n----\n`results` : `list[FurnishingPolicyResult]`.\n    Page of matching furnishing policies.\n\nExamples\n-----\n```\nGET /networks/policies/furnishing?network_id=...&limit=10\n```",
-        "operationId": "list_furnishing_policies_v1_networks_policies_furnishing_get",
+        "description": "List furnishing policies visible within a network scope.\n\nResults are paginated with ``limit`` (1-100, default 20) and\n``offset`` (>=0, default 0).\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the listing.\n\n`limit` : `int`.\n    Maximum number of results. Defaults to 20.\n\n`offset` : `int`.\n    Number of results to skip. Defaults to 0.\n\nReturns\n----\n`results` : `list[MappingResult]`.\n    Page of matching furnishing policies.\n\nExamples\n-----\n```\nGET /networks/policies/furnishing?network_id=...&limit=10\n```",
+        "operationId": "list_mappings_v1_networks_policies_furnishing_get",
         "security": [
           {
             "HTTPBearer": []
@@ -740,9 +740,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FurnishingPolicyResult"
+                    "$ref": "#/components/schemas/MappingResult"
                   },
-                  "title": "Response List Furnishing Policies V1 Networks Policies Furnishing Get"
+                  "title": "Response List Mappings V1 Networks Policies Furnishing Get"
                 }
               }
             }
@@ -766,8 +766,8 @@
           "Furnishing Policies"
         ],
         "summary": "Get a furnishing policy by id.",
-        "description": "Fetch a single furnishing policy by id, scoped to a network.\n\nParameters\n----\n`policy_id` : `UUID`.\n    Identifier of the furnishing policy to fetch.\n\n`network_id` : `UUID`.\n    Network scope for the lookup.\n\nReturns\n----\n`result` : `FurnishingPolicyResult`.\n    The matching furnishing policy.\n\nRaises\n----\n`NotFoundError`.\n    If no furnishing policy with the given id is visible within the\n    given network scope.\n\nExamples\n-----\n```\nGET /networks/policies/furnishing/{policy_id}?network_id=...\n```",
-        "operationId": "get_furnishing_policy_v1_networks_policies_furnishing__policy_id__get",
+        "description": "Fetch a single furnishing policy by id, scoped to a network.\n\nParameters\n----\n`policy_id` : `UUID`.\n    Identifier of the furnishing policy to fetch.\n\n`network_id` : `UUID`.\n    Network scope for the lookup.\n\nReturns\n----\n`result` : `MappingResult`.\n    The matching furnishing policy.\n\nRaises\n----\n`NotFoundError`.\n    If no furnishing policy with the given id is visible within the\n    given network scope.\n\nExamples\n-----\n```\nGET /networks/policies/furnishing/{policy_id}?network_id=...\n```",
+        "operationId": "get_mapping_v1_networks_policies_furnishing__policy_id__get",
         "security": [
           {
             "HTTPBearer": []
@@ -803,7 +803,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FurnishingPolicyResult"
+                  "$ref": "#/components/schemas/MappingResult"
                 }
               }
             }
@@ -821,18 +821,18 @@
         }
       }
     },
-    "/v1/products/kyc_certificate/query": {
+    "/v1/products/kyc_certificate_snapshot/query": {
       "post": {
         "tags": [
-          "KYC Certificate"
+          "KYC Certificate Snapshot"
         ],
         "summary": "Query consolidated KYC certificate data for a consumer",
-        "operationId": "kyc_certificate_query_v1_products_kyc_certificate_query_post",
+        "operationId": "kyc_certificate_snapshot_query_v1_products_kyc_certificate_snapshot_query_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KYCCertificateQueryInput"
+                "$ref": "#/components/schemas/KYCCertificateSnapshotQueryInput"
               }
             }
           },
@@ -844,7 +844,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KYCCertificateQueryOutput"
+                  "$ref": "#/components/schemas/KYCCertificateSnapshotQueryOutput"
                 }
               }
             }
@@ -870,18 +870,64 @@
         ]
       }
     },
-    "/v1/products/kyc_certificate/furnish": {
+    "/v1/products/kyc_certificate_snapshot/query/soft": {
       "post": {
         "tags": [
-          "KYC Certificate"
+          "KYC Certificate Snapshot"
+        ],
+        "summary": "Soft check whether a KYC certificate could be issued (non-billable dry run)",
+        "operationId": "kyc_certificate_snapshot_query_soft_v1_products_kyc_certificate_snapshot_query_soft_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KYCCertificateSnapshotQueryInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoftCheckOutput"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/products/kyc_certificate_snapshot/furnish": {
+      "post": {
+        "tags": [
+          "KYC Certificate Snapshot"
         ],
         "summary": "Furnish KYC certificate data via structured JSON",
-        "operationId": "kyc_certificate_furnish_v1_products_kyc_certificate_furnish_post",
+        "operationId": "kyc_certificate_snapshot_furnish_v1_products_kyc_certificate_snapshot_furnish_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KYCCertificateFurnishInput"
+                "$ref": "#/components/schemas/KYCCertificateSnapshotFurnishInput"
               }
             }
           },
@@ -893,7 +939,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KYCCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/KYCCertificateSnapshotFurnishOutput"
                 }
               }
             }
@@ -916,64 +962,18 @@
         ]
       }
     },
-    "/v1/products/kyc_certificate/furnish_via_upload": {
+    "/v1/products/kyb_certificate_snapshot/query": {
       "post": {
         "tags": [
-          "KYC Certificate"
-        ],
-        "summary": "Furnish KYC certificate data via Excel file upload",
-        "operationId": "kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/Body_kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/KYCCertificateFurnishOutput"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
-    "/v1/products/kyb_certificate/query": {
-      "post": {
-        "tags": [
-          "KYB Certificate"
+          "KYB Certificate Snapshot"
         ],
         "summary": "Query consolidated KYB certificate data for a business",
-        "operationId": "kyb_certificate_query_v1_products_kyb_certificate_query_post",
+        "operationId": "kyb_certificate_snapshot_query_v1_products_kyb_certificate_snapshot_query_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KYBCertificateQueryInput"
+                "$ref": "#/components/schemas/KYBCertificateSnapshotQueryInput"
               }
             }
           },
@@ -985,7 +985,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KYBCertificateQueryOutput"
+                  "$ref": "#/components/schemas/KYBCertificateSnapshotQueryOutput"
                 }
               }
             }
@@ -1011,18 +1011,18 @@
         ]
       }
     },
-    "/v1/products/kyb_certificate/furnish": {
+    "/v1/products/kyb_certificate_snapshot/query/soft": {
       "post": {
         "tags": [
-          "KYB Certificate"
+          "KYB Certificate Snapshot"
         ],
-        "summary": "Furnish KYB certificate data via structured JSON",
-        "operationId": "kyb_certificate_furnish_v1_products_kyb_certificate_furnish_post",
+        "summary": "Soft check whether a KYB certificate could be issued (non-billable dry run)",
+        "operationId": "kyb_certificate_snapshot_query_soft_v1_products_kyb_certificate_snapshot_query_soft_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KYBCertificateFurnishInput"
+                "$ref": "#/components/schemas/KYBCertificateSnapshotQueryInput"
               }
             }
           },
@@ -1034,7 +1034,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KYBCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/SoftCheckOutput"
                 }
               }
             }
@@ -1057,18 +1057,18 @@
         ]
       }
     },
-    "/v1/products/kyb_certificate/furnish_via_upload": {
+    "/v1/products/kyb_certificate_snapshot/furnish": {
       "post": {
         "tags": [
-          "KYB Certificate"
+          "KYB Certificate Snapshot"
         ],
-        "summary": "Furnish KYB certificate data via Excel file upload",
-        "operationId": "kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post",
+        "summary": "Furnish KYB certificate data via structured JSON",
+        "operationId": "kyb_certificate_snapshot_furnish_v1_products_kyb_certificate_snapshot_furnish_post",
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Body_kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post"
+                "$ref": "#/components/schemas/KYBCertificateSnapshotFurnishInput"
               }
             }
           },
@@ -1080,7 +1080,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KYBCertificateFurnishOutput"
+                  "$ref": "#/components/schemas/KYBCertificateSnapshotFurnishOutput"
                 }
               }
             }
@@ -1241,19 +1241,18 @@
         ]
       }
     },
-    "/v1/file-upload/ingest": {
+    "/v1/furnishing/mapping/verify": {
       "post": {
         "tags": [
-          "File Upload"
+          "Furnishing \u2014 Mapping Dry-Run"
         ],
-        "summary": "Upload a CSV file for ingestion",
-        "description": "Upload a CSV file and queue it for ingestion.\n\nThe file is accepted synchronously and processed asynchronously. The\nresponse contains a record describing the upload; its ``status`` begins\nas ``pending`` and transitions to ``processing`` and then ``completed``\n(or ``failed``) as ingestion proceeds.\n\nParameters\n----\n`file` : multipart file.\n    The CSV file to upload.\n\n`slug` : `str`.\n    The data category for this upload (e.g. ``kyc_cert_policy``,\n    ``kyb_cert_policy``). Must be one of the categories supported for\n    your account.\n\nReturns\n----\n`file_upload` : `FileUpload`.\n    The created upload record, including its ``id`` and current\n    ``status``.\n\nRaises\n----\n`ValidationError`.\n    If the file name or ``slug`` is invalid.\n\nExamples\n-----\n```bash\n>>> curl -X POST https://app.solo.one/file-upload/ingest \\\n...   -H \"Authorization: Bearer $TOKEN\" \\\n...   -F \"file=@sample.csv\" \\\n...   -F \"slug=kyc_cert_policy\"\n```",
-        "operationId": "ingest_csv_v1_file_upload_ingest_post",
+        "summary": "Dry-run verify a mapping/1 document (S0-S2) \u2014 the save gate's verifier, no side effects.",
+        "operationId": "mapping_verify_v1_furnishing_mapping_verify_post",
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Body_ingest_csv_v1_file_upload_ingest_post"
+                "$ref": "#/components/schemas/MappingVerifyRequest"
               }
             }
           },
@@ -1265,7 +1264,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FileUpload"
+                  "$ref": "#/components/schemas/MappingVerifyResponse"
                 }
               }
             }
@@ -1286,6 +1285,361 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/v1/furnishing/mapping/trace": {
+      "post": {
+        "tags": [
+          "Furnishing \u2014 Mapping Dry-Run"
+        ],
+        "summary": "Dry-run trace a mapping over one sample input line \u2014 the value at every AST path.",
+        "operationId": "mapping_trace_v1_furnishing_mapping_trace_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MappingTraceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingTraceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/furnishing/mapping/suggest": {
+      "post": {
+        "tags": [
+          "Furnishing \u2014 Mapping Dry-Run"
+        ],
+        "summary": "AI-suggest a mapping/1 document for one entry \u2014 verified, but required fields the source cannot provide stay unmapped (reported via omissions) rather than fabricated.",
+        "operationId": "mapping_suggest_v1_furnishing_mapping_suggest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MappingSuggestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingSuggestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/graph/models": {
+      "get": {
+        "tags": [
+          "Graph"
+        ],
+        "summary": "Describe every model in the data graph.",
+        "description": "Describe the data graph: each model, its resource path, and its fields.\n\nProducts and policies are both projections of this graph, so this is the\nground truth either one is defined against. Call it to discover which\nresources exist and which relationships can be expanded.\n\nReturns\n----\n`models` : `GraphModelsResponse`.\n    One entry per model the graph serves.\n\nExamples\n-----\n```\nGET /v1/graph/models\n```",
+        "operationId": "list_graph_models_v1_graph_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphModelsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/graph/{resource}": {
+      "get": {
+        "tags": [
+          "Graph"
+        ],
+        "summary": "Read a page of one model's objects.",
+        "description": "Read a page of objects for one graph model.\n\nParameters\n----\n`resource` : `str`.\n    Resource path segment, as reported by ``GET /v1/graph/models``.\n\n`network_id` : `list[UUID]`.\n    Networks to read within. Repeat the parameter to widen the scope;\n    omit it to use every network the caller can reach.\n\n`expand` : `str`, optional.\n    Comma-separated relationship names to include inline, every field.\n\n`fields` : `list[str]`.\n    Fields to read, comma-separated or one per repeated parameter;\n    dotted paths reach through relationships. Every scalar of the\n    resource when omitted.\n\n`limit` : `int`.\n    Page size (1-100). Defaults to 25.\n\n`offset` : `int`.\n    Rows to skip before the page.\n\nReturns\n----\n`page` : `GraphObjectsResponse`.\n    The page of objects, with the limit and offset it was read at.\n\nExamples\n-----\n```\nGET /v1/graph/consumer_identities?limit=10&expand=address_identities\nGET /v1/graph/consumer_identities?fields=firstName,address_identities.city\nGET /v1/graph/consumer_identities?fields=firstName&fields=address_identities.city\n```",
+        "operationId": "list_graph_objects_v1_graph__resource__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Resource path from /graph/models, e.g. ``consumer-identities``",
+              "title": "Resource"
+            },
+            "description": "Resource path from /graph/models, e.g. ``consumer-identities``"
+          },
+          {
+            "name": "network_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "Network scope; repeat to widen",
+              "default": [],
+              "title": "Network Id"
+            },
+            "description": "Network scope; repeat to widen"
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated relationships to expand",
+              "title": "Expand"
+            },
+            "description": "Comma-separated relationships to expand"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to read, comma-separated or one per repeated parameter. A dotted path reaches through relationships, e.g. ``firstName,addressIdentities.city``. Omit to read every scalar of the resource.",
+              "default": [],
+              "title": "Fields"
+            },
+            "description": "Fields to read, comma-separated or one per repeated parameter. A dotted path reaches through relationships, e.g. ``firstName,addressIdentities.city``. Omit to read every scalar of the resource."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Page size",
+              "default": 25,
+              "title": "Limit"
+            },
+            "description": "Page size"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Rows to skip",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Rows to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphObjectsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/graph/{resource}/{object_id}": {
+      "get": {
+        "tags": [
+          "Graph"
+        ],
+        "summary": "Read one graph object by id.",
+        "description": "Read a single graph object by its global id.\n\nModels the graph exposes only through a relationship have no collection\nendpoint, but are still readable here and expandable from their parent.\n\nParameters\n----\n`resource` : `str`.\n    Resource path segment, as reported by ``GET /v1/graph/models``.\n\n`object_id` : `str`.\n    The object's global id.\n\n`network_id` : `list[UUID]`.\n    Networks to read within. Repeat the parameter to widen the scope.\n\n`expand` : `str`, optional.\n    Comma-separated relationship names to include inline, every field.\n\n`fields` : `list[str]`.\n    Fields to read, comma-separated or one per repeated parameter;\n    dotted paths reach through relationships. Every scalar of the\n    resource when omitted.\n\nReturns\n----\n`object` : `GraphObjectResponse`.\n    The requested object.\n\nExamples\n-----\n```\nGET /v1/graph/address_identities/QWRkcmVzc09iamVjdDox?expand=addressVerificationEvents\nGET /v1/graph/consumer_identities/Q29uc3VtZXJPYmplY3Q6MQ==?fields=firstName,address_identities.city\n```",
+        "operationId": "get_graph_object_v1_graph__resource___object_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "resource",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Resource path from /graph/models, e.g. ``address-identities``",
+              "title": "Resource"
+            },
+            "description": "Resource path from /graph/models, e.g. ``address-identities``"
+          },
+          {
+            "name": "object_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Global id of the object",
+              "title": "Object Id"
+            },
+            "description": "Global id of the object"
+          },
+          {
+            "name": "network_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "description": "Network scope; repeat to widen",
+              "default": [],
+              "title": "Network Id"
+            },
+            "description": "Network scope; repeat to widen"
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated relationships to expand",
+              "title": "Expand"
+            },
+            "description": "Comma-separated relationships to expand"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to read, comma-separated or one per repeated parameter. A dotted path reaches through relationships, e.g. ``firstName,addressIdentities.city``. Omit to read every scalar of the resource.",
+              "default": [],
+              "title": "Fields"
+            },
+            "description": "Fields to read, comma-separated or one per repeated parameter. A dotted path reaches through relationships, e.g. ``firstName,addressIdentities.city``. Omit to read every scalar of the resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphObjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/graphql": {
@@ -1314,6 +1668,49 @@
       "post": {
         "summary": "Handle Http Post",
         "operationId": "handle_http_post_graphql_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/graphql/full": {
+      "get": {
+        "summary": "Handle Http Get",
+        "operationId": "handle_http_get_graphql_full_get",
+        "responses": {
+          "200": {
+            "description": "The GraphiQL integrated development environment.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found if GraphiQL or query via GET are not enabled."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Handle Http Post",
+        "operationId": "handle_http_post_graphql_full_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1495,7 +1892,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -1505,7 +1902,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/AddressCaptureAssertions"
@@ -1521,7 +1918,7 @@
         ],
         "title": "AddressCaptureSubProduct"
       },
-      "AddressInput": {
+      "AddressIdentityInput": {
         "properties": {
           "line_1": {
             "anyOf": [
@@ -1617,7 +2014,7 @@
         },
         "additionalProperties": true,
         "type": "object",
-        "title": "AddressInput"
+        "title": "AddressIdentityInput"
       },
       "AddressVerificationAssertions": {
         "properties": {
@@ -1758,7 +2155,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -1768,7 +2165,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/AddressVerificationAssertions"
@@ -1783,6 +2180,27 @@
           "data"
         ],
         "title": "AddressVerificationSubProduct"
+      },
+      "BackfilledModel": {
+        "properties": {
+          "model_name": {
+            "type": "string",
+            "title": "Model Name",
+            "description": "Graph model a vendor answered for, e.g. ``LivenessCheckEvent``."
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id",
+            "description": "The vendor source the policy backfills the model from."
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_name",
+          "source_id"
+        ],
+        "title": "BackfilledModel"
       },
       "BankSpecificBadActorListQueryInput": {
         "properties": {
@@ -1837,7 +2255,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -1847,8 +2265,8 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Id",
-            "description": "Consumer profile primary key (Consumer.id) for permissible-purpose queries."
+            "title": "Consumer Identity Id",
+            "description": "Consumer profile primary key (ConsumerIdentity.id) for permissible-purpose queries."
           }
         },
         "type": "object",
@@ -1859,15 +2277,15 @@
       },
       "BankSpecificBadActorListQueryOutput": {
         "properties": {
-          "query_event_id": {
+          "provenance_event_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Query Event Id"
+            "title": "Provenance Event Id"
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Consumer Id"
+            "title": "Consumer Identity Id"
           },
           "furnishing_entity_id": {
             "anyOf": [
@@ -1911,8 +2329,8 @@
         },
         "type": "object",
         "required": [
-          "query_event_id",
-          "consumer_id",
+          "provenance_event_id",
+          "consumer_identity_id",
           "is_listed"
         ],
         "title": "BankSpecificBadActorListQueryOutput"
@@ -1965,6 +2383,17 @@
               }
             ],
             "title": "Biometric Capture Method"
+          },
+          "biometric_artifact_subject_present": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Artifact Subject Present"
           }
         },
         "type": "object",
@@ -2057,7 +2486,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -2067,7 +2496,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/BiometricCaptureAssertions"
@@ -2121,6 +2550,17 @@
             ],
             "title": "Biometric Image Quality Sufficient For Comparison"
           },
+          "biometric_artifact_image_quality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Artifact Image Quality"
+          },
           "biometric_comparison_reference": {
             "anyOf": [
               {
@@ -2161,7 +2601,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -2171,7 +2611,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/BiometricReviewAssertions"
@@ -2186,53 +2626,6 @@
           "data"
         ],
         "title": "BiometricReviewSubProduct"
-      },
-      "Body_ingest_csv_v1_file_upload_ingest_post": {
-        "properties": {
-          "file": {
-            "type": "string",
-            "contentMediaType": "application/octet-stream",
-            "title": "File"
-          },
-          "slug": {
-            "type": "string",
-            "title": "Slug"
-          }
-        },
-        "type": "object",
-        "required": [
-          "file",
-          "slug"
-        ],
-        "title": "Body_ingest_csv_v1_file_upload_ingest_post"
-      },
-      "Body_kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post": {
-        "properties": {
-          "file": {
-            "type": "string",
-            "contentMediaType": "application/octet-stream",
-            "title": "File"
-          }
-        },
-        "type": "object",
-        "required": [
-          "file"
-        ],
-        "title": "Body_kyb_certificate_furnish_via_upload_v1_products_kyb_certificate_furnish_via_upload_post"
-      },
-      "Body_kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post": {
-        "properties": {
-          "file": {
-            "type": "string",
-            "contentMediaType": "application/octet-stream",
-            "title": "File"
-          }
-        },
-        "type": "object",
-        "required": [
-          "file"
-        ],
-        "title": "Body_kyc_certificate_furnish_via_upload_v1_products_kyc_certificate_furnish_via_upload_post"
       },
       "BusinessAddressOutput": {
         "properties": {
@@ -2306,7 +2699,7 @@
         "type": "object",
         "title": "BusinessAddressOutput"
       },
-      "BusinessConsentIdentityInput": {
+      "BusinessConsentEventIdentityInput": {
         "properties": {
           "business_dba_name": {
             "anyOf": [
@@ -2371,7 +2764,148 @@
           "business_legal_name",
           "business_registration_identifier_from_jurisdiction_of_formation"
         ],
-        "title": "BusinessConsentIdentityInput"
+        "title": "BusinessConsentEventIdentityInput"
+      },
+      "BusinessIdentitySearchResult": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "identifier": {
+            "type": "string",
+            "title": "Identifier"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "business_legal_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Legal Name"
+          },
+          "business_dba_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Dba Name"
+          },
+          "business_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Email"
+          },
+          "business_entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Entity Type"
+          },
+          "business_date_of_incorporation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Date Of Incorporation"
+          },
+          "business_phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Phone"
+          },
+          "business_website_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Website Url"
+          },
+          "federal_ein": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Federal Ein"
+          },
+          "employee_count": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "identifier"
+        ],
+        "title": "BusinessIdentitySearchResult"
       },
       "BusinessIdentityVerificationAssertions": {
         "properties": {
@@ -2712,7 +3246,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -2722,7 +3256,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/BusinessIdentityVerificationAssertions"
@@ -3054,7 +3588,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -3064,7 +3598,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/BusinessOwnershipControlVerificationAssertions"
@@ -3280,7 +3814,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -3290,7 +3824,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/BusinessRiskComplianceAssessmentAssertions"
@@ -3401,155 +3935,14 @@
         "type": "object",
         "title": "BusinessRiskComplianceEventInput"
       },
-      "BusinessSearchResult": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "identifier": {
-            "type": "string",
-            "title": "Identifier"
-          },
-          "created_at": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Created At"
-          },
-          "updated_at": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Updated At"
-          },
-          "business_legal_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Legal Name"
-          },
-          "business_dba_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Dba Name"
-          },
-          "business_email": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Email"
-          },
-          "business_entity_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Entity Type"
-          },
-          "business_date_of_incorporation": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Date Of Incorporation"
-          },
-          "business_phone": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Phone"
-          },
-          "business_website_url": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Website Url"
-          },
-          "federal_ein": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Federal Ein"
-          },
-          "employee_count": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Employee Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "identifier"
-        ],
-        "title": "BusinessSearchResult"
-      },
-      "ConsentBusinessCreateInput": {
+      "ConsentBusinessIdentityCreateInput": {
         "properties": {
           "did_gather_consent_from_business_prior": {
             "type": "boolean",
             "title": "Did Gather Consent From Business Prior"
           },
-          "business_consent_identity": {
-            "$ref": "#/components/schemas/BusinessConsentIdentityInput"
+          "business_consent_event_identity": {
+            "$ref": "#/components/schemas/BusinessConsentEventIdentityInput"
           },
           "identity": {
             "$ref": "#/components/schemas/IdentityInput"
@@ -3558,13 +3951,13 @@
         "type": "object",
         "required": [
           "did_gather_consent_from_business_prior",
-          "business_consent_identity",
+          "business_consent_event_identity",
           "identity"
         ],
-        "title": "ConsentBusinessCreateInput",
+        "title": "ConsentBusinessIdentityCreateInput",
         "description": "Create a business consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries."
       },
-      "ConsentBusinessCreateOutput": {
+      "ConsentBusinessIdentityCreateOutput": {
         "properties": {
           "consent_id": {
             "type": "string",
@@ -3595,10 +3988,10 @@
           "events",
           "scope"
         ],
-        "title": "ConsentBusinessCreateOutput",
+        "title": "ConsentBusinessIdentityCreateOutput",
         "description": "Create a business consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries."
       },
-      "ConsentConsumerCreateInput": {
+      "ConsentConsumerIdentityCreateInput": {
         "properties": {
           "network_id": {
             "type": "string",
@@ -3609,10 +4002,10 @@
             "type": "boolean",
             "title": "Did Gather Consent From Consumer Prior"
           },
-          "consumer_consent_identity": {
-            "$ref": "#/components/schemas/ConsumerConsentIdentityInput"
+          "consumer_consent_event_identity": {
+            "$ref": "#/components/schemas/ConsumerConsentEventIdentityInput"
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -3622,30 +4015,30 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Id"
+            "title": "Consumer Identity Id"
           }
         },
         "type": "object",
         "required": [
           "network_id",
           "did_gather_consent_from_consumer_prior",
-          "consumer_consent_identity"
+          "consumer_consent_event_identity"
         ],
-        "title": "ConsentConsumerCreateInput",
+        "title": "ConsentConsumerIdentityCreateInput",
         "description": "Create a consumer consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries."
       },
-      "ConsentConsumerCreateOutput": {
+      "ConsentConsumerIdentityCreateOutput": {
         "properties": {
           "consent_id": {
             "type": "string",
             "title": "Consent Id"
           },
-          "field_access_grants": {
+          "model_access_grants": {
             "items": {
-              "$ref": "#/components/schemas/FieldAccessGrantOutput"
+              "$ref": "#/components/schemas/ModelAccessGrantOutput"
             },
             "type": "array",
-            "title": "Field Access Grants"
+            "title": "Model Access Grants"
           },
           "created_at": {
             "type": "string",
@@ -3685,15 +4078,15 @@
         "type": "object",
         "required": [
           "consent_id",
-          "field_access_grants",
+          "model_access_grants",
           "created_at",
           "events",
           "scope"
         ],
-        "title": "ConsentConsumerCreateOutput",
+        "title": "ConsentConsumerIdentityCreateOutput",
         "description": "Create a consumer consent record (direct, server-to-server). Returns a consent_id used for all subsequent queries."
       },
-      "ConsentConsumerUpdateInput": {
+      "ConsentConsumerIdentityUpdateInput": {
         "properties": {
           "network_id": {
             "type": "string",
@@ -3739,10 +4132,10 @@
         "required": [
           "network_id"
         ],
-        "title": "ConsentConsumerUpdateInput",
+        "title": "ConsentConsumerIdentityUpdateInput",
         "description": "Update a consumer consent record (scope, expiry, or consented fields).\n\nIdentity fields are immutable: a consent record is an audit artifact of\nwho consented and when. To consent with different identity data, create\na new consent record instead."
       },
-      "ConsumerConsentIdentityInput": {
+      "ConsumerConsentEventIdentityInput": {
         "properties": {
           "date_of_birth": {
             "type": "string",
@@ -3779,9 +4172,9 @@
           "phone_number",
           "social_security_number"
         ],
-        "title": "ConsumerConsentIdentityInput"
+        "title": "ConsumerConsentEventIdentityInput"
       },
-      "ConsumerSearchResult": {
+      "ConsumerIdentitySearchResult": {
         "properties": {
           "id": {
             "type": "string",
@@ -3875,7 +4268,7 @@
           "id",
           "identifier"
         ],
-        "title": "ConsumerSearchResult"
+        "title": "ConsumerIdentitySearchResult"
       },
       "CoverageCheckEntityOutput": {
         "properties": {
@@ -3941,13 +4334,26 @@
           },
           "met": {
             "type": "boolean",
-            "title": "Met"
+            "title": "Met",
+            "description": "Whether the furnisher furnished a non-empty value.",
+            "default": false
+          },
+          "consented": {
+            "type": "boolean",
+            "title": "Consented",
+            "description": "Whether the subject's consent covers this field.",
+            "default": false
+          },
+          "consent_governed": {
+            "type": "boolean",
+            "title": "Consent Governed",
+            "description": "Whether a subject consent can grant this field's model (vs operational/audit data).",
+            "default": true
           }
         },
         "type": "object",
         "required": [
-          "field_name",
-          "met"
+          "field_name"
         ],
         "title": "CoverageCheckFieldOutput"
       },
@@ -4010,7 +4416,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity."
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4020,10 +4426,10 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Id",
-            "description": "Consumer profile primary key (Consumer.id)."
+            "title": "Consumer Identity Id",
+            "description": "Consumer profile primary key (ConsumerIdentity.id)."
           },
-          "business_id": {
+          "business_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4033,8 +4439,8 @@
                 "type": "null"
               }
             ],
-            "title": "Business Id",
-            "description": "Business profile primary key (Business.id)."
+            "title": "Business Identity Id",
+            "description": "Business profile primary key (BusinessIdentity.id)."
           }
         },
         "type": "object",
@@ -4052,7 +4458,15 @@
           },
           "met_count": {
             "type": "integer",
-            "title": "Met Count"
+            "title": "Met Count",
+            "description": "Fields with furnished data (found).",
+            "default": 0
+          },
+          "consented_count": {
+            "type": "integer",
+            "title": "Consented Count",
+            "description": "Fields covered by the subject's consent.",
+            "default": 0
           },
           "total_count": {
             "type": "integer",
@@ -4061,7 +4475,7 @@
           "hit": {
             "type": "boolean",
             "title": "Hit",
-            "description": "Whether the furnisher has any row for this model at all. A hit with a low met_count signals data that exists but is not (fully) accessible under the current consent.",
+            "description": "Whether the furnisher has any row for this model at all.",
             "default": false
           },
           "fields": {
@@ -4075,7 +4489,6 @@
         "type": "object",
         "required": [
           "model_name",
-          "met_count",
           "total_count",
           "fields"
         ],
@@ -4088,7 +4501,7 @@
             "format": "uuid",
             "title": "Product Id"
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4098,9 +4511,9 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Id"
+            "title": "Consumer Identity Id"
           },
-          "business_id": {
+          "business_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4110,7 +4523,7 @@
                 "type": "null"
               }
             ],
-            "title": "Business Id"
+            "title": "Business Identity Id"
           },
           "entities": {
             "items": {
@@ -4127,13 +4540,8 @@
         ],
         "title": "CoverageCheckOutput"
       },
-      "CreateQueryingPolicyInput": {
+      "CreatePolicyInput": {
         "properties": {
-          "product_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Product Id"
-          },
           "network_id": {
             "type": "string",
             "format": "uuid",
@@ -4146,24 +4554,23 @@
         },
         "type": "object",
         "required": [
-          "product_id",
           "network_id",
           "name"
         ],
-        "title": "CreateQueryingPolicyInput",
-        "description": "Body of ``POST /networks/policies/querying``.\n\nThe dialog presents two independent dropdowns \u2014 Product and Network \u2014\nso the REST contract carries those ids directly. The backend resolves\n(or auto-creates) the join ``NetworkProduct`` row and creates the\npolicy via the repo layer in a single GraphQL mutation.\n\nPer-model / per-field selections are authored separately via the\nwizard's ``PUT /networks/policies/querying/{policy_id}/configuration``\nroute, so this payload intentionally has no nested ``models`` list."
+        "title": "CreatePolicyInput",
+        "description": "Body of ``POST /networks/policies/querying``.\n\nA policy is network-wide, so the contract carries only the network id\nand a display name. Per-model / per-field selections \u2014 which may span\nany product's models \u2014 are authored separately via the wizard's\n``PUT /networks/policies/querying/{policy_id}/configuration`` route,\nso this payload intentionally has no nested ``models`` list."
       },
-      "CreateQueryingPolicyResult": {
+      "CreatePolicyResult": {
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
             "title": "Id"
           },
-          "network_product_id": {
+          "network_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Network Product Id"
+            "title": "Network Id"
           },
           "entity_id": {
             "type": "string",
@@ -4182,12 +4589,12 @@
         "type": "object",
         "required": [
           "id",
-          "network_product_id",
+          "network_id",
           "entity_id",
           "name",
           "is_default"
         ],
-        "title": "CreateQueryingPolicyResult"
+        "title": "CreatePolicyResult"
       },
       "CrossBankFinancialCrimesWatchListQueryInput": {
         "properties": {
@@ -4242,7 +4649,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4252,8 +4659,8 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Id",
-            "description": "Consumer profile primary key (Consumer.id) for permissible-purpose queries."
+            "title": "Consumer Identity Id",
+            "description": "Consumer profile primary key (ConsumerIdentity.id) for permissible-purpose queries."
           }
         },
         "type": "object",
@@ -4264,15 +4671,15 @@
       },
       "CrossBankFinancialCrimesWatchListQueryOutput": {
         "properties": {
-          "query_event_id": {
+          "provenance_event_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Query Event Id"
+            "title": "Provenance Event Id"
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Consumer Id"
+            "title": "Consumer Identity Id"
           },
           "furnishing_entity_id": {
             "anyOf": [
@@ -4316,8 +4723,8 @@
         },
         "type": "object",
         "required": [
-          "query_event_id",
-          "consumer_id",
+          "provenance_event_id",
+          "consumer_identity_id",
           "is_listed"
         ],
         "title": "CrossBankFinancialCrimesWatchListQueryOutput"
@@ -4475,6 +4882,39 @@
               }
             ],
             "title": "Document Attribute Review Timestamp"
+          },
+          "document_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Type"
+          },
+          "document_capture_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Capture Method"
+          },
+          "document_review_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Review Method"
           }
         },
         "additionalProperties": true,
@@ -4495,7 +4935,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4505,7 +4945,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/DocumentCaptureAssertions"
@@ -4621,7 +5061,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -4631,7 +5071,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/DocumentReviewAssertions"
@@ -4647,59 +5087,11 @@
         ],
         "title": "DocumentReviewSubProduct"
       },
-      "FieldAccessGrantOutput": {
-        "properties": {
-          "furnishing_entity_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Furnishing Entity Id"
-          },
-          "field_definitions": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Field Definitions",
-            "default": []
-          },
-          "effective_from": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Effective From"
-          },
-          "effective_to": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Effective To"
-          }
-        },
-        "type": "object",
-        "title": "FieldAccessGrantOutput"
-      },
       "FieldSelectionInput": {
         "properties": {
-          "product_field_definition_id": {
+          "field_name": {
             "type": "string",
-            "format": "uuid",
-            "title": "Product Field Definition Id"
+            "title": "Field Name"
           },
           "is_enabled": {
             "type": "boolean",
@@ -4723,233 +5115,53 @@
               }
             ],
             "title": "Boolean Choice"
+          },
+          "data_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Type"
           }
         },
         "type": "object",
         "required": [
-          "product_field_definition_id",
+          "field_name",
           "is_enabled",
           "selected_provenance_option_ids"
         ],
         "title": "FieldSelectionInput",
         "description": "One row of the wizard's per-field configuration."
       },
-      "FileUpload": {
+      "GraphFieldSchema": {
         "properties": {
-          "created_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Created At"
-          },
-          "updated_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Updated At"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Entity Id"
-          },
-          "account_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Account Id"
-          },
-          "product_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Product Id"
-          },
-          "network_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Network Id"
-          },
-          "attestation_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Attestation Id"
-          },
-          "s3_bucket": {
-            "type": "string",
-            "title": "S3 Bucket"
-          },
-          "s3_key": {
-            "type": "string",
-            "title": "S3 Key"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "default": "pending"
-          },
-          "slug": {
-            "type": "string",
-            "title": "Slug"
-          },
-          "source": {
-            "type": "string",
-            "title": "Source",
-            "default": "frontend"
-          },
-          "original_filename": {
-            "type": "string",
-            "title": "Original Filename"
-          },
-          "file_format": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "File Format"
-          },
-          "content_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Content Type"
-          },
-          "declared_byte_size": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Declared Byte Size"
-          },
-          "expires_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Expires At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "s3_bucket",
-          "s3_key",
-          "slug",
-          "original_filename"
-        ],
-        "title": "FileUpload"
-      },
-      "FurnishingPolicyResult": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Id"
-          },
-          "entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Entity Id"
-          },
-          "network_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Network Id"
-          },
           "name": {
             "type": "string",
-            "title": "Name"
+            "title": "Name",
+            "description": "Field name, camelCase as the graph exposes it"
           },
-          "version": {
-            "type": "integer",
-            "title": "Version"
-          },
-          "schema_version": {
+          "type": {
             "type": "string",
-            "title": "Schema Version"
+            "title": "Type",
+            "description": "GraphQL type name of the field"
           },
-          "source_default_slug": {
+          "is_list": {
+            "type": "boolean",
+            "title": "Is List",
+            "description": "Whether the field holds many values",
+            "default": false
+          },
+          "is_required": {
+            "type": "boolean",
+            "title": "Is Required",
+            "description": "Whether the graph guarantees a value",
+            "default": false
+          },
+          "target_model": {
             "anyOf": [
               {
                 "type": "string"
@@ -4958,71 +5170,159 @@
                 "type": "null"
               }
             ],
-            "title": "Source Default Slug"
-          },
-          "active_on": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Active On"
-          },
-          "deprecated_on": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Deprecated On"
-          },
-          "policy_metadata": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Policy Metadata"
-          },
-          "created_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Created At"
-          },
-          "updated_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Updated At"
+            "title": "Target Model",
+            "description": "Model this field points at, for relationships"
           }
         },
         "type": "object",
         "required": [
-          "id",
           "name",
-          "version",
-          "schema_version"
+          "type"
         ],
-        "title": "FurnishingPolicyResult",
-        "description": "A furnishing policy as returned by the REST API."
+        "title": "GraphFieldSchema",
+        "description": "One field of a graph model, as served over REST."
+      },
+      "GraphModelSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Model name, e.g. ``AddressIdentity``"
+          },
+          "resource": {
+            "type": "string",
+            "title": "Resource",
+            "description": "Path segment for this model, e.g. ``address-identities``"
+          },
+          "listable": {
+            "type": "boolean",
+            "title": "Listable",
+            "description": "Whether the collection endpoint serves this model. Models reachable only through a relationship are fetched by id or via ``expand``."
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/GraphFieldSchema"
+            },
+            "type": "array",
+            "title": "Fields",
+            "description": "Scalar fields"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/GraphFieldSchema"
+            },
+            "type": "array",
+            "title": "Relationships",
+            "description": "Fields pointing at other graph models"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "resource",
+          "listable"
+        ],
+        "title": "GraphModelSchema",
+        "description": "A model in the data graph, addressable as a REST resource."
+      },
+      "GraphModelsResponse": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/GraphModelSchema"
+            },
+            "type": "array",
+            "title": "Models"
+          }
+        },
+        "type": "object",
+        "title": "GraphModelsResponse",
+        "description": "The graph's shape: every model this surface serves."
+      },
+      "GraphObject": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "Model name this object belongs to"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Global id, stable across the graph"
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identifier",
+            "description": "Row id"
+          },
+          "attributes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Attributes",
+            "description": "Scalar fields, keyed by field name"
+          },
+          "relationships": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Relationships",
+            "description": "Relationships read inline, keyed by field name: those named in ``expand``, and those a dotted path in ``fields`` reaches through."
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "id"
+        ],
+        "title": "GraphObject",
+        "description": "One row of the graph."
+      },
+      "GraphObjectResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/GraphObject"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "GraphObjectResponse",
+        "description": "A single graph object."
+      },
+      "GraphObjectsResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/GraphObject"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "limit",
+          "offset"
+        ],
+        "title": "GraphObjectsResponse",
+        "description": "A page of graph objects."
       },
       "HTTPValidationError": {
         "properties": {
@@ -5176,7 +5476,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -5186,7 +5486,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/IdentityCorroborationAssertions"
@@ -5202,7 +5502,7 @@
         ],
         "title": "IdentityCorroborationSubProduct"
       },
-      "IdentityDocumentInput": {
+      "IdentityDocumentIdentityInput": {
         "properties": {
           "type": {
             "anyOf": [
@@ -5309,7 +5609,7 @@
         },
         "additionalProperties": true,
         "type": "object",
-        "title": "IdentityDocumentInput"
+        "title": "IdentityDocumentIdentityInput"
       },
       "IdentityInput": {
         "properties": {
@@ -5400,7 +5700,7 @@
                 "type": "null"
               }
             ],
-            "title": "KYC Decision"
+            "title": "Kyc Decision"
           },
           "is_ssn_match": {
             "anyOf": [
@@ -5473,7 +5773,7 @@
         "type": "object",
         "title": "IdentityVerificationEventInput"
       },
-      "InstitutionAttestationCreateRequest": {
+      "InstitutionAttestationEventCreateRequest": {
         "properties": {
           "product_id": {
             "type": "string",
@@ -5513,9 +5813,9 @@
           "product_id",
           "signed_by_name"
         ],
-        "title": "InstitutionAttestationCreateRequest"
+        "title": "InstitutionAttestationEventCreateRequest"
       },
-      "InstitutionAttestationResponse": {
+      "InstitutionAttestationEventResponse": {
         "properties": {
           "id": {
             "type": "string",
@@ -5599,20 +5899,15 @@
           "attestation_data",
           "created_at"
         ],
-        "title": "InstitutionAttestationResponse"
+        "title": "InstitutionAttestationEventResponse"
       },
-      "KYBCertificateFurnishInput": {
+      "KYBCertificateSnapshotFurnishInput": {
         "properties": {
           "network_id": {
             "type": "string",
             "format": "uuid",
             "title": "Network Id",
             "description": "Network scope for the furnishing."
-          },
-          "subnetwork_name": {
-            "type": "string",
-            "title": "Subnetwork Name",
-            "description": "Subnetwork name for policy resolution."
           },
           "application_date": {
             "type": "string",
@@ -5621,7 +5916,7 @@
           },
           "records": {
             "items": {
-              "$ref": "#/components/schemas/KYBCertificateFurnishRecord"
+              "$ref": "#/components/schemas/KYBCertificateSnapshotFurnishRecord"
             },
             "type": "array",
             "title": "Records",
@@ -5631,13 +5926,12 @@
         "type": "object",
         "required": [
           "network_id",
-          "subnetwork_name",
           "application_date",
           "records"
         ],
-        "title": "KYBCertificateFurnishInput"
+        "title": "KYBCertificateSnapshotFurnishInput"
       },
-      "KYBCertificateFurnishOutput": {
+      "KYBCertificateSnapshotFurnishOutput": {
         "properties": {
           "success": {
             "type": "boolean",
@@ -5687,9 +5981,9 @@
           }
         },
         "type": "object",
-        "title": "KYBCertificateFurnishOutput"
+        "title": "KYBCertificateSnapshotFurnishOutput"
       },
-      "KYBCertificateFurnishRecord": {
+      "KYBCertificateSnapshotFurnishRecord": {
         "properties": {
           "federal_ein": {
             "type": "integer",
@@ -5782,9 +6076,9 @@
           "federal_ein",
           "business_jurisdiction_of_formation"
         ],
-        "title": "KYBCertificateFurnishRecord"
+        "title": "KYBCertificateSnapshotFurnishRecord"
       },
-      "KYBCertificateNetworkResult": {
+      "KYBCertificateSnapshotNetworkResult": {
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/QueryResolutionMeta"
@@ -5824,9 +6118,9 @@
         "required": [
           "meta"
         ],
-        "title": "KYBCertificateNetworkResult"
+        "title": "KYBCertificateSnapshotNetworkResult"
       },
-      "KYBCertificateQueryInput": {
+      "KYBCertificateSnapshotQueryInput": {
         "properties": {
           "policy_id": {
             "anyOf": [
@@ -5879,7 +6173,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "business_id": {
+          "business_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -5889,17 +6183,17 @@
                 "type": "null"
               }
             ],
-            "title": "Business Id",
-            "description": "Business profile primary key (Business.id) for permissible-purpose (FCRA) queries."
+            "title": "Business Identity Id",
+            "description": "Business profile primary key (BusinessIdentity.id) for permissible-purpose (FCRA) queries."
           }
         },
         "type": "object",
         "required": [
           "network_ids"
         ],
-        "title": "KYBCertificateQueryInput"
+        "title": "KYBCertificateSnapshotQueryInput"
       },
-      "KYBCertificateQueryOutput": {
+      "KYBCertificateSnapshotQueryOutput": {
         "properties": {
           "certificate_id": {
             "anyOf": [
@@ -5913,7 +6207,7 @@
             ],
             "title": "Certificate Id"
           },
-          "query_event_id": {
+          "provenance_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -5923,37 +6217,32 @@
                 "type": "null"
               }
             ],
-            "title": "Query Event Id"
+            "title": "Provenance Event Id"
           },
-          "business_id": {
+          "business_identity_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Business Id"
+            "title": "Business Identity Id"
           },
           "result": {
-            "$ref": "#/components/schemas/KYBCertificateNetworkResult",
+            "$ref": "#/components/schemas/KYBCertificateSnapshotNetworkResult",
             "description": "Consolidated certificate resolution across all queried networks."
           }
         },
         "type": "object",
         "required": [
-          "business_id",
+          "business_identity_id",
           "result"
         ],
-        "title": "KYBCertificateQueryOutput"
+        "title": "KYBCertificateSnapshotQueryOutput"
       },
-      "KYCCertificateFurnishInput": {
+      "KYCCertificateSnapshotFurnishInput": {
         "properties": {
           "network_id": {
             "type": "string",
             "format": "uuid",
             "title": "Network Id",
             "description": "Network scope for the furnishing."
-          },
-          "subnetwork_name": {
-            "type": "string",
-            "title": "Subnetwork Name",
-            "description": "Subnetwork name for policy resolution."
           },
           "application_date": {
             "type": "string",
@@ -5962,7 +6251,7 @@
           },
           "records": {
             "items": {
-              "$ref": "#/components/schemas/KYCCertificateFurnishRecord"
+              "$ref": "#/components/schemas/KYCCertificateSnapshotFurnishRecord"
             },
             "type": "array",
             "title": "Records",
@@ -5972,13 +6261,12 @@
         "type": "object",
         "required": [
           "network_id",
-          "subnetwork_name",
           "application_date",
           "records"
         ],
-        "title": "KYCCertificateFurnishInput"
+        "title": "KYCCertificateSnapshotFurnishInput"
       },
-      "KYCCertificateFurnishOutput": {
+      "KYCCertificateSnapshotFurnishOutput": {
         "properties": {
           "success": {
             "type": "boolean",
@@ -6028,9 +6316,9 @@
           }
         },
         "type": "object",
-        "title": "KYCCertificateFurnishOutput"
+        "title": "KYCCertificateSnapshotFurnishOutput"
       },
-      "KYCCertificateFurnishRecord": {
+      "KYCCertificateSnapshotFurnishRecord": {
         "properties": {
           "first_name": {
             "type": "string",
@@ -6090,11 +6378,11 @@
             ],
             "title": "Liveness Check Events"
           },
-          "identity_documents": {
+          "identity_document_identities": {
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/IdentityDocumentInput"
+                  "$ref": "#/components/schemas/IdentityDocumentIdentityInput"
                 },
                 "type": "array"
               },
@@ -6102,13 +6390,13 @@
                 "type": "null"
               }
             ],
-            "title": "Identity Documents"
+            "title": "Identity Document Identities"
           },
-          "addresses": {
+          "address_identities": {
             "anyOf": [
               {
                 "items": {
-                  "$ref": "#/components/schemas/AddressInput"
+                  "$ref": "#/components/schemas/AddressIdentityInput"
                 },
                 "type": "array"
               },
@@ -6116,7 +6404,7 @@
                 "type": "null"
               }
             ],
-            "title": "Addresses"
+            "title": "Address Identities"
           }
         },
         "type": "object",
@@ -6126,9 +6414,9 @@
           "date_of_birth",
           "social_security_number"
         ],
-        "title": "KYCCertificateFurnishRecord"
+        "title": "KYCCertificateSnapshotFurnishRecord"
       },
-      "KYCCertificateNetworkResult": {
+      "KYCCertificateSnapshotNetworkResult": {
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/QueryResolutionMeta"
@@ -6228,9 +6516,9 @@
         "required": [
           "meta"
         ],
-        "title": "KYCCertificateNetworkResult"
+        "title": "KYCCertificateSnapshotNetworkResult"
       },
-      "KYCCertificateQueryInput": {
+      "KYCCertificateSnapshotQueryInput": {
         "properties": {
           "policy_id": {
             "anyOf": [
@@ -6283,7 +6571,7 @@
             "title": "Consent Id",
             "description": "Consent token \u2014 system resolves identity + applies field access filtering."
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -6293,17 +6581,17 @@
                 "type": "null"
               }
             ],
-            "title": "Consumer Id",
-            "description": "Consumer profile primary key (Consumer.id) for permissible-purpose (FCRA) queries."
+            "title": "Consumer Identity Id",
+            "description": "Consumer profile primary key (ConsumerIdentity.id) for permissible-purpose (FCRA) queries."
           }
         },
         "type": "object",
         "required": [
           "network_ids"
         ],
-        "title": "KYCCertificateQueryInput"
+        "title": "KYCCertificateSnapshotQueryInput"
       },
-      "KYCCertificateQueryOutput": {
+      "KYCCertificateSnapshotQueryOutput": {
         "properties": {
           "certificate_id": {
             "anyOf": [
@@ -6317,7 +6605,7 @@
             ],
             "title": "Certificate Id"
           },
-          "query_event_id": {
+          "provenance_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -6327,24 +6615,24 @@
                 "type": "null"
               }
             ],
-            "title": "Query Event Id"
+            "title": "Provenance Event Id"
           },
-          "consumer_id": {
+          "consumer_identity_id": {
             "type": "string",
             "format": "uuid",
-            "title": "Consumer Id"
+            "title": "Consumer Identity Id"
           },
           "result": {
-            "$ref": "#/components/schemas/KYCCertificateNetworkResult",
+            "$ref": "#/components/schemas/KYCCertificateSnapshotNetworkResult",
             "description": "Consolidated certificate resolution across all queried networks."
           }
         },
         "type": "object",
         "required": [
-          "consumer_id",
+          "consumer_identity_id",
           "result"
         ],
-        "title": "KYCCertificateQueryOutput"
+        "title": "KYCCertificateSnapshotQueryOutput"
       },
       "LivenessCaptureAssertions": {
         "properties": {
@@ -6413,7 +6701,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -6423,7 +6711,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/LivenessCaptureAssertions"
@@ -6590,7 +6878,7 @@
             ],
             "title": "Furnishing Entity Id"
           },
-          "attestation_id": {
+          "attestation_event_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -6600,7 +6888,7 @@
                 "type": "null"
               }
             ],
-            "title": "Attestation Id"
+            "title": "Attestation Event Id"
           },
           "assertions": {
             "$ref": "#/components/schemas/LivenessReviewAssertions"
@@ -6616,12 +6904,616 @@
         ],
         "title": "LivenessReviewSubProduct"
       },
-      "ModelSelectionInput": {
+      "MappingFinding": {
         "properties": {
-          "product_model_definition_id": {
+          "ast_path": {
+            "type": "string",
+            "title": "Ast Path"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "expected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected"
+          },
+          "found": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Found"
+          },
+          "hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hint"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ast_path",
+          "code"
+        ],
+        "title": "MappingFinding"
+      },
+      "MappingResult": {
+        "properties": {
+          "id": {
             "type": "string",
             "format": "uuid",
-            "title": "Product Model Definition Id"
+            "title": "Id"
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "network_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Network Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version"
+          },
+          "source_default_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Default Slug"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": false
+          },
+          "mapping_metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Mapping Metadata"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "schema_version"
+        ],
+        "title": "MappingResult",
+        "description": "A mapping as returned by the REST API."
+      },
+      "MappingSuggestPin": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "const",
+              "root"
+            ],
+            "title": "Kind"
+          },
+          "value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "Constant value (const pins)."
+          },
+          "root": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Root",
+            "description": "Root alias the pin reads (root pins)."
+          },
+          "pointer": {
+            "type": "string",
+            "title": "Pointer",
+            "description": "JSON Pointer into the root; empty = whole-root read.",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "MappingSuggestPin"
+      },
+      "MappingSuggestRequest": {
+        "properties": {
+          "roots": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Roots",
+            "description": "alias -> source-dialect schema for the mapping's roots."
+          },
+          "target": {
+            "title": "Target",
+            "description": "Target anchor: a registry $id string or an inline target document."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "structure",
+              "structure_with_sample"
+            ],
+            "title": "Mode",
+            "description": "What the model may see: source structure only, or structure plus the pasted sample values.",
+            "default": "structure"
+          },
+          "sample": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample",
+            "description": "alias -> value sample input line; required (and only used) in structure_with_sample mode."
+          },
+          "mapping": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mapping",
+            "description": "The entry's current mapping/1 document when partially authored; preserved verbatim."
+          },
+          "pins": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MappingSuggestPin"
+            },
+            "type": "object",
+            "title": "Pins",
+            "description": "Target pointer -> pipeline-owned pin; stamped canonically into every suggestion."
+          },
+          "heading": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heading",
+            "description": "Entry UI heading, for model context."
+          },
+          "required_paths": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Paths",
+            "description": "UI target path -> label of fields the policy's enforcement facet queries (annotate-only priorities: the model binds them when plausible; unmappable ones land in omissions, never failures)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "roots",
+          "target"
+        ],
+        "title": "MappingSuggestRequest"
+      },
+      "MappingSuggestResponse": {
+        "properties": {
+          "document": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document",
+            "description": "The merged, verified mapping/1 document (required fields the source cannot provide may be left unmapped \u2014 see omissions); null when nothing verified."
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/MappingFinding"
+            },
+            "type": "array",
+            "title": "Findings",
+            "description": "Last verify findings when verified is false."
+          },
+          "suggested_paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggested Paths",
+            "description": "Newly suggested target paths (UI convention, [] = element scope)."
+          },
+          "rationales": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Rationales",
+            "description": "Target path -> one-line model rationale, suggested paths only."
+          },
+          "omissions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Omissions",
+            "description": "Required target paths the model deliberately left unmapped -> its one-line reason."
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/MappingSuggestUsage"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Human-readable outcome note when verified is false."
+          }
+        },
+        "type": "object",
+        "required": [
+          "verified",
+          "findings",
+          "suggested_paths",
+          "rationales",
+          "attempts",
+          "usage"
+        ],
+        "title": "MappingSuggestResponse"
+      },
+      "MappingSuggestUsage": {
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "title": "Input Tokens"
+          },
+          "output_tokens": {
+            "type": "integer",
+            "title": "Output Tokens"
+          },
+          "cache_read_input_tokens": {
+            "type": "integer",
+            "title": "Cache Read Input Tokens"
+          },
+          "cache_creation_input_tokens": {
+            "type": "integer",
+            "title": "Cache Creation Input Tokens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "input_tokens",
+          "output_tokens",
+          "cache_read_input_tokens",
+          "cache_creation_input_tokens"
+        ],
+        "title": "MappingSuggestUsage"
+      },
+      "MappingTraceEvent": {
+        "properties": {
+          "ast_path": {
+            "type": "string",
+            "title": "Ast Path"
+          },
+          "element_indices": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Element Indices"
+          },
+          "result": {
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ast_path",
+          "element_indices"
+        ],
+        "title": "MappingTraceEvent"
+      },
+      "MappingTraceRequest": {
+        "properties": {
+          "mapping": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Mapping",
+            "description": "The mapping/1 document to evaluate."
+          },
+          "roots": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Roots",
+            "description": "alias -> source-dialect schema for the mapping's roots."
+          },
+          "input": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Input",
+            "description": "alias -> value sample input line."
+          },
+          "target": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target",
+            "description": "Target anchor: $id string, inline document, or null."
+          }
+        },
+        "type": "object",
+        "required": [
+          "mapping",
+          "roots",
+          "input"
+        ],
+        "title": "MappingTraceRequest"
+      },
+      "MappingTraceResponse": {
+        "properties": {
+          "result": {
+            "title": "Result"
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/components/schemas/MappingTraceEvent"
+            },
+            "type": "array",
+            "title": "Trace"
+          }
+        },
+        "type": "object",
+        "required": [
+          "trace"
+        ],
+        "title": "MappingTraceResponse"
+      },
+      "MappingVerifyRequest": {
+        "properties": {
+          "mapping": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Mapping",
+            "description": "The mapping/1 document to verify."
+          },
+          "roots": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Roots",
+            "description": "alias -> source-dialect schema for the mapping's roots."
+          },
+          "target": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target",
+            "description": "Target anchor: a registry $id string, an inline target document, or null."
+          }
+        },
+        "type": "object",
+        "required": [
+          "mapping",
+          "roots"
+        ],
+        "title": "MappingVerifyRequest"
+      },
+      "MappingVerifyResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/MappingFinding"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "lints": {
+            "items": {
+              "$ref": "#/components/schemas/MappingFinding"
+            },
+            "type": "array",
+            "title": "Lints"
+          },
+          "deferred": {
+            "items": {
+              "$ref": "#/components/schemas/MappingFinding"
+            },
+            "type": "array",
+            "title": "Deferred"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "errors",
+          "lints",
+          "deferred"
+        ],
+        "title": "MappingVerifyResponse"
+      },
+      "ModelAccessGrantOutput": {
+        "properties": {
+          "furnishing_entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Furnishing Entity Id"
+          },
+          "models": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Models",
+            "default": []
+          },
+          "effective_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective From"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          }
+        },
+        "type": "object",
+        "title": "ModelAccessGrantOutput"
+      },
+      "ModelSelectionInput": {
+        "properties": {
+          "model_name": {
+            "type": "string",
+            "title": "Model Name"
           },
           "field_selections": {
             "items": {
@@ -6629,15 +7521,27 @@
             },
             "type": "array",
             "title": "Field Selections"
+          },
+          "backfill_source_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backfill Source Id"
           }
         },
         "type": "object",
         "required": [
-          "product_model_definition_id",
+          "model_name",
           "field_selections"
         ],
         "title": "ModelSelectionInput",
-        "description": "Per-model wizard payload."
+        "description": "Per-model wizard payload, naming a graph model.\n\n``backfill_source_id`` names the vendor source a query asks for the model\nwhen SOLO holds no row the policy accepts: ``null`` clears it, and leaving\nit out keeps the policy's current backfill."
       },
       "QueryResolutionMeta": {
         "properties": {
@@ -6657,6 +7561,14 @@
               }
             ],
             "title": "Policy Id"
+          },
+          "backfilled": {
+            "items": {
+              "$ref": "#/components/schemas/BackfilledModel"
+            },
+            "type": "array",
+            "title": "Backfilled",
+            "description": "Models no SOLO row answered for, taken from the vendor source the policy names."
           }
         },
         "type": "object",
@@ -6665,7 +7577,7 @@
         ],
         "title": "QueryResolutionMeta"
       },
-      "SaveQueryingPolicyConfigurationInput": {
+      "SavePolicyConfigurationInput": {
         "properties": {
           "model_selections": {
             "items": {
@@ -6690,10 +7602,10 @@
         "required": [
           "model_selections"
         ],
-        "title": "SaveQueryingPolicyConfigurationInput",
+        "title": "SavePolicyConfigurationInput",
         "description": "Body of ``PUT /networks/policies/querying/{policy_id}/configuration``."
       },
-      "SaveQueryingPolicyConfigurationResult": {
+      "SavePolicyConfigurationResult": {
         "properties": {
           "id": {
             "type": "string",
@@ -6715,8 +7627,39 @@
           "name",
           "status"
         ],
-        "title": "SaveQueryingPolicyConfigurationResult",
+        "title": "SavePolicyConfigurationResult",
         "description": "Response for the configuration save endpoint."
+      },
+      "SoftCheckOutput": {
+        "properties": {
+          "issuable": {
+            "type": "boolean",
+            "title": "Issuable",
+            "description": "Whether the same query would produce a complete certificate."
+          },
+          "missing_data_paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Data Paths",
+            "description": "Policy-required certificate data paths absent for the selections (empty when issuable)."
+          },
+          "matched_models": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Matched Models",
+            "description": "Product model names with a populated certificate sub-product for these selections (no field values)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "issuable"
+        ],
+        "title": "SoftCheckOutput",
+        "description": "Result of a non-billable certificate soft check (dry run).\n\nCarries whether a complete certificate could be issued for the exact query\nselections (subject, policy, networks, furnishers), which product models\nhave a populated sub-product in the resolved result, and which\npolicy-required data paths are missing. No resolved field values are\nreturned \u2014 the soft check reveals issuability and match shape, never the\nunderlying data. Soft checks always return an HTTP 200 body so clients can\nread ``matched_models`` / ``missing_data_paths`` when ``issuable`` is false."
       },
       "ValidationError": {
         "properties": {

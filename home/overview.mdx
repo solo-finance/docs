@@ -54,15 +54,15 @@ entity, and every query reads data about one. Entities have a core identity —
 name, email, SSN or EIN, date of birth — that the network uses to recognize
 when two participants are talking about the same subject, so that data
 furnished by one bank can be consolidated with data furnished by another. You
-can look up existing entities with `GET /v1/entities/consumer/search` and
-`GET /v1/entities/business/search`, both scoped by a required `network_id`.
+can look up existing entities with `GET /v1/entities/consumer_identity/search` and
+`GET /v1/entities/business_identity/search`, both scoped by a required `network_id`.
 
 ### Consent
 
 [Consent](/concepts/identity/consent) is the subject's permission, captured as
 a first-class record. Before you query data about a consumer or business, you
-record that they agreed — `POST /v1/consent/consumer` or
-`POST /v1/consent/business` — and receive a `consent_id` that you pass with
+record that they agreed — `POST /v1/consent/consumer_identity` or
+`POST /v1/consent/business_identity` — and receive a `consent_id` that you pass with
 every subsequent query. A consent record carries a scope, an optional expiry,
 and the set of consented fields; scope, expiry, and consented fields can be
 updated later, but the identity fields are immutable, because the record is an
@@ -120,20 +120,20 @@ sequenceDiagram
     participant N as Network
 
     Note over P,N: 1. Join — governor grants roles
-    P->>API: GET /v1/entities/consumer/search?network_id=…
+    P->>API: GET /v1/entities/consumer_identity/search?network_id=…
     API->>N: scope to network, check role
     N-->>P: matching entities
 
     Note over P,N: 2. Consent — subject grants permission
-    P->>API: POST /v1/consent/consumer
+    P->>API: POST /v1/consent/consumer_identity
     API-->>P: consent_id
 
     Note over P,N: 3. Furnish — contribute verified data
-    P->>API: POST /v1/products/kyc_certificate/furnish
+    P->>API: POST /v1/products/kyc_certificate_snapshot/furnish
     API->>N: validate against furnishing policy, store
 
     Note over P,N: 4. Query — read consolidated data
-    P->>API: POST /v1/products/kyc_certificate/query (consent_id)
+    P->>API: POST /v1/products/kyc_certificate_snapshot/query (consent_id)
     API->>N: resolve policy, consent, entitlement
     N-->>P: consolidated certificate (or 204 if no result)
 ```
@@ -145,9 +145,9 @@ sequenceDiagram
 2. **Create consent.** Record the subject's permission and hold on to the
    returned `consent_id`. Without it, product queries fail.
 3. **Furnish.** Contribute data through a product's `furnish` endpoint — or in
-   bulk via [file upload](/api-overview/furnishing/file-upload) or
-   [SFTP](/api-overview/sftp/overview). The network's furnishing policy validates
-   what you send.
+   bulk as [JSONL files](/api-overview/furnishing/file-upload) from the dashboard
+   or [SFTP](/api-overview/sftp/overview). For files, the network's furnishing
+   policies map and validate each record.
 4. **Query.** Ask a product for consolidated data, citing your `consent_id` and
    the network policy to run under. The result is assembled from every
    furnisher's contributions — filtered through the policy and your
@@ -201,8 +201,8 @@ primarily contributes data, continue from
 [SFTP guide](/api-overview/sftp/getting-started) for bulk ingestion; if it
 primarily consumes data, continue from
 [Querying](/api-overview/querying/overview) into the individual product pages —
-[KYC certificate](/api-overview/querying/kyc-certificate),
-[KYB certificate](/api-overview/querying/kyb-certificate), and
+[KYC certificate](/api-overview/querying/kyc-certificate-snapshot),
+[KYB certificate](/api-overview/querying/kyb-certificate-snapshot), and
 [screening lists](/api-overview/querying/screening-lists).
 
 <DashboardHomeOverview />
