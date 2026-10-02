@@ -35,7 +35,7 @@ query response with its own `assertions` (what was attested, and when) and
 | Liveness capture | `liveness_capture` | Liveness evidence was captured. |
 | Liveness review | `liveness_review` | The liveness evidence was reviewed, with outcome and confidence tier. |
 | Address capture | `address_capture` | A residential address was captured. |
-| Address verification | `address_verification` | The address was verified, with methods and per-source match counts. |
+| Address verification | `address_verification` | The address was verified, with method, outcome, and deliverability. |
 | Identity corroboration | `identity_corroboration` | CIP-style corroboration — SSN, name, and DOB matches across sources. |
 
 Every populated sub-product carries the `furnishing_entity_id` of the
@@ -81,12 +81,12 @@ A `200 OK` means a certificate was issued:
       },
       "data": {
         "document_artifact": "passport_scan.pdf",
-        "document_type": "passport",
-        "document_issuing_state": "government",
+        "document_type": "us_passport",
+        "document_issuing_state": "NY",
         "document_number": "934712385",
         "document_issue_date": "2021-03-02",
         "document_expiration_date": "2031-03-02",
-        "document_capture_method": "mobile_scan"
+        "document_capture_method": "mobile_live_capture"
       }
     },
     "document_review": {
@@ -97,7 +97,8 @@ A `200 OK` means a certificate was issued:
         "document_attribute_review_timestamp": "2026-04-16T00:00:00Z"
       },
       "data": {
-        "document_review_method": "automated_ocr",
+        "document_review_method": "automated_and_manual",
+        "document_review_evidence_source": "document_issuer",
         "document_tamper_review_performed": true,
         "document_tamper_indicators_observed": false,
         "is_document_machine_readable_data_validation_performed": true,
@@ -113,7 +114,7 @@ A `200 OK` means a certificate was issued:
       },
       "data": {
         "biometric_artifact": "selfie.jpg",
-        "biometric_capture_method": "selfie"
+        "biometric_capture_method": "live_selfie_video"
       }
     },
     "identity_corroboration": {
@@ -124,14 +125,14 @@ A `200 OK` means a certificate was issued:
         "identity_corroboration_timestamp": "2026-04-16T09:30:00Z"
       },
       "data": {
-        "identity_elements_corroborated": "pass",
-        "identity_corroboration_methods": ["database", "documentary"],
-        "identity_corroboration_outcomes": ["ssn_match", "name_match", "dob_match"],
-        "total_identity_corroboration_sources_consulted": 3,
-        "identity_corroboration_source_count_full_match": 3,
-        "identity_corroboration_source_count_inconclusive": 0,
-        "identity_corroboration_source_count_no_match": 0,
-        "identity_corroboration_source_count_partial_match": 0
+        "identity_elements_corroborated": "ssn, dob, name",
+        "identity_corroboration_methods": ["credit_bureau_match", "public_records_match"],
+        "identity_corroboration_outcomes": ["full_match"],
+        "total_identity_corroboration_sources_consulted": 2,
+        "identity_corroboration_source_count_full_match": null,
+        "identity_corroboration_source_count_inconclusive": null,
+        "identity_corroboration_source_count_no_match": null,
+        "identity_corroboration_source_count_partial_match": null
       }
     },
     "biometric_review": null,
@@ -150,7 +151,9 @@ A `200 OK` means a certificate was issued:
   the `X-Ref-Id` response header. Quote it to support and keep it in your audit
   log.
 - `result` — the consolidated certificate. Sub-products the policy didn't
-  require (or that lacked data) are `null`.
+  require (or that lacked data) are `null`. The per-source outcome counts
+  (`*_source_count_*`) are always `null`: furnishers report one outcome per
+  check, not one per source consulted.
 
 ## How the certificate resolves per network
 
@@ -220,23 +223,26 @@ The KYC certificate's data dictionary, model by model. *Field* is the display
 name, *API name* is the `field_name` used in policies and coverage checks, and
 *Source model* is the underlying table the value is drawn from.
 
-### Consumer
+### ConsumerIdentity
 
 | Field | API name | Type | Source model |
 |---|---|---|---|
-| First Name | `first_name` | String | `consumer` |
-| Last Name | `last_name` | String | `consumer` |
+| First Name | `first_name` | String | `consumer_identity` |
+| Last Name | `last_name` | String | `consumer_identity` |
 
 ### DocumentCaptureEvent
 
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `document_capture_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Document Captured | `is_document_captured` | Boolean | `document_capture_event` |
 | Document Capture Timestamp | `document_capture_timestamp` | Date | `document_capture_event` |
 | Is Document Attribute Reviewed | `is_document_attribute_reviewed` | Boolean | `document_capture_event` |
 | Document Attribute Review Timestamp | `document_attribute_review_timestamp` | Date | `document_capture_event` |
+| Document Capture Method | `document_capture_method` | String | `document_capture_event` |
+| Document Review Method | `document_review_method` | String | `document_capture_event` |
+| Document Review Evidence Source | `document_review_evidence_source` | String | `document_capture_event` |
 
 ### IdentityDocumentIdentity
 
@@ -246,9 +252,13 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Document Issue Date | `issue_date` | Date | `identity_document_identity` |
 | Document Expiration Date | `expiration_date` | Date | `identity_document_identity` |
 | Issuing Authority | `issuing_authority` | String | `identity_document_identity` |
-| Is Tampering Detected | `is_tampering_detected` | Boolean | `identity_document_identity` |
+| Issuing State | `issuing_state` | String | `identity_document_identity` |
+| Is Document Tamper Review Performed | `is_document_tamper_review_performed` | Boolean | `identity_document_identity` |
+| Document Tamper Review Outcome | `document_tamper_review_outcome` | String | `identity_document_identity` |
+| Is Machine-Readable Data Validation Performed | `is_machine_readable_data_validation_performed` | Boolean | `identity_document_identity` |
+| Is Machine-Readable Data Consistent With Document Face | `is_machine_readable_data_consistent_with_document_face` | Boolean | `identity_document_identity` |
 | Are Security Features Verified | `are_security_features_verified` | Boolean | `identity_document_identity` |
-| Document Number | `number` | Integer | `identity_document_identity` |
+| Document Number | `number` | String | `identity_document_identity` |
 | Document Upload | `upload` | String | `identity_document_identity` |
 
 ### BiometricCaptureEvent
@@ -256,11 +266,16 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `biometric_capture_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Biometric Captured | `is_biometric_captured` | Boolean | `biometric_capture_event` |
 | Biometric Capture Timestamp | `biometric_capture_timestamp` | Date | `biometric_capture_event` |
 | Is Biometric Attribute Reviewed | `is_biometric_attribute_reviewed` | Boolean | `biometric_capture_event` |
 | Biometric Attribute Review Timestamp | `biometric_attribute_review_timestamp` | Date | `biometric_capture_event` |
+| Biometric Capture Method | `biometric_capture_method` | String | `biometric_capture_event` |
+| Is Biometric Comparison Performed | `is_biometric_comparison_performed` | Boolean | `biometric_capture_event` |
+| Biometric Comparison Evidence Source | `biometric_comparison_evidence_source` | String | `biometric_capture_event` |
+| Biometric Comparison Reference | `biometric_comparison_reference` | String | `biometric_capture_event` |
+| Biometric Comparison Outcome | `biometric_comparison_outcome` | String | `biometric_capture_event` |
 | Biometric Artifact Type | `biometric_artifact_type` | String | `biometric_capture_event` |
 | Biometric Artifact Image Quality | `biometric_artifact_image_quality` | String | `biometric_capture_event` |
 | Biometric Artifact Subject Present | `biometric_artifact_subject_present` | Boolean | `biometric_capture_event` |
@@ -271,12 +286,14 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `liveness_check_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Liveness Captured | `is_liveness_captured` | Boolean | `liveness_check_event` |
 | Capture Timestamp | `capture_timestamp` | Date | `liveness_check_event` |
 | Is Liveness Evidence Reviewed | `is_liveness_evidence_reviewed` | Boolean | `liveness_check_event` |
 | Evidence Review Timestamp | `evidence_review_timestamp` | Date | `liveness_check_event` |
 | Capture Method Type | `capture_method_type` | String | `liveness_check_event` |
+| Liveness Capture Environment | `liveness_capture_environment` | String | `liveness_check_event` |
+| Liveness Review Evidence Source | `liveness_review_evidence_source` | String | `liveness_check_event` |
 | Check Result | `check_result` | String | `liveness_check_event` |
 | Evidence Clarity | `evidence_clarity` | String | `liveness_check_event` |
 
@@ -285,29 +302,35 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `address_capture_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Address Captured | `is_address_captured` | Boolean | `address_capture_event` |
 | Address Capture Timestamp | `address_capture_timestamp` | Date | `address_capture_event` |
 | Is Address Verified | `is_address_verified` | Boolean | `address_capture_event` |
 | Address Verification Timestamp | `address_verification_timestamp` | Date | `address_capture_event` |
 | Address Verification Method Type | `address_verification_method_type` | String | `address_capture_event` |
-| Is Match | `is_match` | Boolean | `address_capture_event` |
+| Address Verification Outcome | `address_verification_outcome` | String | `address_capture_event` |
+| Deliverable | `deliverable` | Boolean | `address_capture_event` |
 
-### IdentityVerificationEvent
+### IdentityCorroborationEvent
 
 | Field | API name | Type | Source model |
 |---|---|---|---|
-| Attestation ID | `attestation_event_id` | UUID | `identity_verification_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
-| Is KYC CIP | `is_kyccip` | Boolean | `identity_verification_event` |
-| KYC Decision | `kyc_decision` | String | `identity_verification_event` |
-| Is SSN Match | `is_ssn_match` | Boolean | `identity_verification_event` |
-| Is Name Match | `is_name_match` | Boolean | `identity_verification_event` |
-| Name Verified | `name_verified` | Boolean | `identity_verification_event` |
-| Is DOB Match | `is_dob_match` | Boolean | `identity_verification_event` |
-| SSN Verified | `ssn_verified` | Boolean | `identity_verification_event` |
-| Deliverable | `deliverable` | Boolean | `identity_verification_event` |
-| Identity Corroboration Timestamp | `created_at` | Datetime | `identity_verification_event` |
+| Attestation ID | `attestation_event_id` | UUID | `identity_corroboration_event` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
+| Is KYC CIP | `is_kyc_cip` | Boolean | `identity_corroboration_event` |
+| Identity Corroboration Timestamp | `identity_corroboration_timestamp` | Datetime | `identity_corroboration_event` |
+| Identity Corroboration Methods | `identity_corroboration_methods` | String | `identity_corroboration_event` |
+| Identity Corroboration Outcome | `identity_corroboration_outcome` | String | `identity_corroboration_event` |
+| Total Identity Corroboration Sources Consulted | `total_identity_corroboration_sources_consulted` | Integer | `identity_corroboration_event` |
+| KYC Decision | `kyc_decision` | String | `identity_corroboration_event` |
+| Is SSN Match | `is_ssn_match` | Boolean | `identity_corroboration_event` |
+| Is Name Match | `is_name_match` | Boolean | `identity_corroboration_event` |
+| Name Verified | `name_verified` | Boolean | `identity_corroboration_event` |
+| Is DOB Match | `is_dob_match` | Boolean | `identity_corroboration_event` |
+| SSN Verified | `ssn_verified` | Boolean | `identity_corroboration_event` |
+| Is Address Match | `is_address_match` | Boolean | `identity_corroboration_event` |
+| Is Phone Match | `is_phone_match` | Boolean | `identity_corroboration_event` |
+| Is Email Match | `is_email_match` | Boolean | `identity_corroboration_event` |
 
 ### KYCCertificateSnapshot (policy configuration only)
 

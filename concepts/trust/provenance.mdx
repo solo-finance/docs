@@ -39,7 +39,7 @@ into a certificate, each populated sub-product is self-describing:
 | **Contributor / verifier** | `furnishing_entity_id` | Which participant furnished and stands behind this verification |
 | **Attestation** | `attestation_event_id` | The attestation record linking that participant to the asserted facts |
 | **Assertion + time** | `assertions.*` and its `…_timestamp` | What was asserted, and when the verification was performed |
-| **Method & sources** | `data.*_sources`, `*_method`, `*_result` | How it was verified (e.g. `state_registry`, `automated_ocr`, `match`) |
+| **Method & sources** | `data.*_sources`, `*_method`, `*_result` | How it was verified (e.g. `primary_government_registry`, `automated_and_manual`, `full_match`) |
 | **Evidence** | artifact/upload fields (e.g. `…_artifact`, `paystub_upload`) | The concrete document behind the assertion |
 | **As-of date** | the certificate's `certificate_as_of_date` | How current the consolidated result is |
 

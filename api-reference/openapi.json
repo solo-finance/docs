@@ -390,7 +390,7 @@
           "Entities"
         ],
         "summary": "Search business core identities by name, EIN, or email.",
-        "description": "Search business core identities using partial or exact field matches.\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\n`business_legal_name` : `str`, optional.\n    Case-insensitive partial match on legal name.\n\n`business_dba_name` : `str`, optional.\n    Case-insensitive partial match on DBA name.\n\n`business_email` : `str`, optional.\n    Case-insensitive partial match on email.\n\n`federal_ein` : `int`, optional.\n    Exact match on federal EIN.\n\n`limit` : `int`.\n    Maximum number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessIdentitySearchResult]`.\n    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business_identity/search?network_id=...&business_legal_name=Acme&limit=10\n```",
+        "description": "Search business core identities using partial or exact field matches.\n\nParameters\n----\n`network_id` : `UUID`.\n    Network scope for the search.\n\n`business_legal_name` : `str`, optional.\n    Case-insensitive partial match on legal name.\n\n`business_dba_name` : `str`, optional.\n    Case-insensitive partial match on DBA name.\n\n`business_email` : `str`, optional.\n    Case-insensitive partial match on email.\n\n`federal_ein` : `str`, optional.\n    Exact match on federal EIN.\n\n`limit` : `int`.\n    Maximum number of results (1-100). Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessIdentitySearchResult]`.\n    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business_identity/search?network_id=...&business_legal_name=Acme&limit=10\n```",
         "operationId": "search_business_identities_v1_entities_business_identity_search_get",
         "security": [
           {
@@ -471,7 +471,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "type": "integer"
+                  "type": "string"
                 },
                 {
                   "type": "null"
@@ -1851,16 +1851,16 @@
             ],
             "title": "Address Verification Timestamp"
           },
-          "is_match": {
+          "address_verification_outcome": {
             "anyOf": [
               {
-                "type": "boolean"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Is Match"
+            "title": "Address Verification Outcome"
           },
           "address_verification_method_type": {
             "anyOf": [
@@ -1872,6 +1872,17 @@
               }
             ],
             "title": "Address Verification Method Type"
+          },
+          "deliverable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverable"
           }
         },
         "additionalProperties": true,
@@ -1967,7 +1978,7 @@
           "zip": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -2136,6 +2147,17 @@
               }
             ],
             "title": "Address Source Count Partial Match Zip Only"
+          },
+          "address_deliverable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Deliverable"
           }
         },
         "type": "object",
@@ -2445,6 +2467,17 @@
             ],
             "title": "Biometric Artifact Upload"
           },
+          "biometric_capture_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Capture Method"
+          },
           "is_biometric_attribute_reviewed": {
             "anyOf": [
               {
@@ -2466,6 +2499,39 @@
               }
             ],
             "title": "Biometric Attribute Review Timestamp"
+          },
+          "is_biometric_comparison_performed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Biometric Comparison Performed"
+          },
+          "biometric_comparison_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Comparison Reference"
+          },
+          "biometric_comparison_outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Comparison Outcome"
           }
         },
         "additionalProperties": true,
@@ -2539,6 +2605,28 @@
       },
       "BiometricReviewData": {
         "properties": {
+          "is_biometric_comparison_performed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Biometric Comparison Performed"
+          },
+          "biometric_comparison_evidence_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biometric Comparison Evidence Source"
+          },
           "biometric_image_quality_sufficient_for_comparison": {
             "anyOf": [
               {
@@ -2721,7 +2809,7 @@
             "title": "Business Legal Name"
           },
           "business_registration_identifier_from_jurisdiction_of_formation": {
-            "type": "integer",
+            "type": "string",
             "title": "Business Registration Identifier From Jurisdiction Of Formation"
           },
           "business_tax_identifier_type": {
@@ -2879,7 +2967,7 @@
           "federal_ein": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -3171,17 +3259,6 @@
               }
             ],
             "title": "Jurisdiction Of Formation"
-          },
-          "entity_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Entity Type"
           },
           "dba_name": {
             "anyOf": [
@@ -4915,6 +4992,17 @@
               }
             ],
             "title": "Document Review Method"
+          },
+          "document_review_evidence_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Review Evidence Source"
           }
         },
         "additionalProperties": true,
@@ -4998,6 +5086,17 @@
               }
             ],
             "title": "Document Review Method"
+          },
+          "document_review_evidence_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Review Evidence Source"
           },
           "document_tamper_review_performed": {
             "anyOf": [
@@ -5462,49 +5561,9 @@
         "type": "object",
         "title": "IdentityCorroborationData"
       },
-      "IdentityCorroborationSubProduct": {
+      "IdentityCorroborationEventInput": {
         "properties": {
-          "furnishing_entity_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Furnishing Entity Id"
-          },
-          "attestation_event_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Attestation Event Id"
-          },
-          "assertions": {
-            "$ref": "#/components/schemas/IdentityCorroborationAssertions"
-          },
-          "data": {
-            "$ref": "#/components/schemas/IdentityCorroborationData"
-          }
-        },
-        "type": "object",
-        "required": [
-          "assertions",
-          "data"
-        ],
-        "title": "IdentityCorroborationSubProduct"
-      },
-      "IdentityDocumentIdentityInput": {
-        "properties": {
-          "type": {
+          "identity_corroboration_timestamp": {
             "anyOf": [
               {
                 "type": "string"
@@ -5513,9 +5572,34 @@
                 "type": "null"
               }
             ],
-            "title": "Type"
+            "title": "Identity Corroboration Timestamp"
           },
-          "number": {
+          "identity_corroboration_methods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Corroboration Methods"
+          },
+          "identity_corroboration_outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Corroboration Outcome"
+          },
+          "total_identity_corroboration_sources_consulted": {
             "anyOf": [
               {
                 "type": "integer"
@@ -5524,53 +5608,9 @@
                 "type": "null"
               }
             ],
-            "title": "Number"
+            "title": "Total Identity Corroboration Sources Consulted"
           },
-          "issue_date": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Issue Date"
-          },
-          "expiration_date": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Expiration Date"
-          },
-          "issuing_authority": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Issuing Authority"
-          },
-          "upload": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Upload"
-          },
-          "are_security_features_verified": {
+          "is_kyc_cip": {
             "anyOf": [
               {
                 "type": "boolean"
@@ -5579,117 +5619,7 @@
                 "type": "null"
               }
             ],
-            "title": "Are Security Features Verified"
-          },
-          "is_tampering_detected": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Tampering Detected"
-          },
-          "identity_verification_events": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/IdentityVerificationEventInput"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Identity Verification Events"
-          }
-        },
-        "additionalProperties": true,
-        "type": "object",
-        "title": "IdentityDocumentIdentityInput"
-      },
-      "IdentityInput": {
-        "properties": {
-          "business_dba_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Dba Name"
-          },
-          "business_jurisdiction_of_formation": {
-            "type": "string",
-            "title": "Business Jurisdiction Of Formation"
-          },
-          "business_legal_name": {
-            "type": "string",
-            "title": "Business Legal Name"
-          },
-          "business_registration_identifier_from_jurisdiction_of_formation": {
-            "type": "integer",
-            "title": "Business Registration Identifier From Jurisdiction Of Formation"
-          },
-          "business_tax_identifier_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Tax Identifier Type"
-          },
-          "business_tax_identifier_value": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Tax Identifier Value"
-          },
-          "business_website_url": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Business Website Url"
-          }
-        },
-        "type": "object",
-        "required": [
-          "business_jurisdiction_of_formation",
-          "business_legal_name",
-          "business_registration_identifier_from_jurisdiction_of_formation"
-        ],
-        "title": "IdentityInput"
-      },
-      "IdentityVerificationEventInput": {
-        "properties": {
-          "is_kyccip": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Kyccip"
+            "title": "Is Kyc Cip"
           },
           "kyc_decision": {
             "anyOf": [
@@ -5756,8 +5686,55 @@
               }
             ],
             "title": "Name Verified"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "IdentityCorroborationEventInput"
+      },
+      "IdentityCorroborationSubProduct": {
+        "properties": {
+          "furnishing_entity_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Furnishing Entity Id"
           },
-          "selfie_verification_result": {
+          "attestation_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attestation Event Id"
+          },
+          "assertions": {
+            "$ref": "#/components/schemas/IdentityCorroborationAssertions"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IdentityCorroborationData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assertions",
+          "data"
+        ],
+        "title": "IdentityCorroborationSubProduct"
+      },
+      "IdentityDocumentIdentityInput": {
+        "properties": {
+          "type": {
             "anyOf": [
               {
                 "type": "string"
@@ -5766,12 +5743,211 @@
                 "type": "null"
               }
             ],
-            "title": "Selfie Verification Result"
+            "title": "Type"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "issue_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue Date"
+          },
+          "expiration_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiration Date"
+          },
+          "issuing_authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuing Authority"
+          },
+          "issuing_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuing State"
+          },
+          "issuing_country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuing Country"
+          },
+          "upload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upload"
+          },
+          "are_security_features_verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Are Security Features Verified"
+          },
+          "is_document_tamper_review_performed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Document Tamper Review Performed"
+          },
+          "document_tamper_review_outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Tamper Review Outcome"
+          },
+          "is_machine_readable_data_validation_performed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Machine Readable Data Validation Performed"
+          },
+          "is_machine_readable_data_consistent_with_document_face": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Machine Readable Data Consistent With Document Face"
           }
         },
         "additionalProperties": true,
         "type": "object",
-        "title": "IdentityVerificationEventInput"
+        "title": "IdentityDocumentIdentityInput"
+      },
+      "IdentityInput": {
+        "properties": {
+          "business_dba_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Dba Name"
+          },
+          "business_jurisdiction_of_formation": {
+            "type": "string",
+            "title": "Business Jurisdiction Of Formation"
+          },
+          "business_legal_name": {
+            "type": "string",
+            "title": "Business Legal Name"
+          },
+          "business_registration_identifier_from_jurisdiction_of_formation": {
+            "type": "string",
+            "title": "Business Registration Identifier From Jurisdiction Of Formation"
+          },
+          "business_tax_identifier_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Tax Identifier Type"
+          },
+          "business_tax_identifier_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Tax Identifier Value"
+          },
+          "business_website_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Website Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "business_jurisdiction_of_formation",
+          "business_legal_name",
+          "business_registration_identifier_from_jurisdiction_of_formation"
+        ],
+        "title": "IdentityInput"
       },
       "InstitutionAttestationEventCreateRequest": {
         "properties": {
@@ -5986,7 +6162,7 @@
       "KYBCertificateSnapshotFurnishRecord": {
         "properties": {
           "federal_ein": {
-            "type": "integer",
+            "type": "string",
             "title": "Federal Ein",
             "description": "Federal EIN \u2014 business match key."
           },
@@ -6392,6 +6568,20 @@
             ],
             "title": "Identity Document Identities"
           },
+          "identity_corroboration_events": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IdentityCorroborationEventInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Corroboration Events"
+          },
           "address_identities": {
             "anyOf": [
               {
@@ -6762,6 +6952,17 @@
             ],
             "title": "Capture Method Type"
           },
+          "liveness_capture_environment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liveness Capture Environment"
+          },
           "check_result": {
             "anyOf": [
               {
@@ -6859,6 +7060,17 @@
               }
             ],
             "title": "Liveness Review Confidence Tier"
+          },
+          "liveness_review_evidence_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liveness Review Evidence Source"
           }
         },
         "type": "object",

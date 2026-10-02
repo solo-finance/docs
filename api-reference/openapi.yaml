@@ -260,7 +260,7 @@ paths:
         \n`business_legal_name` : `str`, optional.\n    Case-insensitive partial match\
         \ on legal name.\n\n`business_dba_name` : `str`, optional.\n    Case-insensitive\
         \ partial match on DBA name.\n\n`business_email` : `str`, optional.\n    Case-insensitive\
-        \ partial match on email.\n\n`federal_ein` : `int`, optional.\n    Exact match\
+        \ partial match on email.\n\n`federal_ein` : `str`, optional.\n    Exact match\
         \ on federal EIN.\n\n`limit` : `int`.\n    Maximum number of results (1-100).\
         \ Defaults to 20.\n\nReturns\n----\n`results` : `list[BusinessIdentitySearchResult]`.\n\
         \    Matching business core identities.\n\nExamples\n-----\n```\nGET /entities/business_identity/search?network_id=...&business_legal_name=Acme&limit=10\n\
@@ -313,7 +313,7 @@ paths:
         required: false
         schema:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
           description: Exact match on federal EIN
           title: Federal Ein
@@ -1228,16 +1228,21 @@ components:
           - type: string
           - type: 'null'
           title: Address Verification Timestamp
-        is_match:
+        address_verification_outcome:
           anyOf:
-          - type: boolean
+          - type: string
           - type: 'null'
-          title: Is Match
+          title: Address Verification Outcome
         address_verification_method_type:
           anyOf:
           - type: string
           - type: 'null'
           title: Address Verification Method Type
+        deliverable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Deliverable
       additionalProperties: true
       type: object
       title: AddressCaptureEventInput
@@ -1288,7 +1293,7 @@ components:
           title: State
         zip:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
           title: Zip
         country:
@@ -1372,6 +1377,11 @@ components:
           - type: integer
           - type: 'null'
           title: Address Source Count Partial Match Zip Only
+        address_deliverable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Address Deliverable
       type: object
       title: AddressVerificationData
     AddressVerificationSubProduct:
@@ -1553,6 +1563,11 @@ components:
           - type: string
           - type: 'null'
           title: Biometric Artifact Upload
+        biometric_capture_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Capture Method
         is_biometric_attribute_reviewed:
           anyOf:
           - type: boolean
@@ -1563,6 +1578,21 @@ components:
           - type: string
           - type: 'null'
           title: Biometric Attribute Review Timestamp
+        is_biometric_comparison_performed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Biometric Comparison Performed
+        biometric_comparison_reference:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Comparison Reference
+        biometric_comparison_outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Comparison Outcome
       additionalProperties: true
       type: object
       title: BiometricCaptureEventInput
@@ -1606,6 +1636,16 @@ components:
       title: BiometricReviewAssertions
     BiometricReviewData:
       properties:
+        is_biometric_comparison_performed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Biometric Comparison Performed
+        biometric_comparison_evidence_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Biometric Comparison Evidence Source
         biometric_image_quality_sufficient_for_comparison:
           anyOf:
           - type: boolean
@@ -1699,7 +1739,7 @@ components:
           type: string
           title: Business Legal Name
         business_registration_identifier_from_jurisdiction_of_formation:
-          type: integer
+          type: string
           title: Business Registration Identifier From Jurisdiction Of Formation
         business_tax_identifier_type:
           anyOf:
@@ -1778,7 +1818,7 @@ components:
           title: Business Website Url
         federal_ein:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
           title: Federal Ein
         employee_count:
@@ -1918,11 +1958,6 @@ components:
           - type: string
           - type: 'null'
           title: Jurisdiction Of Formation
-        entity_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entity Type
         dba_name:
           anyOf:
           - type: string
@@ -2920,6 +2955,11 @@ components:
           - type: string
           - type: 'null'
           title: Document Review Method
+        document_review_evidence_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Review Evidence Source
       additionalProperties: true
       type: object
       title: DocumentCaptureEventInput
@@ -2968,6 +3008,11 @@ components:
           - type: string
           - type: 'null'
           title: Document Review Method
+        document_review_evidence_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Review Evidence Source
         document_tamper_review_performed:
           anyOf:
           - type: boolean
@@ -3255,6 +3300,68 @@ components:
           title: Identity Corroboration Source Count Partial Match
       type: object
       title: IdentityCorroborationData
+    IdentityCorroborationEventInput:
+      properties:
+        identity_corroboration_timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Identity Corroboration Timestamp
+        identity_corroboration_methods:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Identity Corroboration Methods
+        identity_corroboration_outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Identity Corroboration Outcome
+        total_identity_corroboration_sources_consulted:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Identity Corroboration Sources Consulted
+        is_kyc_cip:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Kyc Cip
+        kyc_decision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kyc Decision
+        is_ssn_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Ssn Match
+        is_dob_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Dob Match
+        is_name_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Name Match
+        ssn_verified:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ssn Verified
+        name_verified:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Name Verified
+      additionalProperties: true
+      type: object
+      title: IdentityCorroborationEventInput
     IdentityCorroborationSubProduct:
       properties:
         furnishing_entity_id:
@@ -3287,7 +3394,7 @@ components:
           title: Type
         number:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
           title: Number
         issue_date:
@@ -3305,6 +3412,16 @@ components:
           - type: string
           - type: 'null'
           title: Issuing Authority
+        issuing_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Issuing State
+        issuing_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Issuing Country
         upload:
           anyOf:
           - type: string
@@ -3315,18 +3432,26 @@ components:
           - type: boolean
           - type: 'null'
           title: Are Security Features Verified
-        is_tampering_detected:
+        is_document_tamper_review_performed:
           anyOf:
           - type: boolean
           - type: 'null'
-          title: Is Tampering Detected
-        identity_verification_events:
+          title: Is Document Tamper Review Performed
+        document_tamper_review_outcome:
           anyOf:
-          - items:
-              $ref: '#/components/schemas/IdentityVerificationEventInput'
-            type: array
+          - type: string
           - type: 'null'
-          title: Identity Verification Events
+          title: Document Tamper Review Outcome
+        is_machine_readable_data_validation_performed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Machine Readable Data Validation Performed
+        is_machine_readable_data_consistent_with_document_face:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Machine Readable Data Consistent With Document Face
       additionalProperties: true
       type: object
       title: IdentityDocumentIdentityInput
@@ -3344,7 +3469,7 @@ components:
           type: string
           title: Business Legal Name
         business_registration_identifier_from_jurisdiction_of_formation:
-          type: integer
+          type: string
           title: Business Registration Identifier From Jurisdiction Of Formation
         business_tax_identifier_type:
           anyOf:
@@ -3367,51 +3492,6 @@ components:
       - business_legal_name
       - business_registration_identifier_from_jurisdiction_of_formation
       title: IdentityInput
-    IdentityVerificationEventInput:
-      properties:
-        is_kyccip:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Kyccip
-        kyc_decision:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Kyc Decision
-        is_ssn_match:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Ssn Match
-        is_dob_match:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Dob Match
-        is_name_match:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Name Match
-        ssn_verified:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Ssn Verified
-        name_verified:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Name Verified
-        selfie_verification_result:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Selfie Verification Result
-      additionalProperties: true
-      type: object
-      title: IdentityVerificationEventInput
     InstitutionAttestationEventCreateRequest:
       properties:
         product_id:
@@ -3550,7 +3630,7 @@ components:
     KYBCertificateSnapshotFurnishRecord:
       properties:
         federal_ein:
-          type: integer
+          type: string
           title: Federal Ein
           description: "Federal EIN \u2014 business match key."
         business_jurisdiction_of_formation:
@@ -3786,6 +3866,13 @@ components:
             type: array
           - type: 'null'
           title: Identity Document Identities
+        identity_corroboration_events:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/IdentityCorroborationEventInput'
+            type: array
+          - type: 'null'
+          title: Identity Corroboration Events
         address_identities:
           anyOf:
           - items:
@@ -3987,6 +4074,11 @@ components:
           - type: string
           - type: 'null'
           title: Capture Method Type
+        liveness_capture_environment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Capture Environment
         check_result:
           anyOf:
           - type: string
@@ -4037,6 +4129,11 @@ components:
           - type: string
           - type: 'null'
           title: Liveness Review Confidence Tier
+        liveness_review_evidence_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Liveness Review Evidence Source
       type: object
       title: LivenessReviewData
     LivenessReviewSubProduct:

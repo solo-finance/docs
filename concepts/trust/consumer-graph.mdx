@@ -29,11 +29,11 @@ Consumer
 │   ├── Biometric capture & review   (biometric_capture_event)
 │   ├── Liveness capture & review    (liveness_check_event)
 │   ├── Address capture & verification (address_capture_event)
-│   └── Identity corroboration       (identity_verification_event)
+│   └── Identity corroboration       (identity_corroboration_event)
 │       └── is_ssn_match, is_name_match, is_dob_match, kyc_decision
 │
-├── Address verification             (address_verification)
-│   └── is_match, address_match_quality, address_verification_method_type
+├── Address verification             (address_capture_event)
+│   └── address_verification_outcome, address_match_quality, address_verification_method_type
 │
 ├── Income                           (income_verification_event)
 │   ├── base_salary, monthly_income

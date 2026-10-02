@@ -81,12 +81,12 @@ A `200 OK` means a certificate was issued:
         "business_website_url": "https://acme.example",
         "business_jurisdiction_of_formation": "DE",
         "business_registration_identifier": "7423918",
-        "business_identity_verification_sources": ["state_registry"],
+        "business_identity_verification_sources": ["primary_government_registry"],
         "business_entity_type": "llc",
         "business_registration_status": "active",
-        "business_operational_existence_status": "verified",
-        "business_tax_id_validation_result": "match",
-        "business_address_verification_result": "match",
+        "business_operational_existence_status": "confirmed_registered_and_operating",
+        "business_tax_id_validation_result": "match_confirmed",
+        "business_address_verification_result": "verified_registered_and_operating_address",
         "business_registered_address": null,
         "business_operating_address": null
       }
@@ -105,16 +105,16 @@ A `200 OK` means a certificate was issued:
         "business_jurisdiction_of_formation": "DE",
         "business_registration_identifier": "7423918",
         "business_ownership_control_verification_overall_status": "complete",
-        "business_ownership_control_verification_overall_primary_source": "state_registry",
-        "business_authority_determination_basis": "operating_agreement",
+        "business_ownership_control_verification_overall_primary_source": "primary_government_registry",
+        "business_authority_determination_basis": "operating_or_partnership_agreement",
         "business_authorized_representatives_identified_count": 2,
         "business_beneficial_owners_identified_count": 1,
-        "business_beneficial_ownership_determination_method": "ownership_percentage",
+        "business_beneficial_ownership_determination_method": "ownership_percentage_rule",
         "business_beneficial_ownership_threshold_applied": "25_percent",
-        "business_control_authority_evidence_reviewed_type": "operating_agreement",
-        "business_control_determination_basis": "managing_member",
+        "business_control_authority_evidence_reviewed_type": "governing_legal_document",
+        "business_control_determination_basis": "governance_role_control",
         "business_control_persons_identified_count": 1,
-        "business_ownership_evidence_reviewed_type": "cap_table"
+        "business_ownership_evidence_reviewed_type": "governing_legal_document"
       }
     },
     "business_risk_compliance_assessment": {
@@ -130,13 +130,13 @@ A `200 OK` means a certificate was issued:
         "business_jurisdiction_of_formation": "DE",
         "business_registration_identifier": "7423918",
         "business_primary_activity_classification_code": "722515",
-        "business_primary_activity_classification_system": "NAICS",
-        "business_activity_risk_level": "low",
-        "business_sanctions_screening_result": "clear",
-        "business_adverse_media_assessment_result": "none_found",
-        "business_compliance_screening_scope_applied": "standard",
-        "business_restricted_activity_assessment_result": "clear",
-        "business_risk_compliance_assessment_overall_primary_source": "third_party",
+        "business_primary_activity_classification_system": "naics",
+        "business_activity_risk_level": "low_risk",
+        "business_sanctions_screening_result": "no_match",
+        "business_adverse_media_assessment_result": "no_adverse_media",
+        "business_compliance_screening_scope_applied": "business_and_all_beneficial_owners",
+        "business_restricted_activity_assessment_result": "no_restricted_activity",
+        "business_risk_compliance_assessment_overall_primary_source": "commercial_verification_provider",
         "business_risk_compliance_assessment_overall_status": "verified",
         "business_risk_compliance_assessment_timestamp": "2026-05-03T00:00:00Z"
       }
@@ -208,18 +208,18 @@ The KYB certificate's data dictionary, model by model. *Field* is the display
 name, *API name* is the `field_name` used in policies and coverage checks, and
 *Source model* is the underlying table the value is drawn from.
 
-### Business
+### BusinessIdentity
 
 | Field | API name | Type | Source model |
 |---|---|---|---|
-| Business Legal Name | `business_legal_name` | String | `business` |
+| Business Legal Name | `business_legal_name` | String | `business_identity` |
 
 ### BusinessIdentityVerificationEvent
 
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `business_identity_verification_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Identity Verified | `is_identity_verified` | Boolean | `business_identity_verification_event` |
 | Identity Verification Timestamp | `identity_verification_timestamp` | Date | `business_identity_verification_event` |
 | Identity Verification Overall Status | `identity_verification_overall_status` | String | `business_identity_verification_event` |
@@ -231,7 +231,6 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Tax Identifier Value | `tax_identifier_value` | String | `business_identity_verification_event` |
 | Address Verification Result | `address_verification_result` | String | `business_identity_verification_event` |
 | DBA Name | `dba_name` | String | `business_identity_verification_event` |
-| Entity Type | `entity_type` | String | `business_identity_verification_event` |
 | Formation Document Artifact | `formation_document_artifact` | String | `business_identity_verification_event` |
 | Jurisdiction Of Formation | `jurisdiction_of_formation` | String | `business_identity_verification_event` |
 | Registration Identifier | `registration_identifier` | String | `business_identity_verification_event` |
@@ -243,7 +242,7 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `business_ownership_control_verification_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Ownership Control Verified | `is_ownership_control_verified` | Boolean | `business_ownership_control_verification_event` |
 | Ownership Control Verification Timestamp | `ownership_control_verification_timestamp` | Date | `business_ownership_control_verification_event` |
 | Ownership Control Verification Overall Status | `ownership_control_verification_overall_status` | String | `business_ownership_control_verification_event` |
@@ -265,7 +264,7 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Field | API name | Type | Source model |
 |---|---|---|---|
 | Attestation ID | `attestation_event_id` | UUID | `business_risk_compliance_event` |
-| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation` |
+| Furnishing Entity ID | `furnishing_entity_id` | UUID | `attestation_event` |
 | Is Risk Compliance Assessed | `is_risk_compliance_assessed` | Boolean | `business_risk_compliance_event` |
 | Risk Compliance Assessment Timestamp | `risk_compliance_assessment_timestamp` | Date | `business_risk_compliance_event` |
 | Risk Compliance Assessment Overall Status | `risk_compliance_assessment_overall_status` | String | `business_risk_compliance_event` |
@@ -275,9 +274,6 @@ name, *API name* is the `field_name` used in policies and coverage checks, and
 | Adverse Media Assessment Result | `adverse_media_assessment_result` | String | `business_risk_compliance_event` |
 | Compliance Screening Scope Applied | `compliance_screening_scope_applied` | String | `business_risk_compliance_event` |
 | Restricted Activity Assessment Result | `restricted_activity_assessment_result` | String | `business_risk_compliance_event` |
-| Address Verification Result | `address_verification_result` | String | `business_risk_compliance_event` |
-| Is On AML Watchlist | `is_on_aml_watchlist` | Boolean | `business_risk_compliance_event` |
-| Is On OFAC Watchlist | `is_on_ofac_watchlist` | Boolean | `business_risk_compliance_event` |
 | Primary Activity Classification Code | `primary_activity_classification_code` | String | `business_risk_compliance_event` |
 | Primary Activity Classification System | `primary_activity_classification_system` | String | `business_risk_compliance_event` |
 

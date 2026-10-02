@@ -176,12 +176,12 @@ consumer.
             "document_capture_timestamp": "2026-04-15T00:00:00"
           },
           "data": {
-            "document_type": "passport",
+            "document_type": "us_passport",
             "document_number": "987654321",
             "document_issue_date": "2020-08-05",
             "document_expiration_date": "2030-08-05",
-            "document_issuing_state": "government",
-            "document_capture_method": "mobile_scan"
+            "document_issuing_state": "NY",
+            "document_capture_method": "mobile_live_capture"
           }
         },
         "document_review": {
@@ -192,7 +192,8 @@ consumer.
             "document_attribute_review_timestamp": "2026-04-16T00:00:00"
           },
           "data": {
-            "document_review_method": "automated_ocr",
+            "document_review_method": "automated_and_manual",
+            "document_review_evidence_source": "document_issuer",
             "document_tamper_review_performed": true,
             "document_tamper_indicators_observed": false
           }
@@ -205,7 +206,7 @@ consumer.
             "biometric_capture_timestamp": "2026-04-15T00:00:00"
           },
           "data": {
-            "biometric_capture_method": "selfie"
+            "biometric_capture_method": "live_selfie_video"
           }
         },
         "biometric_review": null,
