@@ -1135,10 +1135,10 @@ paths:
               schema: {}
       security:
       - HTTPBearer: []
-  /graphql/full:
+  /graphql/platform:
     get:
       summary: Handle Http Get
-      operationId: handle_http_get_graphql_full_get
+      operationId: handle_http_get_graphql_platform_get
       responses:
         '200':
           description: The GraphiQL integrated development environment.
@@ -1151,7 +1151,7 @@ paths:
       - HTTPBearer: []
     post:
       summary: Handle Http Post
-      operationId: handle_http_post_graphql_full_post
+      operationId: handle_http_post_graphql_platform_post
       responses:
         '200':
           description: Successful Response
