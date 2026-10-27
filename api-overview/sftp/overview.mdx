@@ -4,8 +4,6 @@ description: 'Bulk data ingestion via SFTP file uploads'
 icon: 'server'
 ---
 
-import DashboardSftpOverview from '/snippets/dashboard/sftp-overview.mdx';
-
 The SOLO Network supports bulk data ingestion via SFTP. Drop
 [JSONL files](/api-overview/furnishing/file-upload) into your organization's
 SFTP endpoint, and each file is automatically ingested record by record into
@@ -183,8 +181,6 @@ Your organization must hold the **furnisher** or **governor**
 [role](/concepts/governance/network-roles) in the target network. A file
 aimed at a network you don't furnish into still uploads, but its ingestion
 fails with an access error and no records are written.
-
-<DashboardSftpOverview />
 
 <CardGroup cols={2}>
   <Card title="Getting Started" icon="rocket" href="/api-overview/sftp/getting-started">

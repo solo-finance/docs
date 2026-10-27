@@ -801,23 +801,6 @@
     {
       "journey_id": "furnishing-complete",
       "journey_name": "Complete furnishing lifecycle",
-      "step_index": 2,
-      "capture_ordinal": 1,
-      "title": "Furnishing channels — REST API, SFTP file drops, and data lake connectors",
-      "file": "journeys/sources/furnishing-complete/01-list.png",
-      "docs_image_src": "/images/dashboard/journeys/sources/furnishing-complete/01-list.png",
-      "docs_pages": [
-        "concepts/sftp/overview",
-        "concepts/furnishing/overview"
-      ],
-      "docs_page_order": {
-        "concepts/furnishing/overview": 3,
-        "concepts/sftp/overview": 1
-      }
-    },
-    {
-      "journey_id": "furnishing-complete",
-      "journey_name": "Complete furnishing lifecycle",
       "step_index": 4,
       "capture_ordinal": 2,
       "title": "KYC product detail — overview",

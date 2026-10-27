@@ -1413,15 +1413,9 @@ components:
           type: string
           title: Model Name
           description: Graph model a vendor answered for, e.g. ``LivenessCheckEvent``.
-        source_id:
-          type: string
-          format: uuid
-          title: Source Id
-          description: The vendor source the policy backfills the model from.
       type: object
       required:
       - model_name
-      - source_id
       title: BackfilledModel
     BankSpecificBadActorListQueryInput:
       properties:
@@ -4605,7 +4599,7 @@ components:
             $ref: '#/components/schemas/BackfilledModel'
           type: array
           title: Backfilled
-          description: Models no SOLO row answered for, taken from the vendor source
+          description: Models no SOLO row answered for, answered instead by the vendor
             the policy names.
       type: object
       required:
