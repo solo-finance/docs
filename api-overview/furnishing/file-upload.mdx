@@ -14,28 +14,30 @@ format and two ways to deliver it:
 - **[SFTP](/api-overview/sftp/overview)** — drop files from systems that
   already produce them on a schedule.
 
-Both land in the same place and run through the same
-[furnishing pipeline](/api-overview/furnishing/overview) as a per-record REST
-furnish. A record uploaded in a file and the same record furnished over HTTPS
-produce identical network data.
+Both run through the same [furnishing pipeline](/api-overview/furnishing/overview):
+each record is routed by its `_type` to the network's mappings, which match it
+to a subject and persist it.
 
 ## File format
 
 A JSONL file is UTF-8 text with **one JSON object per line**:
 
-```json furnish_records.jsonl
+```text furnish_records.jsonl
 {"_type":"kyc_certificate","ssn":"123456789","dob":"1990-01-01","first_name":"Alice","last_name":"Anderson"}
-{"_type":"kyb_certificate","ein":987654321,"jurisdiction":"DE","legal_name":"Acme Holdings LLC"}
+{"_type":"kyb_certificate","ein":"987654321","jurisdiction":"DE","legal_name":"Acme Holdings LLC"}
 ```
 
 - **Extension** — `.jsonl`.
-- **Filename** — exactly one dot, and a name made of letters, digits,
-  underscores, and hyphens: `consumers_aug.jsonl` is valid; `consumers aug.jsonl`
-  (space) and `consumers.aug.jsonl` (two dots) are rejected.
 - **Blank lines** are skipped and don't count as records.
 - **Every line is independent.** A line that isn't valid JSON fails on its own;
   the rest of the file still ingests.
-- **Dashboard uploads** are limited to 10 MB per file.
+- **Field names** are whatever your network's mapping reads — the example above
+  is illustrative. Write identifiers such as SSNs and EINs as strings.
+
+For dashboard uploads, the filename must have exactly one dot and a name made
+of letters, digits, underscores, and hyphens — `consumers_aug.jsonl` is valid;
+`consumers aug.jsonl` (space) and `consumers.aug.jsonl` (two dots) are rejected
+— and the file can be at most 10 MB.
 
 ## Record types
 
@@ -46,15 +48,14 @@ receive the record:
 - Each **feed** in the dashboard declares a sample record. The sample's `_type`
   is the record type that feed's mappings claim.
 - A record is sent to **every active mapping** in the target network that claims
-  its `_type`. One record can therefore feed several mappings — for example,
-  one that persists document-capture events and another that persists
-  biometric-capture events from the same line.
+  its `_type`. One record can therefore feed several mappings.
 - A record whose `_type` **no mapping claims** is counted as *unmatched* and
   skipped. Unmatched records never fail the file: they're expected when a file
   carries record kinds this network doesn't ingest.
-- A mapping can also bound when it accepts records. A record whose type is
-  claimed but that arrives outside every claiming mapping's window is reported
-  separately from an unclaimed type, so the two causes are easy to tell apart.
+- A mapping's assignment to a network can be bounded to a date window. A record
+  whose type is claimed but that arrives outside every claiming mapping's
+  window is reported separately from an unclaimed type, so the two causes are
+  easy to tell apart.
 
 The rest of each record is whatever your mapping reads. The mapping's source
 schema, shown on the feed in the dashboard, lists the fields it requires.
@@ -66,15 +67,15 @@ Records are written to exactly one network per file:
 - **Dashboard** — the upload dialog asks which network to furnish into. It
   selects the network automatically when you can furnish into only one.
 - **SFTP** — put the file under `network_<network_id>/jsonl_furnish_data/` to
-  target a network explicitly. A file directly under `jsonl_furnish_data/` goes
-  to your organization's governed network.
+  name the network. Always use this per-network folder; see
+  [Directory layout](/api-overview/sftp/overview#directory-layout).
 
 Either way, your organization must hold the **furnisher** or **governor**
 [role](/concepts/governance/network-roles) in that network.
 
 ## Uploading from the dashboard
 
-The same upload dialog opens from three places:
+The JSONL upload dialog opens from three places:
 
 - **Upload JSONL records** in the command palette.
 - **Furnish** on a product's detail page.
@@ -82,6 +83,18 @@ The same upload dialog opens from three places:
 
 Pick the file, confirm the network, and submit. The upload is accepted
 immediately and ingested in the background.
+
+The **Furnish** button in the dashboard's top bar opens a separate dialog that
+accepts more than JSONL:
+
+- **Records** — CSV, TSV, JSON, or JSONL files, or records pasted directly. The
+  dialog matches them to one of your feeds, or helps you set up a new feed and
+  its mapping. It furnishes up to 1,000 records (5 MB) at a time; for more,
+  use the JSONL upload dialog or SFTP.
+- **Documents** — PDFs, images (PNG, JPEG, GIF, WebP), Word documents, and text
+  or Markdown files, up to 10 MB each. An AI model provided by Anthropic reads
+  each document for the people or businesses it describes, and you review the
+  extracted records before anything is furnished.
 
 ## Results
 
@@ -101,10 +114,12 @@ on the dashboard's **Uploads** page, or on a feed's recent deliveries, which
 also name the unmatched record types.
 
 <Tip>
-  Re-sending a corrected file is safe. Identity records resolve to the existing
-  consumer or business on their natural keys (SSN and date of birth for
-  consumers; tax identifier and jurisdiction for businesses), so a re-upload
-  attaches to the same profile instead of creating a duplicate.
+  Re-sending is safe for identities: a record resolves to the existing consumer
+  or business on its natural key (SSN and date of birth for consumers; federal
+  EIN and jurisdiction of formation for businesses), so a re-upload attaches to
+  the same profile instead of creating a duplicate. Verification events in a
+  re-sent record are added again, though — re-send only the records that
+  failed.
 </Tip>
 
 ## Failure modes

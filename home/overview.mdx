@@ -1,6 +1,6 @@
 ---
 title: 'High-level concepts'
-description: 'The six building blocks of the SOLO Network, the data flow that connects them, and how together they enforce privacy'
+description: 'The six building blocks of the SOLO Network, the data flow that connects them, and how they control who reads what'
 icon: 'shapes'
 ---
 
@@ -8,24 +8,22 @@ import DashboardHomeOverview from '/snippets/dashboard/home-overview.mdx';
 
 The SOLO Network turns one institution's completed verification work into
 another institution's trusted starting point. Participants furnish verified data
-about consumers and businesses, and query that data back — under clear rules
-about who can read what, and why. Six concepts power everything you do with the
-API. Once you understand them and the order they come into play, every endpoint
-in the [reference](/api-reference/introduction) reads naturally.
+about consumers and businesses, and query that data back under clear rules
+about who can read what. Six concepts power everything you do with the API.
+Once you understand them and the order they come into play, every endpoint in
+the [reference](/api-reference/introduction) reads naturally.
 
-The architecture is not internal plumbing you can ignore — it *is* the trust
-mechanism. Each building block exists to answer a question a bank's risk and
-compliance teams must be able to answer before they reuse another institution's
-work:
+Each building block answers a question a bank's risk and compliance teams must
+be able to answer before they reuse another institution's work:
 
-| Building block | Trust question it answers |
+| Building block | Question it answers |
 |---|---|
-| Network | Inside which boundary of trusted participants does this data live? |
+| Network | Inside which group of participants does this data live? |
 | Entity | Who is the subject being verified? |
 | Consent | Did the subject permit this read? |
 | Product | What standardized, reusable result am I asking for? |
-| Policy | What may be read, and how fresh must it be, to count? |
-| Entitlement | Of what the policy exposes, what may *I* see — and why? |
+| Policy | What must be present, and how fresh must it be, to count? |
+| Entitlement | Of what the policy exposes, what may *I* see? |
 
 Read [How SOLO is different](/home/why-solo) for why this matters, and
 [Trust assets](/concepts/trust/trust-assets) for how a furnished verification
@@ -35,78 +33,87 @@ becomes something reusable.
 
 ### Network
 
-A [network](/concepts/governance/networks) is the trust boundary everything
-else lives inside. It groups a set of participating institutions, defines which
-products are available to them, and contains the data they furnish. Nothing
-crosses a network boundary: a record furnished into one network is invisible to
-every other, and every API call that touches data — a consent lookup, an entity
-search, a product query — is scoped by a `network_id`. Within a network, each
-participant holds one or more [roles](/concepts/governance/network-roles) —
-governor, furnisher, querier — that determine which operations it may perform,
-and [governance rules](/concepts/governance/network-governance) determine how
-the network itself is administered and changed.
+A [network](/concepts/governance/networks) is the group of participating
+institutions that data is furnished into and queried from. It defines which
+products are available to its members. Networks are flat — one network never
+contains another. Every API call that touches data — a consent lookup, an
+entity search, a furnish, a product query — names the network (`network_id`) or
+networks (`network_ids`) it operates in. Within a network, each participant
+holds one or more [roles](/concepts/governance/network-roles) — governor,
+furnisher, querier. Membership is managed in the SOLO dashboard, not over the
+REST API.
 
 ### Entity
 
 An [entity](/concepts/identity/entities) is a subject of the network: a
-**consumer** (a person) or a **business**. Every furnish writes data about an
-entity, and every query reads data about one. Entities have a core identity —
-name, email, SSN or EIN, date of birth — that the network uses to recognize
-when two participants are talking about the same subject, so that data
-furnished by one bank can be consolidated with data furnished by another. You
-can look up existing entities with `GET /v1/entities/consumer_identity/search` and
-`GET /v1/entities/business_identity/search`, both scoped by a required `network_id`.
+**consumer** (a person) or a **business**. Every furnish writes data about a
+subject, and every query reads data about one. When you furnish, the network
+matches the record to an existing subject on its match key — **SSN and date of
+birth** for consumers, **federal EIN and jurisdiction of formation** for
+businesses — so data furnished by one bank consolidates with data furnished by
+another. You can look up subjects visible to you in a network with
+`GET /v1/entities/consumer_identity/search` and
+`GET /v1/entities/business_identity/search`, both scoped by a required
+`network_id`.
 
 ### Consent
 
-[Consent](/concepts/identity/consent) is the subject's permission, captured as
-a first-class record. Before you query data about a consumer or business, you
-record that they agreed — `POST /v1/consent/consumer_identity` or
-`POST /v1/consent/business_identity` — and receive a `consent_id` that you pass with
-every subsequent query. A consent record carries a scope, an optional expiry,
-and the set of consented fields; scope, expiry, and consented fields can be
-updated later, but the identity fields are immutable, because the record is an
-audit artifact of who consented and when. The API refuses to create a consumer
-consent unless you affirm that consent was actually gathered from the consumer
-first.
+[Consent](/concepts/identity/consent) is the subject's permission, captured as a
+record. Before you query data about a consumer, you record that they agreed —
+`POST /v1/consent/consumer_identity` — and receive a `consent_id` that you pass
+on later queries. Business consent works the same way through
+`POST /v1/consent/business_identity`.
+
+A consent is bound to the network it was created in: a query that uses it must
+include that network in `network_ids`, or it returns `404`. A consent can carry
+an expiry; a query with an expired consent returns `403`. The identity fields
+on a consumer consent are immutable, but `scope`, `expires_at`, and
+`consented_fields` can be updated with
+`PUT /v1/consent/consumer_identity/{consent_id}`. There is no revocation
+endpoint — to end a consumer consent early, set its `expires_at`. The API
+refuses to create a consent unless you affirm that consent was actually
+gathered from the subject first.
 
 ### Product
 
 A [product](/api-overview/querying/products) is the unit of data you furnish or
 query — a standardized package rather than a raw table. The network currently
-offers KYC and KYB certificates (consolidated identity-verification outcomes
-for consumers and businesses respectively) and screening lists (a bank-specific
-bad-actor list and a cross-bank financial-crimes watch list). Products expose
-`query` and, where applicable, `furnish` operations under
-`/v1/products/{product}/…`. A non-billable soft check,
-`POST /v1/products/check`, reports per-furnisher field
-[coverage](/api-overview/querying/coverage-check) for a product before you commit
-to a billable query.
+offers KYC and KYB certificates (consolidated identity-verification outcomes for
+consumers and businesses) and two screening lists (a bank-specific bad-actor
+list and a cross-bank financial-crimes watch list). Each product exposes a
+`query` operation and, where applicable, `furnish` and `query/soft` — for
+example `POST /v1/products/kyc_certificate_snapshot/query`. Two non-billable
+checks help before you commit to a billable query: `POST /v1/products/check` reports per-furnisher field
+[coverage](/api-overview/querying/coverage-check), and the certificate soft
+checks (`POST /v1/products/kyc_certificate_snapshot/query/soft` and
+`POST /v1/products/kyb_certificate_snapshot/query/soft`) report whether the
+exact query would produce a certificate.
 
 ### Policy
 
-A policy is a per-network, per-product rulebook authored by the network
-governor. A [querying policy](/concepts/governance/querying-policies) defines
-what a product is allowed to read — which models and which fields appear in
-query results for that network. A
-[furnishing policy](/concepts/governance/furnishing-policies) defines what a
-product accepts on write and how submitted data is validated and transformed.
-Policies are created as shells (`POST /v1/networks/policies/querying`,
-`POST /v1/networks/policies/furnishing`) and then configured field by field via
-their `PUT /v1/networks/policies/…/{policy_id}/configuration` endpoints. A
-query names the policy it runs under, so the same product can behave
-differently in different networks.
+A [querying policy](/concepts/governance/querying-policies) defines what a
+product reads in a network — which models and fields appear in results, and
+which conditions (values, freshness) data must meet to count. Governors create
+querying policies with `POST /v1/networks/policies/querying` and configure them
+with `PUT /v1/networks/policies/querying/{policy_id}/configuration`, or in the
+dashboard.
+
+A [furnishing policy](/concepts/governance/furnishing-policies) defines how
+submitted files are mapped and validated on the way in. Furnishing policies are
+created and configured in the dashboard; the API can list and read them.
+
+A query can name a `policy_id`. If it doesn't, the querying policy currently
+assigned to the first network in `network_ids` applies to all the networks in
+the query.
 
 ### Entitlement
 
-[Entitlement](/concepts/governance/entitlement) answers the last question:
-of the fields the policy exposes, which ones can *you* see? Entitlement is
-earned through participation — by previously furnishing data about an entity or
-querying it — and is evaluated per field at query time. Two participants
-issuing the identical query against the same entity can receive different
-results, each limited to the data their own history entitles them to. This is
-the mechanism that makes a shared network safe: contributing participants are
-never exposing data to passive observers.
+[Entitlement](/concepts/governance/entitlement) answers the last question: of
+the fields the policy exposes, which ones can *you* see? Entitlement is earned
+through participation — by furnishing data about a subject or by querying it —
+and is evaluated at query time. Two participants issuing the same query about
+the same subject can receive different results, each limited to what their own
+participation entitles them to.
 
 ## The data flow
 
@@ -119,10 +126,10 @@ sequenceDiagram
     participant API as SOLO API (/v1)
     participant N as Network
 
-    Note over P,N: 1. Join — governor grants roles
+    Note over P,N: 1. Join — added to the network in the dashboard
     P->>API: GET /v1/entities/consumer_identity/search?network_id=…
-    API->>N: scope to network, check role
-    N-->>P: matching entities
+    API->>N: scope to network
+    N-->>P: matching subjects visible to you
 
     Note over P,N: 2. Consent — subject grants permission
     P->>API: POST /v1/consent/consumer_identity
@@ -130,7 +137,7 @@ sequenceDiagram
 
     Note over P,N: 3. Furnish — contribute verified data
     P->>API: POST /v1/products/kyc_certificate_snapshot/furnish
-    API->>N: validate against furnishing policy, store
+    API->>N: match subject, store attributed to you
 
     Note over P,N: 4. Query — read consolidated data
     P->>API: POST /v1/products/kyc_certificate_snapshot/query (consent_id)
@@ -138,70 +145,61 @@ sequenceDiagram
     N-->>P: consolidated certificate (or 204 if no result)
 ```
 
-1. **Join a network.** Your organization is added by the network governor and
-   assigned roles. From this point your token resolves to an account with
-   capabilities inside that network. See
+1. **Join a network.** Your organization is added to the network in the SOLO
+   dashboard and assigned roles. See
    [Join a network](/home/quickstart/join-a-network).
-2. **Create consent.** Record the subject's permission and hold on to the
-   returned `consent_id`. Without it, product queries fail.
+2. **Create consent.** Record the subject's permission and keep the returned
+   `consent_id`.
 3. **Furnish.** Contribute data through a product's `furnish` endpoint — or in
    bulk as [JSONL files](/api-overview/furnishing/file-upload) from the dashboard
-   or [SFTP](/api-overview/sftp/overview). For files, the network's furnishing
-   policies map and validate each record.
+   or over [SFTP](/api-overview/sftp/overview). For files, the network's
+   furnishing policies map and validate each record.
 4. **Query.** Ask a product for consolidated data, citing your `consent_id` and
-   the network policy to run under. The result is assembled from every
-   furnisher's contributions — filtered through the policy and your
-   entitlement. If the available data cannot satisfy the policy's requirements,
-   you receive an empty `204 No Content` rather than a partial answer.
+   the networks to read. The result is assembled from what participants
+   furnished, filtered through the querying policy and your entitlement. If the
+   available data cannot satisfy the policy, you receive an empty
+   `204 No Content` rather than a partial answer.
 
-## How the pieces enforce privacy
+## How the pieces control access
 
-The model is easiest to remember as three independent gates, each answering a
-different question. All three must open before a field reaches your response.
+The model is easiest to remember as three checks, each answering a different
+question:
 
-| Gate        | Question it answers                       | Granted by                                  |
-| ----------- | ----------------------------------------- | ------------------------------------------- |
-| Capability  | May you perform this operation at all?    | Your [roles](/concepts/governance/network-roles) in the network |
-| Permission  | Did the subject agree to this read?       | A valid [consent](/concepts/identity/consent) record |
-| Visibility  | Which fields may you actually see?        | Your [entitlement](/concepts/governance/entitlement), within the policy's bounds |
+| Check       | Question it answers                     | Granted by |
+| ----------- | --------------------------------------- | ---------- |
+| Capability  | May you perform this operation here?    | Your [roles](/concepts/governance/network-roles) in the network |
+| Permission  | Is there a basis to read this subject?  | A valid [consent](/concepts/identity/consent) record, or a query by the subject's profile ID |
+| Visibility  | Which fields may you actually see?      | Your [entitlement](/concepts/governance/entitlement), within the policy's bounds |
 
-**Roles grant capability.** A participant without the querier role cannot query
-anything, no matter how much consent it holds. Roles are assigned by the
-network governor and checked on every request.
+**Roles grant capability.** Roles are assigned per network. Furnishing into a
+network requires the furnisher or governor role there; without it, the furnish
+returns `403`.
 
-**Consent grants permission.** A querier with full capability still cannot read
-a specific consumer's data without that consumer's consent record — scoped,
-optionally time-limited, and auditable after the fact.
+**Consent grants permission.** A consent record is scoped to its network,
+optionally time-limited, and auditable after the fact. A query can instead name
+the subject's profile ID (`consumer_identity_id` or `business_identity_id`), but
+not both a consent and a profile ID.
 
-**Entitlement grants visibility.** Even with capability and permission, you see
-only the fields your participation has earned, and never more than the
-network's querying policy exposes to anyone. The policy is the ceiling;
-entitlement is your position under it.
-
-Because the gates are independent, no single actor can bypass the system: the
-governor controls policies but not consent, the subject controls consent but
-not entitlement, and your own history determines entitlement but not
-capability.
+**Entitlement grants visibility.** You see only the fields your participation
+has earned, and never more than the network's querying policy exposes. The
+policy is the ceiling; entitlement is your position under it.
 
 ## Where to go next
 
 If you learn best by doing, the [Quickstart](/home/quickstart) chains the full
-flow — consent, furnish, query — into a few `curl` commands. If you are about
-to write integration code, read [Authentication](/home/authentication) to set
-up your bearer token and [Errors](/home/errors) to handle failures correctly —
-in particular the distinction between a `204` empty result, a `400` domain
-rejection, and a `422` malformed request, all of which you will encounter while
-integrating.
+flow — access, consent, furnish, query — into a few `curl` commands. If you are
+about to write integration code, read [Authentication](/home/authentication) to
+set up your API key and [Errors](/home/errors) to handle failures correctly —
+in particular the difference between a `204` empty result, a `400` rejected
+operation, and a `422` malformed request.
 
 For depth on any single building block, follow its link above into the
-concepts section. Two reading paths are worth calling out: if your organization
-primarily contributes data, continue from
-[Furnishing](/api-overview/furnishing/overview) into
-[file upload](/api-overview/furnishing/file-upload) and the
-[SFTP guide](/api-overview/sftp/getting-started) for bulk ingestion; if it
-primarily consumes data, continue from
-[Querying](/api-overview/querying/overview) into the individual product pages —
-[KYC certificate](/api-overview/querying/kyc-certificate-snapshot),
+concepts section. If your organization primarily contributes data, continue
+from [Furnishing](/api-overview/furnishing/overview) into
+[JSONL files](/api-overview/furnishing/file-upload) and the
+[SFTP guide](/api-overview/sftp/getting-started); if it primarily consumes data,
+continue from [Querying](/api-overview/querying/overview) into the product pages
+— [KYC certificate](/api-overview/querying/kyc-certificate-snapshot),
 [KYB certificate](/api-overview/querying/kyb-certificate-snapshot), and
 [screening lists](/api-overview/querying/screening-lists).
 

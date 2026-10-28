@@ -4,8 +4,8 @@ description: 'The standardized data sets you query and furnish on the SOLO netwo
 icon: 'box'
 ---
 
-A **product** is a standardized, named data set you can **query** (read) and —
-for certificate products — **furnish** (write) through the network. Every
+A **product** is a standardized, named data set you can **query** (read) and,
+for certificate products, **furnish** (write) through the network. Every
 product gives all participants a common schema for one verification domain, so
 data furnished by one participant can be queried by another without bespoke
 integration.
@@ -16,46 +16,45 @@ vs `204` semantics, billing, and the `X-Ref-Id` header, see
 
 ## The catalog
 
-SOLO offers **five products**, in two categories. The exact set available to you
-depends on the [networks](/concepts/governance/networks) you belong to.
+SOLO offers **four queryable products** in two categories, plus a non-billable
+coverage check utility.
 
 | Product | Category | Subject | What it answers |
 |---|---|---|---|
-| [KYC Certificate](/products/kyc-certificate-snapshot) | Identity Verification | Consumer | "Has this consumer's identity been verified — documents, biometrics, liveness, address, and corroboration?" |
-| [KYB Certificate](/products/kyb-certificate-snapshot) | Identity Verification | Business | "Has this business been verified — identity, ownership & control, and risk/compliance?" |
-| [Bank-Specific Bad Actor List](/products/bank-specific-bad-actor-list) | Fraud & Financial Crime | Consumer | "Has this consumer violated a documented policy of this sponsor bank's network?" |
-| [Cross-Bank Financial Crimes Watch List](/products/cross-bank-financial-crimes-watch-list) | Fraud & Financial Crime | Consumer | "Is this consumer associated with suspicious financial-crimes activity reported across participating banks?" |
-| [Confirmed Fraud Attribute List](/products/confirmed-fraud-attribute-list) | Fraud & Financial Crime | Consumer | "Is this consumer tied to a confirmed fraud event, and which identifying attributes were implicated?" |
+| [KYC Certificate Snapshot](/products/kyc-certificate-snapshot) | Identity Verification | Consumer | "What identity verification has been furnished for this consumer — documents, biometrics, liveness, address, and identity corroboration?" |
+| [KYB Certificate Snapshot](/products/kyb-certificate-snapshot) | Identity Verification | Business | "What business verification has been furnished for this business — identity, ownership & control, and risk/compliance?" |
+| [Bank-Specific Bad Actor List](/products/bank-specific-bad-actor-list) | Fraud & Financial Crime | Consumer | "Has an institution in this network placed this consumer on its bad actor list?" |
+| [314(b) Cross-Bank Financial Crimes Watch List](/products/cross-bank-financial-crimes-watch-list) | Fraud & Financial Crime | Consumer | "Has a participating bank reported suspected financial-crimes activity for this consumer?" |
 
 ## Two families
 
 | Behavior | Certificates | Lists |
 |---|---|---|
-| Examples | KYC Certificate, KYB Certificate | Bad Actor List, Financial Crimes Watch List, Confirmed Fraud Attribute List |
-| What you get | A consolidated, multi-attribute verification result | A listing indicator plus a small set of context fields |
-| Furnishable via API | Yes — `/furnish` | No (query-only) |
+| Examples | KYC Certificate Snapshot, KYB Certificate Snapshot | Bank-Specific Bad Actor List, 314(b) Cross-Bank Financial Crimes Watch List |
+| What you get | A consolidated, multi-part verification result | A listing indicator plus details of the most recent listing |
+| Furnishable via API | Yes — `/furnish` | No — listings arrive through the [furnishing pipeline](/api-overview/furnishing/overview) |
 | Issues an artifact | Yes — `certificate_id` | No |
 | Empty result | `204 No Content` | `200` with `is_listed: false` |
 | Billable query event | Yes | Yes |
 
 - **Certificates** are consolidated verification results assembled from data
-  furnished by network participants. Querying one can *issue* a reusable
-  certificate for the subject, and returns `204 No Content` when the available
-  data cannot satisfy the policy.
-- **Lists** are read-only yes/no checks against flagged individuals. They always
-  return `200 OK`, with a clean result expressed as `"is_listed": false`.
+  furnished by network participants. A query that resolves every part of the
+  certificate *issues* a certificate for the subject; otherwise it returns
+  `204 No Content`.
+- **Lists** are read-only checks for listings furnished about a consumer. They
+  always return `200 OK`, with a clean result expressed as `"is_listed": false`.
 
 ## The query / furnish pattern
 
 <CardGroup cols={2}>
   <Card title="Query" icon="magnifying-glass">
-    **Read** consolidated data for an entity, drawn from what authorized
-    participants have furnished. Requires a [consent](/concepts/identity/consent)
-    ID or a direct profile reference.
+    **Read** consolidated data for a subject, drawn from what participants have
+    furnished to the networks you query. Requires a
+    [consent](/concepts/identity/consent) ID or a direct profile reference.
   </Card>
   <Card title="Furnish" icon="arrow-up-from-bracket">
-    **Contribute** verified data for an entity into a network, making it
-    available for future queries by entitled participants.
+    **Contribute** verified data for a subject into a network, making it
+    available to future queries in that network.
   </Card>
 </CardGroup>
 
@@ -64,10 +63,15 @@ POST /v1/products/{product}/query
 POST /v1/products/{product}/furnish    (certificate products)
 ```
 
-There is also one utility endpoint that is **not** a product query:
-`POST /v1/products/check`, the non-billable
-[coverage check](/products/coverage-check), which reports whether the furnished
-data for a subject can satisfy a policy *before* you run a billable query.
+Two non-billable utilities sit alongside the product queries:
+
+- `POST /v1/products/{kyc,kyb}_certificate_snapshot/query/soft` — a
+  [soft check](/api-overview/querying/kyc-certificate-snapshot#soft-check-before-you-query)
+  that runs the certificate query as a dry run and reports whether a
+  certificate would be issued, without returning any subject data.
+- `POST /v1/products/check` — the [coverage check](/products/coverage-check),
+  which reports, per furnishing institution, which of a product's fields it has
+  furnished for the subject.
 
 ## How products relate to networks and policies
 
@@ -75,48 +79,45 @@ data for a subject can satisfy a policy *before* you run a billable query.
 flowchart LR
     Prod[Product<br/>schema] --> NP[Offered in a network]
     Net[Network] --> NP
-    NP --> Pol[Querying policy<br/>field rules + freshness]
+    NP --> Pol[Querying policy<br/>filters + freshness]
     Pol --> Q[Query result]
 ```
 
-A product defines *what* data exists — its models, fields, and types. A
-[network](/concepts/governance/networks) decides *which* products it offers to
-its members. A [querying policy](/concepts/governance/querying-policies)
-defines, per network, *which parts* of a product a query may read and under what
-conditions. The same product can behave differently in two networks because
-each network attaches its own policies.
+A product defines *what* data exists: its models, fields, and types. A
+[network](/concepts/governance/networks) lists the products it offers to its
+members. A [querying policy](/concepts/governance/querying-policies) filters
+which furnished records a certificate query may use, for example how recent a
+verification must be. The same product can therefore produce different results
+in two networks that apply different policies.
 
 ## Choosing a product
 
 | If you need to… | Use |
 |---|---|
-| Verify a consumer's identity at onboarding | [KYC Certificate](/products/kyc-certificate-snapshot) |
-| Verify a business and its beneficial owners | [KYB Certificate](/products/kyb-certificate-snapshot) |
-| Screen a consumer against your sponsor bank's network history | [Bank-Specific Bad Actor List](/products/bank-specific-bad-actor-list) |
-| Screen a consumer for cross-bank financial-crimes signals | [Cross-Bank Financial Crimes Watch List](/products/cross-bank-financial-crimes-watch-list) |
-| Screen a consumer against confirmed-fraud attributes | [Confirmed Fraud Attribute List](/products/confirmed-fraud-attribute-list) |
-| Know whether a query can succeed before paying for it | [Coverage Check](/products/coverage-check) |
+| Reuse a consumer's furnished identity verification at onboarding | [KYC Certificate Snapshot](/products/kyc-certificate-snapshot) |
+| Reuse a business's furnished verification, including beneficial owners | [KYB Certificate Snapshot](/products/kyb-certificate-snapshot) |
+| Screen a consumer against bad actor listings in your sponsor bank's network | [Bank-Specific Bad Actor List](/products/bank-specific-bad-actor-list) |
+| Screen a consumer for financial-crimes reports shared across banks | [314(b) Cross-Bank Financial Crimes Watch List](/products/cross-bank-financial-crimes-watch-list) |
+| Know whether a certificate query would issue before paying for it | [Soft check](/api-overview/querying/kyc-certificate-snapshot#soft-check-before-you-query) |
+| See which institutions have furnished which fields for a subject | [Coverage Check](/products/coverage-check) |
 
 ## Product deep dives
 
 <CardGroup cols={2}>
-  <Card title="KYC Certificate" icon="id-card" href="/products/kyc-certificate-snapshot">
-    Consolidated consumer identity verification — up to nine sub-products.
+  <Card title="KYC Certificate Snapshot" icon="id-card" href="/products/kyc-certificate-snapshot">
+    Consolidated consumer identity verification in nine sub-products.
   </Card>
-  <Card title="KYB Certificate" icon="building" href="/products/kyb-certificate-snapshot">
+  <Card title="KYB Certificate Snapshot" icon="building" href="/products/kyb-certificate-snapshot">
     Business identity, ownership & control, and risk/compliance in one
     certificate.
   </Card>
   <Card title="Bank-Specific Bad Actor List" icon="user-xmark" href="/products/bank-specific-bad-actor-list">
-    Sponsor-bank-scoped repeat-offender screening.
+    Bad actor screening within a sponsor bank's network.
   </Card>
-  <Card title="Cross-Bank Financial Crimes Watch List" icon="building-shield" href="/products/cross-bank-financial-crimes-watch-list">
-    314(b) consortium financial-crimes signals.
-  </Card>
-  <Card title="Confirmed Fraud Attribute List" icon="fingerprint" href="/products/confirmed-fraud-attribute-list">
-    Discrete identifying attributes tied to confirmed fraud events.
+  <Card title="314(b) Cross-Bank Financial Crimes Watch List" icon="building-shield" href="/products/cross-bank-financial-crimes-watch-list">
+    Financial-crimes reports shared across participating banks.
   </Card>
   <Card title="Coverage Check" icon="list-radio" href="/products/coverage-check">
-    Non-billable pre-flight: can this query succeed under this policy?
+    Non-billable, per-furnisher view of which fields are on file.
   </Card>
 </CardGroup>

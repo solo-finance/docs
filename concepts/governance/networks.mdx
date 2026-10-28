@@ -1,188 +1,139 @@
 ---
 title: 'Networks'
-description: 'The trust boundary that groups participants, roles, products, and policies'
+description: 'The trust boundary that groups participants, policies, and furnished data'
 icon: 'sitemap'
 ---
 
 import DashboardGovernanceNetworks from '/snippets/dashboard/governance-networks.mdx';
 
-A **network** is the trust boundary of p SOLO platform. It groups the
-participants who have agreed to share data, the **products** they can use, the
-**policies** that govern those products, and the data that gets furnished.
+A **network** is the trust boundary of the SOLO platform. It groups the
+participants who have agreed to share data, the **policies** that govern how
+that data is read and accepted, and the data that participants furnish.
 
-Everything you do — furnishing, querying, applying policies — happens *within* a
-network you belong to.
+Everything you do — furnishing, querying, recording consent, searching for
+entities — happens *within* a network your organization belongs to.
 
 ## What a network represents
 
-A network is a logical grouping that ties together three things:
+A network ties together three things:
 
-- **Participants** — the entities that operate within the network (see
-  [Network Roles](/concepts/governance/network-roles))
-- **Data** — every furnished record carries a network reference, so the network
-  acts as a boundary on what data can be read
-- **Rules** — the [querying policies](/concepts/governance/querying-policies) and
-  [furnishing policies](/concepts/governance/furnishing-policies) that govern each
-  product, and how data is allowed to move between this network and neighbouring
-  networks (see [Network Governance](/concepts/governance/network-governance))
+- **Participants** — the organizations that hold a membership on the network,
+  each with one or more [roles](/concepts/governance/network-roles).
+- **Data** — every furnished record is stamped with the network it was
+  furnished into, so the network bounds what a query can read.
+- **Rules** — the [querying policies](/concepts/governance/querying-policies)
+  that decide which furnished verifications qualify on a read, and the
+  [furnishing policies](/concepts/governance/furnishing-policies) (mappings)
+  that turn furnished files into network data.
 
-A network has a name, an optional description, and a single **governor entity**
-that owns it.
+A network has a name, an optional description, and a single **governor
+entity**: the organization that created it and owns it.
 
-## The network tree
+## Networks are independent
 
-Networks are not flat. Every network has at most one **parent network**, so
-networks form a **tree** where smaller, more specific networks live underneath
-broader ones. A network with no parent sits at the top of the tree and is called
-a **root** network. Networks below it are its **descendants**; the networks
-directly under it are its **children**.
+Networks are flat. A network has no parent or child networks, and membership
+on one network grants nothing on any other. If your organization works across
+several networks, it holds a separate membership on each one.
 
-```mermaid
-graph TD
-    Federation[Federation Root]
-    BankA[Coastal Bank]
-    BankB[Summit Bank]
-    BankASub1[Coastal — Credit Cards]
-    BankASub2[Coastal — Mortgages]
-    BankBSub1[Summit — Auto Loans]
+A query can read across several networks at once: list them in `network_ids`
+and SOLO reads from all of them, provided your organization holds a membership
+on **every** network in the list. A network you aren't a member of fails the
+request with `403 PERMISSION_DENIED`; it is never silently dropped.
 
-    Federation --> BankA
-    Federation --> BankB
-    BankA --> BankASub1
-    BankA --> BankASub2
-    BankB --> BankBSub1
-```
-
-In the diagram above, *Coastal Bank* is a child of *Federation Root* and a parent
-of *Coastal — Credit Cards*. *Summit Bank* is a **sibling** of *Coastal Bank*
-because they share a parent. *Coastal — Credit Cards* and *Summit — Auto Loans*
-are **cousins** because they share a common ancestor (the Federation) without
-being in each other's direct line.
-
-This lets a single arrangement — such as a sponsor bank and the fintechs it
-sponsors — share a parent network while keeping each participant's data within
-its own boundary.
-
-## Relations between networks
-
-These are the words SOLO uses to describe how any two networks relate. They show
-up throughout the permissioning model, so it's worth getting them straight up
-front.
-
-| Term | Meaning |
-|---|---|
-| **Parent** | The network directly above this one. |
-| **Child** | A network whose parent is this one. |
-| **Ancestor** | Any network reachable by walking upward — parent, grandparent, and so on, up to the root. |
-| **Descendant** | Any network reachable by walking downward — child, grandchild, and so on. |
-| **Sibling** | Two networks that share the same parent. |
-| **Cousin** | Two networks that share a common ancestor but are not in each other's ancestor or descendant line. |
-| **Root** | A network with no parent. |
-
-<Note>
-SOLO treats siblings as a special case of cousins for permissioning purposes.
-Anywhere governance rules talk about cousins, siblings are included.
-</Note>
-
-## Kinds of network
-
-Every network carries a `network_type` describing its place in an arrangement:
-**standard** networks are the default, while **sponsor** and **partner**
-networks describe a sponsor bank and the fintechs it sponsors, nested under it
-in the tree. All kinds behave the same way — they can have their own
-participants, their own data, and their own governance settings.
-
-When you furnish, the upload targets a network directly, and that network's
-mapping assignments determine how the data is accepted and routed (see
-[Furnishing Policies](/concepts/governance/furnishing-policies)).
+Every network also carries a `network_type` of `standard`, `sponsor`, or
+`partner`. The type is a label that describes the arrangement (for example, a
+sponsor bank and the fintechs it works with); all types behave the same way.
 
 <Tip>
-If you operate a single product line, you probably only need one network. Child
-networks become useful when you want to keep data, participants, or rules
-isolated between distinct offerings under the same operator.
+If you operate a single product line, you probably need only one network.
+Separate networks are useful when you want to keep data, participants, or rules
+apart for distinct offerings or partners.
 </Tip>
 
 ## Network lifecycle
 
-Networks are created deliberately, through the **SOLO Dashboard**, as
-part of onboarding your organization or standing up a new arrangement (a
-consortium, a sponsorship structure, a new line of business). A new network
-needs:
+Networks are created in the **SOLO Dashboard**, as part of onboarding your
+organization or standing up a new arrangement. A new network needs a **name**
+and, optionally, a **description**.
 
-- a **name** and an optional **description**,
-- an optional **parent network**, which places it in the tree, and
-- a **governor entity** — the entity that owns and administers it.
-
-The entity that creates the network is recorded as its governor entity, and
-SOLO automatically provisions that entity's **governor membership** on the new
-network at the same time. This means a freshly created network is never
-ownerless: from the first moment, exactly one entity can administer it, add
-participants, and configure its [governance
-rules](/concepts/governance/network-governance).
+The organization that creates the network is recorded as its governor entity,
+and SOLO grants that organization a **governor membership** on the new network
+in the same step. A network is therefore never ownerless.
 
 After creation, the governor typically:
 
-1. adds participants with the [roles](/concepts/governance/network-roles) they need
-   (furnisher, querier, or additional governors),
-2. creates and configures the [querying
-   policies](/concepts/governance/querying-policies) and [furnishing
-   policies](/concepts/governance/furnishing-policies) for the products the network
-   will use, and
-3. optionally enables governance rules to open query paths to related networks.
+1. adds participants with the [roles](/concepts/governance/network-roles) they
+   need (furnisher, querier, or additional governors),
+2. sets up [furnishing policies](/concepts/governance/furnishing-policies) for
+   the data the network accepts, and
+3. sets up [querying policies](/concepts/governance/querying-policies) and
+   chooses which one applies by default.
 
 ## Permissions & roles
 
-Your organization joins a network with one or more **roles**. Roles describe what
-you can do, not what data you can see.
+Your organization joins a network with one or more **roles**. Roles describe
+what you can do, not which records you can see.
 
-| Role | What it allows |
+| Role | What it allows on the network |
 |---|---|
-| **Governor** | Administer the network — configure policies and directory metadata. A governor seat is **not** a backdoor to other members' data. |
-| **Furnisher** | Contribute data into the network for a product. |
-| **Querier** | Run product queries scoped to the network. |
+| **Querier** | Query products, run coverage checks, search entities, record consent, and read the network's furnishing policies. |
+| **Furnisher** | Everything a querier can do, plus furnish data and create querying policies. |
+| **Governor** | Everything a furnisher can do, plus configure any querying policy in the network and administer furnishing policies. The network's governor entity also manages the participant list and the network's settings. |
 
-A single organization can hold several roles at once (for example, both furnisher
-and querier). See [Network Roles](/concepts/governance/network-roles) for the full model.
+Any membership — whatever its role — lets your organization query the network.
+See [Network Roles](/concepts/governance/network-roles) for the full model and
+the per-endpoint breakdown.
 
 <Warning>
-  Governing a network does **not** automatically let you read what other members
-  have furnished. Reading another participant's data still requires
-  [consent](/concepts/identity/consent) and [entitlement](/concepts/governance/entitlement). Roles
-  grant *capabilities*, not *visibility*.
+  Holding a role on a network does **not** let you read everything other
+  members have furnished. What a read returns is still filtered by
+  [consent](/concepts/identity/consent) and
+  [entitlement](/concepts/governance/entitlement). Roles grant *capabilities*,
+  not *visibility*.
 </Warning>
 
 ## Policy usage within a network
 
-A network ties products to participants through policies:
+A network applies two kinds of policy:
 
-- A **[querying policy](/concepts/governance/querying-policies)** binds a product
-  to the network and defines, field by field, what queriers may read.
-- A **[furnishing policy](/concepts/governance/furnishing-policies)** defines how
-  one type of furnished record is mapped, validated, and persisted.
+- A **[querying policy](/concepts/governance/querying-policies)** is a
+  network-wide set of read rules. For each data model it configures, it decides
+  which furnished verifications qualify when a product is queried. It can cover
+  models from any product.
+- A **[furnishing policy](/concepts/governance/furnishing-policies)** (called a
+  *mapping* in the dashboard) defines how one type of furnished file record is
+  mapped, validated, and persisted.
 
-When you query, you scope the request to one or more network ids and a querying
-policy, so the network knows both *where* to read and *which* reading rules
-apply. When you furnish a file, each record's `_type` routes it to the network's
-furnishing policies that claim that type — you never pass a furnishing policy id
-yourself.
+When you query, you scope the request to one or more network ids and,
+optionally, a querying policy. When you furnish a file, each record's `_type`
+routes it to the network's mappings that claim that type — you never pass a
+furnishing policy id yourself.
 
 ```mermaid
 flowchart LR
-    M[Your organization] -->|querier| QP[Querying policy]
-    M -->|furnisher| FP[Furnishing policy]
-    QP --> Prod[Product]
-    FP --> Prod
-    Prod --> Net[(Network data)]
+    M[Your organization] -->|query| QP[Querying policy]
+    M -->|furnish a file| FP[Furnishing policy]
+    QP --> Net[(Network data)]
+    FP --> Net
 ```
 
 ## Joining a network
 
-Membership and roles are arranged with your SOLO account manager. Once you're a
-member, you can:
+There are two ways in:
 
-- **search** for entities within the network,
-- **furnish** products into it (as a furnisher), and
-- **query** products from it (as a querier, with [consent](/concepts/identity/consent)).
+- **Invitation.** A network's governor adds your organization with the role
+  you need.
+- **The directory.** A governor can list a network in the dashboard's network
+  directory so organizations outside it can find it. A listed network either
+  accepts requests to join — as a querier or a furnisher — which wait for the
+  governor's approval, or is **open**, in which case your organization can join
+  it straight away as a querier. Joining as a furnisher always needs the
+  governor's approval.
+
+Membership is managed in the dashboard; there is no REST endpoint for joining
+a network. Once you're a member, you can search for entities, record consent,
+and query products in the network, and — as a furnisher or governor — furnish
+data into it.
 
 See the [quickstart](/home/quickstart/join-a-network) for a walkthrough.
 
@@ -192,16 +143,13 @@ See the [quickstart](/home/quickstart/join-a-network) for a walkthrough.
 
 <CardGroup cols={2}>
   <Card title="Network Roles" icon="users" href="/concepts/governance/network-roles">
-    How entities participate in a network.
-  </Card>
-  <Card title="Network Governance" icon="scale-balanced" href="/concepts/governance/network-governance">
-    How data can flow between related networks.
+    How organizations participate in a network.
   </Card>
   <Card title="Querying Policies" icon="magnifying-glass" href="/concepts/governance/querying-policies">
-    The field-level read rules a network applies to each product.
+    The read rules a network applies when a product is queried.
   </Card>
   <Card title="Furnishing Policies" icon="arrow-up-from-bracket" href="/concepts/governance/furnishing-policies">
-    How furnished data is accepted, validated, and routed.
+    How furnished files are accepted, validated, and routed.
   </Card>
   <Card title="Entitlement" icon="key" href="/concepts/governance/entitlement">
     Why network membership alone doesn't grant data access.

@@ -4,13 +4,13 @@ description: 'Bulk data ingestion via SFTP file uploads'
 icon: 'server'
 ---
 
-The SOLO Network supports bulk data ingestion via SFTP. Drop
-[JSONL files](/api-overview/furnishing/file-upload) into your organization's
-SFTP endpoint, and each file is automatically ingested record by record into
-the network — through the **same furnishing pipeline** as a
+The SOLO Network supports bulk data ingestion via SFTP. Upload
+[JSONL files](/api-overview/furnishing/file-upload) to SOLO's SFTP server, and
+each file is automatically ingested record by record into the network you name
+— through the **same furnishing pipeline** as a
 [dashboard upload](/api-overview/furnishing/file-upload#uploading-from-the-dashboard).
 SFTP is a transport, not a separate system: a record dropped over SFTP and the
-same record uploaded from the dashboard produce identical network data.
+same record uploaded from the dashboard are processed the same way.
 
 Choose SFTP when your data already leaves your systems as files on a schedule.
 Core-banking platforms and data warehouses can usually target an SFTP endpoint
@@ -19,17 +19,19 @@ monthly batch drops.
 
 ## Connecting
 
-Connect to `sftp.solo.one` on port 22. Your **email address** is the username
-and your organization's **WorkOS API key** is the password:
+Connect to `sftp.solo.one` on port 22. The password is your organization's
+**API key** — the same kind of organization API key you use for the REST API
+(see [Authentication](/home/authentication)). The username is an email address,
+which also selects the environment:
 
 ```bash
-sftp your-email@yourbank.com@sftp.solo.one
+sftp alice@yourbank.com@sftp.solo.one
 ```
 
-For the sandbox environment, append `+sandbox` to the local part of your email:
+For the sandbox environment, append `+sandbox` to the local part of the email:
 
 ```bash
-sftp your-email+sandbox@yourbank.com@sftp.solo.one
+sftp alice+sandbox@yourbank.com@sftp.solo.one
 ```
 
 Or using an SFTP library:
@@ -41,12 +43,17 @@ import paramiko
 
 transport = paramiko.Transport(("sftp.solo.one", 22))
 transport.connect(
-    username="alice@yourbank.com",
-    password="sk_live_your_workos_api_key",
+    username="alice+sandbox@yourbank.com",
+    password="<your organization API key>",
 )
 sftp = paramiko.SFTPClient.from_transport(transport)
 
-sftp.put("consumers_aug.jsonl", "/jsonl_furnish_data/consumers_aug.jsonl")
+network_dir = "network_9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7"
+sftp.put(
+    "consumers_aug.jsonl",
+    f"/{network_dir}/jsonl_furnish_data/consumers_aug.jsonl",
+    confirm=False,
+)
 
 sftp.close()
 transport.close()
@@ -56,7 +63,7 @@ transport.close()
 # ~/.ssh/config
 Host solo-sftp
     HostName sftp.solo.one
-    User alice@yourbank.com
+    User alice+sandbox@yourbank.com
     Port 22
 ```
 
@@ -64,22 +71,26 @@ Host solo-sftp
 
 ### How authentication works
 
-Every connection is verified live, not against a stored password:
+Every connection is checked against the API key, not a stored password:
 
-1. The username is parsed into an email and an environment tag
-   (`+sandbox` → sandbox; no tag → production). Usernames are
-   case-insensitive. An unrecognized tag is rejected outright.
-2. The password is validated as a **WorkOS API key** against WorkOS. Revoked
-   or malformed keys are rejected.
-3. The key's owning WorkOS organization — not anything in the username — is
-   resolved to your SOLO organization. Your session is scoped to that
-   organization's isolated storage area in the selected environment.
+1. The username is parsed into an email address and an optional environment
+   tag: `+sandbox` selects sandbox, and no tag selects production. Usernames
+   are case-insensitive, and an unrecognized tag is rejected.
+2. The password is validated as an organization API key with SOLO's identity
+   provider. Revoked, malformed, or user-owned keys are rejected.
+3. The organization that owns the key — not anything in the username — decides
+   which SOLO organization the session uploads as. The organization must
+   already exist in SOLO.
+
+The username isn't used to authenticate you or to choose your organization; it
+only needs to be in email form and to carry the right environment tag.
 
 <Note>
-  Because authorization derives from the **API key**, the key is the credential
-  that matters: rotating or revoking it in WorkOS immediately cuts off SFTP
-  access (allow up to a minute for cached sessions to expire). Contact your
-  SOLO account manager to provision keys.
+  Because access derives from the **API key**, the key is the credential that
+  matters: anyone holding it can upload as your organization and call the REST
+  API as your organization. Revoking the key cuts off SFTP access, though a
+  recently accepted key can keep signing in for up to a minute while that
+  result is cached.
 </Note>
 
 <Warning>
@@ -91,31 +102,31 @@ Every connection is verified live, not against a stored password:
 
 ## Directory layout
 
-Files go into the `jsonl_furnish_data/` directory, optionally under a network
-directory that names the network to furnish into:
+Put each file in the `jsonl_furnish_data/` folder of the network it furnishes
+into:
 
 ```
 network_{network_id}/jsonl_furnish_data/{filename}.jsonl
-jsonl_furnish_data/{filename}.jsonl
 ```
 
-- **`network_{network_id}/jsonl_furnish_data/`** furnishes into that network.
-  Each SFTP feed in the dashboard shows the network id in its drop path; leave
-  off the path's leading `entity_…/` segment, since your session is already
-  scoped to your organization.
-- **`jsonl_furnish_data/`** on its own furnishes into your organization's
-  governed network.
+Each SFTP feed's detail page in the dashboard shows the network id to use.
+Files placed anywhere else are not ingested.
 
-Files anywhere else are stored but never ingested.
+<Warning>
+  Always use the per-network folder. A file placed directly in a top-level
+  `jsonl_furnish_data/` folder goes to a network your organization
+  **governs**: if it governs several, SOLO picks one for you, and if it governs
+  none, ingestion fails.
+</Warning>
 
 ## What happens on upload
 
-Ingestion is event-driven — there is no polling window to wait for:
+Ingestion starts automatically when an upload completes — there is no polling
+window to wait for:
 
 ```mermaid
 flowchart LR
-    U[You: sftp put] --> S[(Org-scoped storage)]
-    S -->|object-created event| W[JSONL ingestion workflow]
+    U[You: sftp put] --> W[Ingestion]
     W --> P[Read record by record]
     P --> R[Route each record by _type]
     R --> F[Mappings: map, match, persist]
@@ -123,16 +134,12 @@ flowchart LR
     W --> E[Upload recorded with per-record results]
 ```
 
-1. **Upload.** The file lands in your organization's isolated storage area,
-   prefixed by environment and organization.
-2. **Trigger.** The storage event fires the ingestion workflow within seconds
-   of the upload completing.
-3. **Route.** Each line is read as one record and sent to every active mapping
+1. **Route.** Each line is read as one record and sent to every active mapping
    in the target network that claims its
    [`_type`](/api-overview/furnishing/file-upload#record-types).
-4. **Ingest.** Each mapping maps the record, matches it to a consumer or
+2. **Ingest.** Each mapping maps the record, matches it to a consumer or
    business, and persists its events.
-5. **Record.** The outcome — records read, successes, filtered, failures, and
+3. **Record.** The outcome — records read, successes, filtered, failures, and
    unmatched record types — is recorded on the upload, which you can review in
    the dashboard.
 
@@ -142,9 +149,19 @@ Key behaviors:
   single invalid line never sinks the rest of the file.
 - **Unmatched is not failed** — records whose `_type` no active mapping claims
   are skipped deliberately and reported as unmatched.
-- **Safe re-runs** — identity records resolve to the existing consumer or
-  business on their natural keys, so re-uploading a corrected batch attaches to
-  the same profiles instead of duplicating them.
+- **Processing time budget** — each file has 30 minutes to finish ingesting.
+  Ingestion saves progress in batches as it goes, so a file that runs out of
+  time, or stops partway for another reason, can be **partially ingested**:
+  records processed before that point stay in the network. Check the upload's
+  results and re-upload only the records that weren't ingested, in a new file.
+  Splitting very large exports into several files keeps each one well within
+  the budget.
+- **File size** — SOLO doesn't set a size limit on SFTP uploads; the
+  processing budget above is the practical bound.
+- **Re-sending** — identity records resolve to the existing consumer or
+  business on their natural keys, so a re-upload attaches to the same profiles
+  instead of duplicating them. Verification events in a re-sent record are
+  added again, so don't re-send records that already ingested.
 
 ## Relationship to the other channels
 
@@ -154,12 +171,11 @@ SFTP shares everything but the transport with the dashboard upload:
   and the same routing by `_type`.
 - The dashboard shows SFTP drops and dashboard uploads in the same Uploads
   view, with the same per-record result reporting.
-- Furnished records earn the same [entitlement](/concepts/governance/entitlement)
-  as a per-record `POST /v1/products/kyc_certificate_snapshot/furnish` call.
+- Furnished records are attributed to your organization and recorded for
+  [entitlement](/concepts/governance/entitlement), as with a REST furnish.
 
-That means you can mix channels freely: backfill history over SFTP, furnish
-new onboarding events over REST in real time, and the network treats the
-resulting data identically.
+You can mix channels freely: load history over SFTP and furnish new
+onboarding events over REST in real time.
 
 ## Environments
 
@@ -167,11 +183,11 @@ Use plus-addressing on the email username to target an environment:
 
 | Environment | Username format | Example |
 |---|---|---|
-| Production | `email@domain.com` | `alice@yourbank.com` |
+| Production | `email@domain.com` (no tag) | `alice@yourbank.com` |
 | Sandbox | `email+sandbox@domain.com` | `alice+sandbox@yourbank.com` |
 
-Each environment writes to its own isolated storage; nothing uploaded to
-sandbox can reach production data. Start in sandbox — the
+Sandbox and production are separate environments: nothing uploaded to sandbox
+reaches production. Start in sandbox — the
 [getting-started guide](/api-overview/sftp/getting-started) walks through a first
 upload end to end.
 
@@ -184,7 +200,7 @@ fails with an access error and no records are written.
 
 <CardGroup cols={2}>
   <Card title="Getting Started" icon="rocket" href="/api-overview/sftp/getting-started">
-    Your first upload, end to end, in about 15 minutes.
+    Your first upload, end to end.
   </Card>
   <Card title="JSONL Files" icon="file-arrow-up" href="/api-overview/furnishing/file-upload">
     The file format, record types, and results.

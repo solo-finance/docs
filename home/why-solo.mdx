@@ -1,6 +1,6 @@
 ---
 title: 'How SOLO is different'
-description: 'Why SOLO is a reusable trust network, not a data aggregator — and how the architecture makes verified work reusable'
+description: 'Why SOLO is built around reusing verified work rather than re-aggregating data — and how the architecture makes that reuse possible'
 icon: 'arrows-rotate'
 ---
 
@@ -34,10 +34,10 @@ flowchart LR
     Result --> Network[(SOLO Network)]
     Network --> B["Institution B reuses it"]
     Network --> C["Institution C reuses it"]
-    Verify -.retains attribution + control.-> A
+    Verify -.retains attribution.-> A
 ```
 
-This is not better data aggregation. It is **trust portability**: the
+The point is not better data aggregation. It is **trust portability**: the
 verification stops dying at the end of a single application.
 
 ## The one-sentence difference
@@ -64,18 +64,17 @@ The same idea, said a few ways:
 
 ## Every claim above maps to a real mechanism
 
-This is not aspirational positioning. Each contrast is backed by a feature that
-exists in the API today:
+Each contrast is backed by a feature that exists in the API today:
 
 | Claim | How SOLO actually does it |
 |---|---|
 | "Reuse verified information" | A [product](/api-overview/querying/products) query *consolidates* verification events furnished by participants into a single [KYC](/api-overview/querying/kyc-certificate-snapshot) or [KYB](/api-overview/querying/kyb-certificate-snapshot) certificate, instead of re-collecting the underlying evidence. |
-| "Preserve completed verification work" | Furnished work is stored as attested verification events and re-resolved on every future query — see [Trust assets](/concepts/trust/trust-assets). |
-| "Attributable" | Every certificate sub-product carries the `furnishing_entity_id` and `attestation_event_id` of its source — see [Provenance](/concepts/trust/provenance). |
-| "Permissioned" | Reads require the subject's [consent](/concepts/identity/consent), and fields are filtered by your [entitlement](/concepts/governance/entitlement). |
-| "How fresh must it be to count?" | [Querying policies](/concepts/governance/querying-policies) enforce freshness windows; data outside the window is not reused (a `204`, not a stale answer). |
-| "Contribute *and* benefit" | Furnishing earns the [entitlement](/concepts/governance/entitlement) that lets you read an entity back later — contribution and consumption are the same loop. |
-| "Know before you pay" | The non-billable [coverage check](/api-overview/querying/coverage-check) answers *"does reusable verified work already exist for this subject?"* before a billable query. |
+| "Preserve completed verification work" | Furnished work is stored as attested verification events and resolved again on every future query — see [Trust assets](/concepts/trust/trust-assets). |
+| "Attributable" | Certificate sub-products carry the `furnishing_entity_id` and `attestation_event_id` of the furnished record they came from — see [Provenance](/concepts/trust/provenance). |
+| "Permissioned" | A query names its subject by `consent_id` or by profile ID, is limited to the networks it names, and returns only the fields your [entitlement](/concepts/governance/entitlement) allows. |
+| "How fresh must it be to count?" | [Querying policies](/concepts/governance/querying-policies) can require recent evidence (for example, a capture timestamp within a set number of days). If nothing meets the policy, the query returns `204`, not a stale answer. |
+| "Contribute *and* benefit" | Furnishing earns the [entitlement](/concepts/governance/entitlement) that lets you read a subject back later — contribution and consumption are the same loop. |
+| "Know before you pay" | The non-billable [coverage check](/api-overview/querying/coverage-check) shows which furnishers hold data for a subject, and the non-billable soft check (`POST /v1/products/kyc_certificate_snapshot/query/soft`) tells you whether a query would produce a certificate. |
 
 ## What SOLO is not
 
@@ -84,12 +83,11 @@ To avoid the wrong takeaway:
 - **Not another KYB/KYC workflow tool.** SOLO does not replace your verification
   vendors with one more; it makes the verifications already done reusable across
   the network.
-- **Not an aggregator with permissions bolted on.** The unit of value is a
-  *reusable, attributed verification*, not a fresh external lookup.
-- **Not a black box you must trust blindly.** The architecture is exposed on
-  purpose — provenance, consent, entitlement, and policy are all visible,
-  because visibility is what makes participants comfortable reusing each other's
-  work.
+- **Not primarily a lookup service.** The unit of value is a *reusable,
+  attributed verification* furnished by a participant.
+- **Not a black box you must trust blindly.** Provenance, consent, entitlement,
+  and policy are all visible through the API, because visibility is what makes
+  participants comfortable reusing each other's work.
 
 ## Where to go next
 

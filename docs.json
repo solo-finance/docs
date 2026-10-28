@@ -56,7 +56,8 @@
               "home/why-solo",
               "home/overview",
               "home/authentication",
-              "home/errors"
+              "home/errors",
+              "home/security"
             ]
           },
           {
@@ -71,8 +72,9 @@
           {
             "group": "Golden paths",
             "pages": [
-              "home/quickstart/business-lending-onboarding",
-              "home/quickstart/network-consumption"
+              "home/golden-paths/overview",
+              "home/golden-paths/sponsor-banks",
+              "home/golden-paths/fintechs"
             ]
           }
         ]
@@ -92,8 +94,7 @@
               "products/kyc-certificate-snapshot",
               "products/kyb-certificate-snapshot",
               "products/bank-specific-bad-actor-list",
-              "products/cross-bank-financial-crimes-watch-list",
-              "products/confirmed-fraud-attribute-list"
+              "products/cross-bank-financial-crimes-watch-list"
             ]
           },
           {
@@ -121,7 +122,6 @@
             "pages": [
               "concepts/governance/networks",
               "concepts/governance/network-roles",
-              "concepts/governance/network-governance",
               "concepts/governance/entitlement",
               "concepts/governance/querying-policies",
               "concepts/governance/furnishing-policies"
@@ -165,15 +165,11 @@
             ]
           },
           {
-            "group": "The Collect SDK",
+            "group": "GraphQL API",
             "pages": [
-              "api-overview/collect-sdk/overview"
-            ]
-          },
-          {
-            "group": "The Index Microservice",
-            "pages": [
-              "api-overview/index-microservice/overview"
+              "api-overview/graphql/overview",
+              "api-overview/graphql/querying",
+              "api-overview/graphql/furnishing"
             ]
           }
         ]
@@ -188,34 +184,95 @@
             ]
           },
           {
-            "group": "Other",
+            "group": "Business Identity",
             "pages": [
-              "api-reference/bank-specific-bad-actor-list/query",
-              "api-reference/cross-bank-financial-crimes-watch-list/query",
-              "api-reference/kyb-certificate-snapshot/query",
-              "api-reference/kyc-certificate-snapshot/query",
-              "api-reference/business-identity/business_identity",
-              "api-reference/consumer-identity/consumer_identity",
-              "api-reference/consumer-identity/{consent_id}",
-              "api-reference/consumer-identity/{consent_id}",
-              "api-reference/entities/search",
-              "api-reference/entities/search",
+              "api-reference/business-identity/business-identity"
+            ]
+          },
+          {
+            "group": "Consumer Identity",
+            "pages": [
+              "api-reference/consumer-identity/consumer-identity",
+              "api-reference/consumer-identity/get-consumer-identity-consent-id",
+              "api-reference/consumer-identity/put-consumer-identity-consent-id"
+            ]
+          },
+          {
+            "group": "Entities",
+            "pages": [
+              "api-reference/entities/get-consumer-identity-search",
+              "api-reference/entities/get-business-identity-search"
+            ]
+          },
+          {
+            "group": "Institution Attestation Event",
+            "pages": [
+              "api-reference/institution-attestation-event/institution-attestation-event"
+            ]
+          },
+          {
+            "group": "Querying Policies",
+            "pages": [
+              "api-reference/querying-policies/querying",
+              "api-reference/querying-policies/configuration"
+            ]
+          },
+          {
+            "group": "Furnishing Policies",
+            "pages": [
               "api-reference/furnishing-policies/furnishing",
-              "api-reference/furnishing-policies/{policy_id}",
-              "api-reference/furnishing-\u2014-mapping-dry-run/suggest",
-              "api-reference/furnishing-\u2014-mapping-dry-run/trace",
-              "api-reference/furnishing-\u2014-mapping-dry-run/verify",
-              "api-reference/graph/models",
-              "api-reference/graph/{object_id}",
-              "api-reference/graph/{resource}",
-              "api-reference/institution-attestation-event/institution-attestation-event",
-              "api-reference/kyb-certificate-snapshot/furnish",
-              "api-reference/kyb-certificate-snapshot/soft",
-              "api-reference/kyc-certificate-snapshot/furnish",
+              "api-reference/furnishing-policies/policy-id"
+            ]
+          },
+          {
+            "group": "KYC Certificate Snapshot",
+            "pages": [
+              "api-reference/kyc-certificate-snapshot/query",
               "api-reference/kyc-certificate-snapshot/soft",
-              "api-reference/product-coverage-check/check",
-              "api-reference/querying-policies/configuration",
-              "api-reference/querying-policies/querying"
+              "api-reference/kyc-certificate-snapshot/furnish"
+            ]
+          },
+          {
+            "group": "KYB Certificate Snapshot",
+            "pages": [
+              "api-reference/kyb-certificate-snapshot/query",
+              "api-reference/kyb-certificate-snapshot/soft",
+              "api-reference/kyb-certificate-snapshot/furnish"
+            ]
+          },
+          {
+            "group": "Bank-Specific Bad Actor List",
+            "pages": [
+              "api-reference/bank-specific-bad-actor-list/query"
+            ]
+          },
+          {
+            "group": "Cross-Bank Financial Crimes Watch List",
+            "pages": [
+              "api-reference/cross-bank-financial-crimes-watch-list/query"
+            ]
+          },
+          {
+            "group": "Product Coverage Check",
+            "pages": [
+              "api-reference/product-coverage-check/check"
+            ]
+          },
+          {
+            "group": "Furnishing — Mapping Dry-Run",
+            "pages": [
+              "api-reference/furnishing-mapping-dry-run/verify",
+              "api-reference/furnishing-mapping-dry-run/trace",
+              "api-reference/furnishing-mapping-dry-run/suggest",
+              "api-reference/furnishing-mapping-dry-run/propose"
+            ]
+          },
+          {
+            "group": "Graph",
+            "pages": [
+              "api-reference/graph/models",
+              "api-reference/graph/resource",
+              "api-reference/graph/object-id"
             ]
           }
         ]
@@ -230,5 +287,67 @@
     "socials": {
       "github": "https://github.com/solo-finance"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/api-reference/business-identity/business_identity",
+      "destination": "/api-reference/business-identity/business-identity"
+    },
+    {
+      "source": "/api-reference/consumer-identity/consumer_identity",
+      "destination": "/api-reference/consumer-identity/consumer-identity"
+    },
+    {
+      "source": "/api-reference/consumer-identity/{consent_id}",
+      "destination": "/api-reference/consumer-identity/get-consumer-identity-consent-id"
+    },
+    {
+      "source": "/api-reference/entities/search",
+      "destination": "/api-reference/entities/get-consumer-identity-search"
+    },
+    {
+      "source": "/api-reference/furnishing-policies/{policy_id}",
+      "destination": "/api-reference/furnishing-policies/policy-id"
+    },
+    {
+      "source": "/api-reference/furnishing-—-mapping-dry-run/:slug",
+      "destination": "/api-reference/furnishing-mapping-dry-run/:slug"
+    },
+    {
+      "source": "/api-reference/graph/{object_id}",
+      "destination": "/api-reference/graph/object-id"
+    },
+    {
+      "source": "/api-reference/graph/{resource}",
+      "destination": "/api-reference/graph/resource"
+    },
+    {
+      "source": "/api-reference/products/check",
+      "destination": "/api-reference/product-coverage-check/check"
+    },
+    {
+      "source": "/products/confirmed-fraud-attribute-list",
+      "destination": "/products/overview"
+    },
+    {
+      "source": "/api-overview/index-microservice/overview",
+      "destination": "/api-overview/furnishing/overview"
+    },
+    {
+      "source": "/api-overview/collect-sdk/overview",
+      "destination": "/home/quickstart"
+    },
+    {
+      "source": "/concepts/governance/network-governance",
+      "destination": "/concepts/governance/networks"
+    },
+    {
+      "source": "/home/quickstart/network-consumption",
+      "destination": "/home/golden-paths/fintechs"
+    },
+    {
+      "source": "/home/quickstart/business-lending-onboarding",
+      "destination": "/home/golden-paths/fintechs"
+    }
+  ]
 }

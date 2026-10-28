@@ -1,16 +1,15 @@
 ---
-title: 'Cross-Bank Financial Crimes Watch List'
-description: '314(b) consortium screening for inter-bank financial-crimes signals'
+title: '314(b) Cross-Bank Financial Crimes Watch List'
+description: 'Screening against financial-crimes reports shared across participating banks'
 icon: 'building-shield'
 ---
 
-The **314(b) Cross-Bank Financial Crimes Watch List** is a cross-bank shared
-consortium that extends beyond one sponsor-bank network and focuses on sharing
-suspicious financial-crimes activity. It is governed by banks as defined by
-31 CFR 1020.100(d), under 314(b) permissible purpose. It answers — *is this
-consumer associated with suspicious financial-crimes activity reported across
-participating banks?* — returning a listing indicator plus a small set of
-context fields. It never issues a reusable certificate.
+The **314(b) Cross-Bank Financial Crimes Watch List** is a list shared across
+participating banks, beyond a single sponsor-bank network, for suspected
+financial-crimes activity. It answers a narrow question (*has a participating
+bank reported suspected financial-crimes activity for this consumer?*) and
+returns a listing indicator plus the details of the most recent report. It
+never issues a reusable certificate.
 
 | | |
 |---|---|
@@ -18,19 +17,27 @@ context fields. It never issues a reusable certificate.
 | **Use case** | Watch list screening |
 | **Subject** | Consumer |
 | **Family** | List (query-only) |
-| **Scope** | All participating banks — visibility spans the consortium |
+| **Scope** | Reports furnished to the networks in your request's `network_ids` |
 | **Operation** | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
 Unlike the [Bank-Specific Bad Actor List](/products/bank-specific-bad-actor-list),
-this list is cross-bank by design: it exists so that suspicious financial-crimes
-activity observed at one bank is visible to the others, under the 314(b)
-information-sharing framework. The events behind it are contributed by network
-participants through governed furnishing flows.
+this list is designed to be offered in a network shared by several banks, so
+activity reported by one participating bank is visible to the others in that
+network. Reports are contributed by participating banks through the
+[furnishing pipeline](/api-overview/furnishing/overview); there is no
+`/furnish` endpoint for this product.
+
+<Note>
+  Participation in the watch list is intended for financial institutions that
+  have filed a 314(b) notice with FinCEN. Each participant is responsible for
+  its own regulatory obligations, including how it shares, uses, and acts on
+  the information.
+</Note>
 
 ## At a glance
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_list/query \
+curl -X POST https://api.sandbox.solo.one/v1/products/cross_bank_financial_crimes_watch_list/query \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -43,46 +50,36 @@ curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_
 {
   "provenance_event_id": "7b2d9c4e-…",
   "consumer_identity_id": "c2a4e8d0-…",
-  "furnishing_entity_id": null,
   "is_listed": false,
-  "entity_level_adverse_action_eligible_indicator": null,
-  "watch_list_placement_date": null
+  "furnishing_entity_id": null,
+  "furnishing_entity_name": null,
+  "event_date": null,
+  "event_category": null,
+  "signal_level": null
 }
 ```
 
-A clean result is `"is_listed": false` (always `200 OK`, never `204`). When the
-consumer is listed, the context fields — including a placement date and the
-`entity_level_adverse_action_eligible_indicator` — are populated.
+A clean result is `"is_listed": false` (always `200 OK`, never `204`). When any
+report for the consumer is visible in the queried networks, `is_listed` is
+`true` and the detail fields describe the most recent report: who reported it,
+the event date, the category (`money_laundering`, `terrorist_financing`, or
+`fraud`), and the signal level (`high`, `medium`, or `low`).
 
-## Matching & fields
+## Identifying the subject
 
-Subjects are matched on the consumer identity behind your
-[consent](/concepts/identity/consent) record. SSN and date of birth are
-mandatory match inputs; name, phone, and email refine the match.
-
-Event categories include `money_laundering`, `terrorist_financing`, and `fraud`;
-signal levels are `high`, `medium`, or `low`. A network's
-[querying policy](/concepts/governance/querying-policies) can restrict which
-categories and signal levels a query considers — for example, only `high`-signal
-events.
-
-| Field | API name | Type |
-|---|---|---|
-| Event Date | `event_date` | Date |
-| Event Category | `event_category` | String |
-| Signal Level | `signal_level` | String |
+The subject is identified only by your [consent](/concepts/identity/consent)
+(`consent_id`) or a direct `consumer_identity_id`. You don't send SSN, date of
+birth, or other identifying attributes on the query.
 
 <Warning>
-  Watch-list signals are screening inputs, not adjudications. Whether a listing
-  can support adverse action depends on your program's compliance framework —
-  this list operates under 314(b) permissible purpose, and the
-  `entity_level_adverse_action_eligible_indicator` exists precisely because not
-  every signal qualifies. Route hits to your compliance review process.
+  A listing reflects what a participating bank reported. It is a screening
+  input, not a determination. Route hits to your compliance review process;
+  decisions based on a listing are your institution's.
 </Warning>
 
-<Card title="Full field reference & matching rules" icon="book" href="/api-overview/querying/screening-lists">
-  The screening lists deep dive — match inputs, per-list event fields, and
-  compliance posture.
+<Card title="Full field reference" icon="book" href="/api-overview/querying/screening-lists">
+  The screening lists deep dive: request fields, response fields, and how the
+  most recent report is chosen.
 </Card>
 
 ## Related

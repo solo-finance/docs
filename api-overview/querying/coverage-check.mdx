@@ -1,75 +1,76 @@
 ---
 title: 'Coverage Check'
-description: 'Non-billable soft check of field coverage before running a query'
+description: 'Non-billable, per-furnisher view of which product fields are on file for a subject'
 icon: 'list-radio'
 ---
 
-The **coverage check** is a non-billable, read-only pre-flight for product
-queries. Given a product, a subject, and a network + policy scope, it reports —
-**per furnisher** — which of the policy's required fields are covered by data
-already furnished to the network. It answers *"if I run this query now, can it
-succeed?"* without issuing a certificate, recording a query event, or creating
-a billable event.
+The **coverage check** is a non-billable, read-only utility. Given a product, a
+subject, and a set of networks, it reports **per furnishing institution**
+which of the product's fields that institution has furnished for the subject,
+and whether the subject's consent covers them. It does not issue a
+certificate, return subject data values, or record a billable query event.
 
 ```text
 POST /v1/products/check
 ```
 
 One endpoint serves every product: pass the `product_id` of the product you
-intend to query.
+want to check.
 
-## Why it exists
+<Warning>
+  The response names the furnishing institutions in the queried networks
+  (`furnishing_entity_name`) and shows which of them hold data on the subject
+  (`hit`). Treat it with the same care as any other information about the
+  subject.
+</Warning>
 
-A product query that resolves but cannot satisfy the policy returns
-[`204 No Content`](/api-overview/querying/overview#200-vs-204-here-is-data-vs-nothing-usable)
-— and that resolved query is still a billable event. The coverage check lets you
-avoid predictable `204`s:
+## Coverage check vs soft check
 
-```mermaid
-sequenceDiagram
-    participant App as Your app
-    participant API as SOLO API
-    App->>API: POST /v1/products/check (non-billable)
-    API-->>App: per-furnisher coverage
-    alt coverage complete
-        App->>API: POST /v1/products/{product}/query (billable)
-        API-->>App: 200 + certificate
-    else coverage incomplete
-        App->>App: skip query / adjust UX / pick another policy
-    end
-```
+| | Coverage check | Certificate soft check |
+|---|---|---|
+| Endpoint | `POST /v1/products/check` | `POST /v1/products/{kyc,kyb}_certificate_snapshot/query/soft` |
+| Answers | Which institutions have furnished which fields for this subject? | Would this exact certificate query issue a certificate right now? |
+| Applies the querying policy's filters | No. Any furnished, non-empty value counts. | Yes. Same resolution as the billable query. |
+| Breakdown | Per furnishing institution, per model, per field | `issuable`, `missing_data_paths`, `matched_models` |
+| Billable | No | No |
+
+Because the coverage check ignores the policy's freshness and other filters, a
+`complete` coverage row does not mean a certificate query will return `200`,
+and an incomplete one does not mean it will return `204`. To predict the query
+outcome, use the
+[soft check](/api-overview/querying/kyc-certificate-snapshot#soft-check-before-you-query).
 
 ## Request
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/check \
+curl -X POST https://api.sandbox.solo.one/v1/products/check \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "product_id": "3e8a1d5f-…",
     "consent_id": "a3f0b9c7-…",
-    "policy_id": "5e7d2a14-…",
     "network_ids": ["9f1c0c2e-…"]
   }'
 ```
 
 | Field | Type | Required | Purpose |
 |---|---|---|---|
-| `product_id` | UUID | yes | The product to coverage-check. |
-| `consent_id` | string | one of¹ | Consent token — the system resolves the subject's identity. |
-| `consumer_identity_id` | UUID | one of¹ | Direct consumer profile reference (for consumer-targeted products). |
-| `business_identity_id` | UUID | one of¹ | Direct business profile reference (for business-targeted products). |
+| `product_id` | UUID | yes | The product to check. |
+| `consent_id` | string | one of¹ | Consent token identifying the subject. |
+| `consumer_identity_id` | UUID | one of¹ | Direct consumer profile reference (for consumer products). |
+| `business_identity_id` | UUID | one of¹ | Direct business profile reference (for business products). |
 | `network_ids` | UUID[] | yes | Networks to check across. |
-| `policy_id` | UUID | no | The [querying policy](/concepts/governance/querying-policies) whose requirements to check against. If omitted, each network's default policy is used. |
-| `furnishing_entity_ids` | UUID[] | no | Restrict the check to specific furnishers. When omitted, all furnishers are considered. |
+| `furnishing_entity_ids` | UUID[] | no | Only report these institutions. When omitted, every member institution of the queried networks is reported. |
 
 ¹ Identify the subject the same way you would on the query itself: a
-`consent_id`, or the direct profile id matching the product's target
-(`consumer_identity_id` for consumer products, `business_identity_id` for business products).
+`consent_id`, or the direct profile id matching the product's subject
+(`consumer_identity_id` for consumer products, `business_identity_id` for
+business products).
 
 ## Response
 
-A `200 OK` with one entry per furnisher that has relevant data:
+A `200 OK` with one entry per member institution of the queried networks
+(institutions that hold data for the subject first):
 
 ```json
 {
@@ -82,22 +83,28 @@ A `200 OK` with one entry per furnisher that has relevant data:
       "furnishing_entity_name": "First Example Bank",
       "network_id": "9f1c0c2e-…",
       "complete": false,
+      "hit": true,
       "models": [
         {
           "model_name": "DocumentCaptureEvent",
+          "hit": true,
           "met_count": 2,
-          "total_count": 2,
+          "consented_count": 7,
+          "total_count": 7,
           "fields": [
-            { "field_name": "is_document_captured", "met": true },
-            { "field_name": "document_capture_timestamp", "met": true }
+            { "field_name": "is_document_captured", "met": true, "consented": true, "consent_governed": true },
+            { "field_name": "document_capture_timestamp", "met": true, "consented": true, "consent_governed": true },
+            { "field_name": "document_capture_method", "met": false, "consented": true, "consent_governed": true }
           ]
         },
         {
           "model_name": "LivenessCheckEvent",
+          "hit": false,
           "met_count": 0,
-          "total_count": 1,
+          "consented_count": 0,
+          "total_count": 9,
           "fields": [
-            { "field_name": "is_liveness_captured", "met": false }
+            { "field_name": "is_liveness_captured", "met": false, "consented": false, "consent_governed": true }
           ]
         }
       ]
@@ -106,58 +113,61 @@ A `200 OK` with one entry per furnisher that has relevant data:
 }
 ```
 
+The example is abridged; each model lists all of its fields.
+
 | Field | Meaning |
 |---|---|
-| `entities[]` | One row per furnisher whose data was evaluated. |
-| `entities[].complete` | Whether this furnisher's data alone satisfies every checked requirement. |
+| `entities[]` | One row per member institution of the queried networks (or per institution in `furnishing_entity_ids`). Institutions holding data for the subject come first. |
+| `entities[].furnishing_entity_name` | The institution's name. |
+| `entities[].network_id` | A queried network the institution is a member of. |
+| `entities[].hit` | Whether this institution holds any data for the subject in this product. |
+| `entities[].complete` | Whether this institution has furnished every field of every model listed. |
 | `entities[].models[]` | Per-model breakdown, keyed by the product's model names (see each product's field reference). |
-| `models[].met_count` / `total_count` | How many of the model's checked fields are covered. |
-| `models[].fields[]` | Field-level detail: each `field_name` and whether it's `met`. |
+| `models[].hit` | Whether the institution has any record of this model for the subject. |
+| `models[].met_count` / `total_count` | How many of the model's fields the institution has furnished a non-empty value for, out of the total. |
+| `models[].consented_count` | How many of the model's fields the subject's consent covers for this institution. |
+| `models[].fields[].met` | Whether the institution furnished a non-empty value for this field. |
+| `models[].fields[].consented` | Whether the subject's consent covers this field for this institution. Consent is granted per model, so every field of a model shares the same value. |
+| `models[].fields[].consent_governed` | Whether this field's data can be granted by a subject consent at all, as opposed to operational or audit data. |
 
-The `field_name` values trace directly to the product's field reference tables
-— see the [KYC certificate](/api-overview/querying/kyc-certificate-snapshot#field-reference)
-and [KYB certificate](/api-overview/querying/kyb-certificate-snapshot#field-reference) pages.
+The `field_name` values match the product's field reference tables; see the
+[KYC certificate](/api-overview/querying/kyc-certificate-snapshot#field-reference)
+and [KYB certificate](/api-overview/querying/kyb-certificate-snapshot#field-reference)
+pages. Identifier fields (`attestation_event_id`, `furnishing_entity_id`) are
+not counted.
 
-If the `product_id` cannot be resolved, the endpoint returns `404` with the
-standard error envelope (`{"detail": "…", "error_code": "RESOURCE_NOT_FOUND"}`)
-— see [Errors](/home/errors).
+The coverage check resolves the subject the same way the query does, so it
+returns the same `400`, `403`, and `404` errors (see
+[Query failure modes](/api-overview/querying/overview#query-failure-modes)). An
+unknown `product_id` also returns `404 RESOURCE_NOT_FOUND`.
 
 ## When to use it
 
-- **Pre-flight UX.** Before showing a "verify with SOLO" path during
-  onboarding, check whether the network can actually produce a certificate for
-  this subject — and degrade gracefully if not, rather than surfacing a dead
-  end.
-- **Avoiding empty 204s.** A billable query that returns `204` tells you the
-  policy's requirements weren't met *after* the fact. The coverage check tells
-  you the same thing for free, before you spend the query.
-- **Choosing a scope.** The per-furnisher, per-network breakdown shows *which*
-  furnisher's data is complete, so you can target `furnishing_entity_ids` or
-  pick the right network — or a different policy — before querying.
-- **Diagnosing a 204 you already received.** Run the same scope through the
-  coverage check to see exactly which model's fields fell short.
+- **Choosing a scope.** The per-institution breakdown shows *who* holds the
+  subject's data, so you can target `furnishing_entity_ids` or pick the right
+  network before querying.
+- **Planning data collection.** Fields no institution has furnished are the
+  ones you will need to collect yourself.
+- **Checking consent coverage.** `consented` and `consented_count` show where
+  the subject's consent does and doesn't reach.
 
 ## What it does not do
 
 <Warning>
-  The coverage check is a *soft* check. It does **not**:
+  The coverage check does **not**:
 
-  - issue a certificate or return any subject data — only coverage booleans and
+  - apply the querying policy's filters, so it does not predict whether a
+    certificate query will return `200` or `204` (use the soft check for that);
+  - issue a certificate or return subject data values, only coverage flags and
     counts;
-  - record a query event — there is no `X-Ref-Id` to quote, and nothing is added
-    to the billable audit trail;
-  - create a billable event;
-  - guarantee the subsequent query returns `200` — data can change between the
-    check and the query, and the final result is still shaped by
-    [entitlement](/concepts/governance/entitlement) and the
-    [policy](/concepts/governance/querying-policies) at query time.
+  - record a billable query event.
 </Warning>
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
-    The billable query the coverage check pre-flights.
+    The billable product queries.
   </Card>
   <Card title="Products" icon="box" href="/api-overview/querying/products">
     The catalog of products you can check and query.

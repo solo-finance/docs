@@ -4,55 +4,100 @@ description: 'SOLO Network API endpoint reference'
 icon: 'webhook'
 ---
 
-The SOLO Network API reference is auto-generated from the
-[OpenAPI specification](/api-reference/openapi.json). Each endpoint includes
-request/response schemas, parameter details, and example payloads.
+The SOLO Network API reference is generated from the API's OpenAPI
+specification. Each endpoint includes request and response schemas, parameter
+details, and example payloads.
 
 New to the platform? Read [High-level concepts](/home/overview) first — the
-reference assumes familiarity with entities, products, policies, networks,
-consent, and entitlement.
+reference assumes familiarity with networks, entities, consent, products,
+policies, and entitlement.
+
+This reference covers the REST API. To read the data graph directly or furnish
+nested records in one call, see the [GraphQL API](/api-overview/graphql/overview).
+
+## Base URLs
+
+| Environment | Base URL                       |
+| ----------- | ------------------------------ |
+| Sandbox     | `https://api.sandbox.solo.one` |
+| Production  | `https://api.solo.one`         |
 
 ## Authentication
 
-All endpoints are authenticated with a Bearer token. See
+Every `/v1` endpoint requires a bearer credential — normally an organization
+API key created in the dashboard under **Settings → API keys**. See
 [Authentication](/home/authentication).
 
 ```
-Authorization: Bearer <token>
+Authorization: Bearer <credential>
 ```
 
 ## How the reference is organized
 
 <CardGroup cols={2}>
   <Card title="Consent" icon="file-signature">
-    Create and read [consent](/concepts/identity/consent) records for consumers and
-    businesses. Required before querying.
+    Create, read, and update consumer [consent](/concepts/identity/consent)
+    records, and create business consent records.
   </Card>
   <Card title="Entities" icon="users">
-    Search consumers and businesses within a [network](/concepts/governance/networks).
+    Search consumers and businesses visible to you within a
+    [network](/concepts/governance/networks).
   </Card>
   <Card title="Products" icon="box">
-    Query and furnish [products](/api-overview/querying/products) — KYC/KYB certificates and
-    screening lists.
+    Query, soft-check, and furnish KYC and KYB certificates; query the
+    screening lists; run the coverage check.
   </Card>
   <Card title="Policies" icon="sliders">
-    Create and configure querying [policies](/concepts/governance/querying-policies), and list
-    furnishing policies.
+    Create and configure [querying policies](/concepts/governance/querying-policies);
+    list and read [furnishing policies](/concepts/governance/furnishing-policies).
+  </Card>
+  <Card title="Graph" icon="diagram-project">
+    Describe the data graph and read the objects visible to you, model by
+    model.
+  </Card>
+  <Card title="Mapping dry-run" icon="flask">
+    Verify, trace, and get AI-assisted suggestions for furnishing mapping
+    documents, with no side effects on network data.
   </Card>
   <Card title="Attestations" icon="stamp">
     Create or renew an institution attestation for a product.
   </Card>
-  <Card title="Bulk ingestion" icon="file-import">
-    Upload files for ingestion. See also the [SFTP guide](/api-overview/sftp/overview).
-  </Card>
 </CardGroup>
+
+## Endpoints
+
+| Group | Endpoints |
+| --- | --- |
+| Consent | `POST /v1/consent/consumer_identity`, `GET /v1/consent/consumer_identity/{consent_id}`, `PUT /v1/consent/consumer_identity/{consent_id}`, `POST /v1/consent/business_identity` |
+| Entities | `GET /v1/entities/consumer_identity/search`, `GET /v1/entities/business_identity/search` |
+| KYC certificate | `POST /v1/products/kyc_certificate_snapshot/query`, `POST /v1/products/kyc_certificate_snapshot/query/soft`, `POST /v1/products/kyc_certificate_snapshot/furnish` |
+| KYB certificate | `POST /v1/products/kyb_certificate_snapshot/query`, `POST /v1/products/kyb_certificate_snapshot/query/soft`, `POST /v1/products/kyb_certificate_snapshot/furnish` |
+| Screening lists | `POST /v1/products/bank_specific_bad_actor_list/query`, `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
+| Coverage check | `POST /v1/products/check` |
+| Querying policies | `POST /v1/networks/policies/querying`, `PUT /v1/networks/policies/querying/{policy_id}/configuration` |
+| Furnishing policies | `GET /v1/networks/policies/furnishing`, `GET /v1/networks/policies/furnishing/{policy_id}` |
+| Graph | `GET /v1/graph/models`, `GET /v1/graph/{resource}`, `GET /v1/graph/{resource}/{object_id}` |
+| Mapping dry-run | `/v1/furnishing/mapping/{verify,trace,suggest,propose}` (all `POST`) |
+| Attestations | `POST /v1/institution-attestation-event` |
+| Monitoring (no auth) | `GET /health`, `GET /version` |
 
 ## Conventions
 
-- **Products** expose `query` (read) and `furnish` (write) operations under
-  `/v1/products/{product}/…`.
-- **Querying** a product requires a `consent_id` and one or more `network_policy`
-  pairs. See [Querying](/api-overview/querying/overview).
-- **Furnishing** a product requires a `network_id` and `application_date`.
-  See [Furnishing](/api-overview/furnishing/overview).
-- Errors follow a consistent JSON shape — see [Errors](/home/errors).
+- **Products** expose `query` (read, billable), `query/soft` (non-billable dry
+  run, certificates only), and `furnish` (write) operations, for example
+  `POST /v1/products/kyc_certificate_snapshot/query`.
+- **Querying** a product takes `network_ids` (one or more networks) and
+  either a `consent_id` or the subject's profile ID (`consumer_identity_id` /
+  `business_identity_id`) — not both. Certificate queries also accept an
+  optional `policy_id`. See
+  [Querying](/api-overview/querying/overview).
+- **Furnishing** a product takes a `network_id` and a list of `records`. See [Furnishing](/api-overview/furnishing/overview).
+  Furnishing policies are created and configured in the dashboard; there is no
+  REST upload endpoint — bulk files go through the dashboard or
+  [SFTP](/api-overview/sftp/overview).
+- **Lists** such as entity search take a `limit` of 1–100. Entity search has no
+  offset; the graph and furnishing-policy lists also take an `offset`.
+- **Errors** follow a consistent JSON shape and include a request ID to quote
+  to SOLO — see [Errors](/home/errors).
+- **Writes are not idempotent.** There are no idempotency keys; see
+  [Retries and idempotency](/home/errors#retries-and-idempotency).

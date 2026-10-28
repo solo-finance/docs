@@ -385,9 +385,14 @@ paths:
       tags:
       - Querying Policies
       summary: Create a network-wide querying policy.
-      description: "Create a new network-wide querying policy.\n\nPer-model and per-field\
-        \ selections for the policy \u2014 which may span any\nproduct's models \u2014\
-        \ are authored separately via\n``PUT /networks/policies/querying/{policy_id}/configuration``."
+      description: 'Create a new network-wide querying policy.
+
+
+        Per-model and per-field selections for the policy — which may span any
+
+        product''s models — are authored separately via
+
+        ``PUT /networks/policies/querying/{policy_id}/configuration``.'
       operationId: create_policy_v1_networks_policies_querying_post
       requestBody:
         content:
@@ -580,8 +585,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/KYCCertificateSnapshotQueryOutput'
         '204':
-          description: "No certificate could be created \u2014 the available data\
-            \ did not satisfy the policy requirements."
+          description: No certificate could be created — the available data did not
+            satisfy the policy requirements.
         '422':
           description: Validation Error
           content:
@@ -665,8 +670,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/KYBCertificateSnapshotQueryOutput'
         '204':
-          description: "No certificate could be created \u2014 the available data\
-            \ did not satisfy the policy requirements."
+          description: No certificate could be created — the available data did not
+            satisfy the policy requirements.
         '422':
           description: Validation Error
           content:
@@ -734,7 +739,7 @@ paths:
     post:
       tags:
       - Bank-Specific Bad Actor List
-      summary: Query the bank-specific bad actor list for a consumer or business
+      summary: Query the bank-specific bad actor list for a consumer
       operationId: bank_specific_bad_actor_list_query_v1_products_bank_specific_bad_actor_list_query_post
       requestBody:
         content:
@@ -761,8 +766,7 @@ paths:
     post:
       tags:
       - Cross-Bank Financial Crimes Watch List
-      summary: Query the cross-bank financial crimes watch list for a consumer or
-        business
+      summary: Query the cross-bank financial crimes watch list for a consumer
       operationId: cross_bank_financial_crimes_watch_list_query_v1_products_cross_bank_financial_crimes_watch_list_query_post
       requestBody:
         content:
@@ -815,9 +819,9 @@ paths:
   /v1/furnishing/mapping/verify:
     post:
       tags:
-      - "Furnishing \u2014 Mapping Dry-Run"
-      summary: "Dry-run verify a mapping/1 document (S0-S2) \u2014 the save gate's\
-        \ verifier, no side effects."
+      - Furnishing — Mapping Dry-Run
+      summary: Dry-run verify a mapping/1 document (S0-S2) — the save gate's verifier,
+        no side effects.
       operationId: mapping_verify_v1_furnishing_mapping_verify_post
       requestBody:
         content:
@@ -843,9 +847,9 @@ paths:
   /v1/furnishing/mapping/trace:
     post:
       tags:
-      - "Furnishing \u2014 Mapping Dry-Run"
-      summary: "Dry-run trace a mapping over one sample input line \u2014 the value\
-        \ at every AST path."
+      - Furnishing — Mapping Dry-Run
+      summary: Dry-run trace a mapping over one sample input line — the value at every
+        AST path.
       operationId: mapping_trace_v1_furnishing_mapping_trace_post
       requestBody:
         content:
@@ -871,10 +875,10 @@ paths:
   /v1/furnishing/mapping/suggest:
     post:
       tags:
-      - "Furnishing \u2014 Mapping Dry-Run"
-      summary: "AI-suggest a mapping/1 document for one entry \u2014 verified, but\
-        \ required fields the source cannot provide stay unmapped (reported via omissions)\
-        \ rather than fabricated."
+      - Furnishing — Mapping Dry-Run
+      summary: AI-suggest a mapping/1 document for one entry — verified, but required
+        fields the source cannot provide stay unmapped (reported via omissions) rather
+        than fabricated.
       operationId: mapping_suggest_v1_furnishing_mapping_suggest_post
       requestBody:
         content:
@@ -889,6 +893,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MappingSuggestResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - HTTPBearer: []
+  /v1/furnishing/mapping/propose:
+    post:
+      tags:
+      - Furnishing — Mapping Dry-Run
+      summary: AI-propose every mapping document a pipeline default needs from one
+        pasted sample; with config_values, re-check those documents with the reader's
+        pins instead (no model call).
+      operationId: mapping_propose_v1_furnishing_mapping_propose_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MappingProposeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MappingProposeResponse'
         '422':
           description: Validation Error
           content:
@@ -1110,76 +1143,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /graphql:
-    get:
-      summary: Handle Http Get
-      operationId: handle_http_get_graphql_get
-      responses:
-        '200':
-          description: The GraphiQL integrated development environment.
-          content:
-            application/json:
-              schema: {}
-        '404':
-          description: Not found if GraphiQL or query via GET are not enabled.
-      security:
-      - HTTPBearer: []
-    post:
-      summary: Handle Http Post
-      operationId: handle_http_post_graphql_post
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - HTTPBearer: []
-  /graphql/platform:
-    get:
-      summary: Handle Http Get
-      operationId: handle_http_get_graphql_platform_get
-      responses:
-        '200':
-          description: The GraphiQL integrated development environment.
-          content:
-            application/json:
-              schema: {}
-        '404':
-          description: Not found if GraphiQL or query via GET are not enabled.
-      security:
-      - HTTPBearer: []
-    post:
-      summary: Handle Http Post
-      operationId: handle_http_post_graphql_platform_post
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - HTTPBearer: []
-  /health:
-    get:
-      summary: Health
-      operationId: health_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /version:
-    get:
-      summary: Version
-      operationId: version_version_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
 components:
   schemas:
     AddressCaptureAssertions:
@@ -1407,26 +1370,8 @@ components:
       - assertions
       - data
       title: AddressVerificationSubProduct
-    BackfilledModel:
-      properties:
-        model_name:
-          type: string
-          title: Model Name
-          description: Graph model a vendor answered for, e.g. ``LivenessCheckEvent``.
-      type: object
-      required:
-      - model_name
-      title: BackfilledModel
     BankSpecificBadActorListQueryInput:
       properties:
-        policy_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Policy Id
-          description: Querying policy applied across every network in network_ids.
-            If omitted, each network's default policy is used.
         network_ids:
           items:
             type: string
@@ -1434,8 +1379,7 @@ components:
           type: array
           minItems: 1
           title: Network Ids
-          description: Networks to query across; the single policy is applied to all
-            of them.
+          description: Networks to query across.
         furnishing_entity_ids:
           anyOf:
           - items:
@@ -1451,16 +1395,16 @@ components:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         consumer_identity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Consumer Identity Id
-          description: Consumer profile primary key (ConsumerIdentity.id) for permissible-purpose
-            queries.
+          description: Consumer identity id, as returned by entity search. Use instead
+            of consent_id, not with it.
       type: object
       required:
       - network_ids
@@ -1475,26 +1419,48 @@ components:
           type: string
           format: uuid
           title: Consumer Identity Id
+        is_listed:
+          type: boolean
+          title: Is Listed
+          description: Whether any bad actor listing for the consumer is visible within
+            the queried networks.
         furnishing_entity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Furnishing Entity Id
-        is_listed:
-          type: boolean
-          title: Is Listed
+          description: Institution that placed the most recent listing. Null when
+            not listed.
+        furnishing_entity_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Furnishing Entity Name
+          description: Name of the institution that placed the most recent listing.
+            Null when not listed.
+        bad_actor_reason_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bad Actor Reason Code
+          description: Reason code of the most recent listing (`account_abuse`, `fraud`
+            or `policy_violation`). Null when not listed.
+        bad_actor_reason_definition:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bad Actor Reason Definition
+          description: The documented bank policy the consumer violated. Null when
+            not listed.
         bad_actor_list_placement_date:
           anyOf:
           - type: string
             format: date
           - type: 'null'
           title: Bad Actor List Placement Date
-        bad_actor_list_reason_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Bad Actor List Reason Code
+          description: Date the consumer was placed on the list by the most recent
+            listing. Null when not listed.
       type: object
       required:
       - provenance_event_id
@@ -2325,18 +2291,26 @@ components:
       title: BusinessRiskComplianceEventInput
     ConsentBusinessIdentityCreateInput:
       properties:
+        network_id:
+          type: string
+          format: uuid
+          title: Network Id
         did_gather_consent_from_business_prior:
           type: boolean
           title: Did Gather Consent From Business Prior
         business_consent_event_identity:
           $ref: '#/components/schemas/BusinessConsentEventIdentityInput'
-        identity:
-          $ref: '#/components/schemas/IdentityInput'
+        business_identity_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Business Identity Id
       type: object
       required:
+      - network_id
       - did_gather_consent_from_business_prior
       - business_consent_event_identity
-      - identity
       title: ConsentBusinessIdentityCreateInput
       description: Create a business consent record (direct, server-to-server). Returns
         a consent_id used for all subsequent queries.
@@ -2608,14 +2582,6 @@ components:
       title: CoverageCheckFieldOutput
     CoverageCheckInput:
       properties:
-        policy_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Policy Id
-          description: Querying policy applied across every network in network_ids.
-            If omitted, each network's default policy is used.
         network_ids:
           items:
             type: string
@@ -2623,8 +2589,7 @@ components:
           type: array
           minItems: 1
           title: Network Ids
-          description: Networks to query across; the single policy is applied to all
-            of them.
+          description: Networks to query across.
         furnishing_entity_ids:
           anyOf:
           - items:
@@ -2645,21 +2610,21 @@ components:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity."
+          description: Consent token — system resolves identity.
         consumer_identity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Consumer Identity Id
-          description: Consumer profile primary key (ConsumerIdentity.id).
+          description: Consumer identity id, as returned by entity search.
         business_identity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Business Identity Id
-          description: Business profile primary key (BusinessIdentity.id).
+          description: Business identity id, as returned by entity search.
       type: object
       required:
       - network_ids
@@ -2741,11 +2706,18 @@ components:
       - network_id
       - name
       title: CreatePolicyInput
-      description: "Body of ``POST /networks/policies/querying``.\n\nA policy is network-wide,\
-        \ so the contract carries only the network id\nand a display name. Per-model\
-        \ / per-field selections \u2014 which may span\nany product's models \u2014\
-        \ are authored separately via the wizard's\n``PUT /networks/policies/querying/{policy_id}/configuration``\
-        \ route,\nso this payload intentionally has no nested ``models`` list."
+      description: 'Body of ``POST /networks/policies/querying``.
+
+
+        A policy is network-wide, so the contract carries only the network id
+
+        and a display name. Per-model / per-field selections — which may span
+
+        any product''s models — are authored separately via the wizard''s
+
+        ``PUT /networks/policies/querying/{policy_id}/configuration`` route,
+
+        so this payload intentionally has no nested ``models`` list.'
     CreatePolicyResult:
       properties:
         id:
@@ -2763,27 +2735,15 @@ components:
         name:
           type: string
           title: Name
-        is_default:
-          type: boolean
-          title: Is Default
       type: object
       required:
       - id
       - network_id
       - entity_id
       - name
-      - is_default
       title: CreatePolicyResult
     CrossBankFinancialCrimesWatchListQueryInput:
       properties:
-        policy_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Policy Id
-          description: Querying policy applied across every network in network_ids.
-            If omitted, each network's default policy is used.
         network_ids:
           items:
             type: string
@@ -2791,8 +2751,7 @@ components:
           type: array
           minItems: 1
           title: Network Ids
-          description: Networks to query across; the single policy is applied to all
-            of them.
+          description: Networks to query across.
         furnishing_entity_ids:
           anyOf:
           - items:
@@ -2808,16 +2767,16 @@ components:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         consumer_identity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Consumer Identity Id
-          description: Consumer profile primary key (ConsumerIdentity.id) for permissible-purpose
-            queries.
+          description: Consumer identity id, as returned by entity search. Use instead
+            of consent_id, not with it.
       type: object
       required:
       - network_ids
@@ -2832,26 +2791,47 @@ components:
           type: string
           format: uuid
           title: Consumer Identity Id
+        is_listed:
+          type: boolean
+          title: Is Listed
+          description: Whether any watch list event for the consumer is visible within
+            the queried networks.
         furnishing_entity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Furnishing Entity Id
-        is_listed:
-          type: boolean
-          title: Is Listed
-        entity_level_adverse_action_eligible_indicator:
+          description: Institution that reported the most recent watch list event.
+            Null when not listed.
+        furnishing_entity_name:
           anyOf:
-          - type: boolean
+          - type: string
           - type: 'null'
-          title: Entity Level Adverse Action Eligible Indicator
-        watch_list_placement_date:
+          title: Furnishing Entity Name
+          description: Name of the institution that reported the most recent watch
+            list event. Null when not listed.
+        event_date:
           anyOf:
           - type: string
             format: date
           - type: 'null'
-          title: Watch List Placement Date
+          title: Event Date
+          description: Date of the most recent watch list event. Null when not listed.
+        event_category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Event Category
+          description: Category of the most recent watch list event (`money_laundering`,
+            `terrorist_financing` or `fraud`). Null when not listed.
+        signal_level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Signal Level
+          description: Strength of the most recent watch list signal (`high`, `medium`
+            or `low`). Null when not listed.
       type: object
       required:
       - provenance_event_id
@@ -3449,43 +3429,6 @@ components:
       additionalProperties: true
       type: object
       title: IdentityDocumentIdentityInput
-    IdentityInput:
-      properties:
-        business_dba_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Business Dba Name
-        business_jurisdiction_of_formation:
-          type: string
-          title: Business Jurisdiction Of Formation
-        business_legal_name:
-          type: string
-          title: Business Legal Name
-        business_registration_identifier_from_jurisdiction_of_formation:
-          type: string
-          title: Business Registration Identifier From Jurisdiction Of Formation
-        business_tax_identifier_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Business Tax Identifier Type
-        business_tax_identifier_value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Business Tax Identifier Value
-        business_website_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Business Website Url
-      type: object
-      required:
-      - business_jurisdiction_of_formation
-      - business_legal_name
-      - business_registration_identifier_from_jurisdiction_of_formation
-      title: IdentityInput
     InstitutionAttestationEventCreateRequest:
       properties:
         product_id:
@@ -3576,10 +3519,6 @@ components:
           format: uuid
           title: Network Id
           description: Network scope for the furnishing.
-        application_date:
-          type: string
-          title: Application Date
-          description: Application date for policy resolution.
         records:
           items:
             $ref: '#/components/schemas/KYBCertificateSnapshotFurnishRecord'
@@ -3589,7 +3528,6 @@ components:
       type: object
       required:
       - network_id
-      - application_date
       - records
       title: KYBCertificateSnapshotFurnishInput
     KYBCertificateSnapshotFurnishOutput:
@@ -3598,12 +3536,6 @@ components:
           type: boolean
           title: Success
           default: true
-        submission_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Submission Id
         profile_ids:
           anyOf:
           - items:
@@ -3626,11 +3558,11 @@ components:
         federal_ein:
           type: string
           title: Federal Ein
-          description: "Federal EIN \u2014 business match key."
+          description: Federal EIN — business match key.
         business_jurisdiction_of_formation:
           type: string
           title: Business Jurisdiction Of Formation
-          description: "Jurisdiction of formation \u2014 business match key."
+          description: Jurisdiction of formation — business match key.
         business_legal_name:
           anyOf:
           - type: string
@@ -3694,14 +3626,6 @@ components:
       title: KYBCertificateSnapshotNetworkResult
     KYBCertificateSnapshotQueryInput:
       properties:
-        policy_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Policy Id
-          description: Querying policy applied across every network in network_ids.
-            If omitted, each network's default policy is used.
         network_ids:
           items:
             type: string
@@ -3709,8 +3633,7 @@ components:
           type: array
           minItems: 1
           title: Network Ids
-          description: Networks to query across; the single policy is applied to all
-            of them.
+          description: Networks to query across.
         furnishing_entity_ids:
           anyOf:
           - items:
@@ -3721,21 +3644,30 @@ components:
           title: Furnishing Entity Ids
           description: Optional furnishing-entity scope. When omitted or empty, data
             from all furnishers is considered.
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, the policy assigned to the first network in network_ids is
+            used, and the product's own rules when none is assigned.
         consent_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         business_identity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Business Identity Id
-          description: Business profile primary key (BusinessIdentity.id) for permissible-purpose
-            (FCRA) queries.
+          description: Business identity id, as returned by entity search. Use instead
+            of consent_id, not with it.
       type: object
       required:
       - network_ids
@@ -3773,10 +3705,6 @@ components:
           format: uuid
           title: Network Id
           description: Network scope for the furnishing.
-        application_date:
-          type: string
-          title: Application Date
-          description: Application date for policy resolution.
         records:
           items:
             $ref: '#/components/schemas/KYCCertificateSnapshotFurnishRecord'
@@ -3786,7 +3714,6 @@ components:
       type: object
       required:
       - network_id
-      - application_date
       - records
       title: KYCCertificateSnapshotFurnishInput
     KYCCertificateSnapshotFurnishOutput:
@@ -3795,12 +3722,6 @@ components:
           type: boolean
           title: Success
           default: true
-        submission_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Submission Id
         profile_ids:
           anyOf:
           - items:
@@ -3927,14 +3848,6 @@ components:
       title: KYCCertificateSnapshotNetworkResult
     KYCCertificateSnapshotQueryInput:
       properties:
-        policy_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Policy Id
-          description: Querying policy applied across every network in network_ids.
-            If omitted, each network's default policy is used.
         network_ids:
           items:
             type: string
@@ -3942,8 +3855,7 @@ components:
           type: array
           minItems: 1
           title: Network Ids
-          description: Networks to query across; the single policy is applied to all
-            of them.
+          description: Networks to query across.
         furnishing_entity_ids:
           anyOf:
           - items:
@@ -3954,21 +3866,30 @@ components:
           title: Furnishing Entity Ids
           description: Optional furnishing-entity scope. When omitted or empty, data
             from all furnishers is considered.
+        policy_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Policy Id
+          description: Querying policy applied across every network in network_ids.
+            If omitted, the policy assigned to the first network in network_ids is
+            used, and the product's own rules when none is assigned.
         consent_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Consent Id
-          description: "Consent token \u2014 system resolves identity + applies field\
-            \ access filtering."
+          description: Consent token — system resolves identity + applies field access
+            filtering.
         consumer_identity_id:
           anyOf:
           - type: string
             format: uuid
           - type: 'null'
           title: Consumer Identity Id
-          description: Consumer profile primary key (ConsumerIdentity.id) for permissible-purpose
-            (FCRA) queries.
+          description: Consumer identity id, as returned by entity search. Use instead
+            of consent_id, not with it.
       type: object
       required:
       - network_ids
@@ -4186,6 +4107,212 @@ components:
       - ast_path
       - code
       title: MappingFinding
+    MappingProposeEntry:
+      properties:
+        step:
+          type: string
+          title: Step
+        alias:
+          type: string
+          title: Alias
+        target:
+          additionalProperties: true
+          type: object
+          title: Target
+          description: The entry's target schema, as the mapping writes it.
+        roots:
+          additionalProperties: true
+          type: object
+          title: Roots
+          description: alias -> source schema, with row set to the pasted records.
+        pins:
+          additionalProperties: true
+          type: object
+          title: Pins
+          description: 'Stored pins: target pointer -> {value} or {from, path}.'
+        target_models:
+          additionalProperties:
+            type: string
+          type: object
+          title: Target Models
+          description: UI object path in the target -> the model it persists as, for
+            placing fields on the graph.
+      type: object
+      required:
+      - step
+      - alias
+      - target
+      - roots
+      - pins
+      - target_models
+      title: MappingProposeEntry
+    MappingProposeMissing:
+      properties:
+        step:
+          type: string
+          title: Step
+        alias:
+          type: string
+          title: Alias
+        target_path:
+          type: string
+          title: Target Path
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+          description: Why the model left it unbound, when it said.
+      type: object
+      required:
+      - step
+      - alias
+      - target_path
+      title: MappingProposeMissing
+    MappingProposeRequest:
+      properties:
+        source_default_slug:
+          type: string
+          title: Source Default Slug
+          description: Mapping-default pipeline to propose for, e.g. jsonl_mapping_default
+            or jsonl_mapping_business_default.
+        row_schema:
+          additionalProperties: true
+          type: object
+          title: Row Schema
+          description: Client-dialect schema inferred from the pasted records.
+        sample:
+          additionalProperties: true
+          type: object
+          title: Sample
+          description: One pasted record; evaluated on the server for the preview.
+        share_sample_with_model:
+          type: boolean
+          title: Share Sample With Model
+          description: Send the sample's values to the model as well as its structure.
+          default: false
+        pins:
+          additionalProperties:
+            additionalProperties:
+              additionalProperties:
+                $ref: '#/components/schemas/MappingSuggestPin'
+              type: object
+            type: object
+          type: object
+          title: Pins
+          description: step -> alias -> target pointer -> the reader's own binding,
+            which wins over the model.
+        config_values:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                additionalProperties: true
+                type: object
+              type: object
+            type: object
+          - type: 'null'
+          title: Config Values
+          description: step -> alias -> mapping/1 document from an earlier proposal;
+            re-checked with pins, no model call.
+      type: object
+      required:
+      - source_default_slug
+      - row_schema
+      - sample
+      title: MappingProposeRequest
+    MappingProposeResponse:
+      properties:
+        config_values:
+          additionalProperties:
+            additionalProperties:
+              additionalProperties: true
+              type: object
+            type: object
+          type: object
+          title: Config Values
+          description: step -> alias -> mapping/1 document, ready for furnish.viaSample.
+        entries:
+          items:
+            $ref: '#/components/schemas/MappingProposeEntry'
+          type: array
+          title: Entries
+          description: Each mapping step's target, roots, pins and target models,
+            so the proposal can be drawn on the graph.
+        rows:
+          items:
+            $ref: '#/components/schemas/MappingProposeRow'
+          type: array
+          title: Rows
+        blocking_missing:
+          items:
+            $ref: '#/components/schemas/MappingProposeMissing'
+          type: array
+          title: Blocking Missing
+          description: Required target fields nothing binds; the mapping cannot be
+            saved until each is bound.
+        optional_missing:
+          items:
+            $ref: '#/components/schemas/MappingProposeMissing'
+          type: array
+          title: Optional Missing
+          description: Fields the model noted it could not bind that the target does
+            not require.
+        verified:
+          type: boolean
+          title: Verified
+          description: Every step produced a document free of problems besides missing
+            fields.
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+          description: What went wrong, when verified is false.
+      type: object
+      required:
+      - config_values
+      - rows
+      - blocking_missing
+      - optional_missing
+      - verified
+      title: MappingProposeResponse
+    MappingProposeRow:
+      properties:
+        step:
+          type: string
+          title: Step
+        alias:
+          type: string
+          title: Alias
+        target_path:
+          type: string
+          title: Target Path
+          description: UI target path bound, e.g. /first_name or /data/addresses/[]/city.
+        source_pointer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Pointer
+          description: Source field it reads, e.g. /given_name; null when computed.
+        preview:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Preview
+          description: Its value over the sample (first element of lists).
+        rationale:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rationale
+          description: The model's one-line reason, for suggested bindings.
+      type: object
+      required:
+      - step
+      - alias
+      - target_path
+      - source_pointer
+      title: MappingProposeRow
     MappingResult:
       properties:
         id:
@@ -4346,9 +4473,9 @@ components:
             type: object
           - type: 'null'
           title: Document
-          description: "The merged, verified mapping/1 document (required fields the\
-            \ source cannot provide may be left unmapped \u2014 see omissions); null\
-            \ when nothing verified."
+          description: The merged, verified mapping/1 document (required fields the
+            source cannot provide may be left unmapped — see omissions); null when
+            nothing verified.
         verified:
           type: boolean
           title: Verified
@@ -4563,25 +4690,12 @@ components:
             $ref: '#/components/schemas/FieldSelectionInput'
           type: array
           title: Field Selections
-        backfill_source_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Backfill Source Id
       type: object
       required:
       - model_name
       - field_selections
       title: ModelSelectionInput
-      description: 'Per-model wizard payload, naming a graph model.
-
-
-        ``backfill_source_id`` names the vendor source a query asks for the model
-
-        when SOLO holds no row the policy accepts: ``null`` clears it, and leaving
-
-        it out keeps the policy''s current backfill.'
+      description: Per-model wizard payload, naming a graph model.
     QueryResolutionMeta:
       properties:
         network_id:
@@ -4594,13 +4708,6 @@ components:
             format: uuid
           - type: 'null'
           title: Policy Id
-        backfilled:
-          items:
-            $ref: '#/components/schemas/BackfilledModel'
-          type: array
-          title: Backfilled
-          description: Models no SOLO row answered for, answered instead by the vendor
-            the policy names.
       type: object
       required:
       - network_id
@@ -4652,8 +4759,8 @@ components:
             type: string
           type: array
           title: Missing Data Paths
-          description: Policy-required certificate data paths absent for the selections
-            (empty when issuable).
+          description: Certificate sub-products, and policy-required data paths, the
+            selections did not resolve (empty when issuable).
         matched_models:
           items:
             type: string
@@ -4665,14 +4772,23 @@ components:
       required:
       - issuable
       title: SoftCheckOutput
-      description: "Result of a non-billable certificate soft check (dry run).\n\n\
-        Carries whether a complete certificate could be issued for the exact query\n\
-        selections (subject, policy, networks, furnishers), which product models\n\
-        have a populated sub-product in the resolved result, and which\npolicy-required\
-        \ data paths are missing. No resolved field values are\nreturned \u2014 the\
-        \ soft check reveals issuability and match shape, never the\nunderlying data.\
-        \ Soft checks always return an HTTP 200 body so clients can\nread ``matched_models``\
-        \ / ``missing_data_paths`` when ``issuable`` is false."
+      description: 'Result of a non-billable certificate soft check (dry run).
+
+
+        Carries whether a complete certificate could be issued for the exact query
+
+        selections (subject, policy, networks, furnishers), which product models
+
+        have a populated sub-product in the resolved result, and which certificate
+
+        sub-products or policy-required data paths are missing. No resolved field
+        values are
+
+        returned — the soft check reveals issuability and match shape, never the
+
+        underlying data. Soft checks always return an HTTP 200 body so clients can
+
+        read ``matched_models`` / ``missing_data_paths`` when ``issuable`` is false.'
     ValidationError:
       properties:
         loc:

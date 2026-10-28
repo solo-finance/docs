@@ -1,87 +1,73 @@
 ---
 title: 'Joining a network'
-description: 'Understand membership, roles, and your first calls in a network'
+description: 'How network membership and roles work, and how to confirm your access with your first calls'
 icon: 'sitemap'
 ---
 
 import DashboardQuickstartJoinANetwork from '/snippets/dashboard/quickstart-join-a-network.mdx';
 
-Everything you do on the platform happens inside a
-[network](/concepts/governance/networks) — a trust boundary that defines who can
-contribute data, who can read it, and under which policies. This guide gets you
-from "we signed the paperwork" to "our token works and we can see the network,"
-using two read-only API calls.
+Everything you do with data happens inside a
+[network](/concepts/governance/networks) — a group of participants that defines
+who can contribute data, who can read it, and under which policies. This guide
+explains how your organization becomes a member, then confirms your access with
+two read-only calls.
 
 ## Prerequisites
 
 <Note>
   Before you start, you need:
 
-  - **Network membership and a role** — arranged with your SOLO account manager
-    (see step 1 below).
-  - **A bearer token** (SDK token) exported as `SOLO_TOKEN`. See
+  - **A sandbox dashboard account and API key** — see
+    [Getting access](/home/quickstart#getting-access).
+  - **Your API key** exported as `SOLO_TOKEN`. See
     [Authentication](/home/authentication).
-  - **Your `network_id`** — the UUID of the network you were added to.
+  - **Your `network_id`** — shown in the page URL when you open the network in
+    the dashboard.
 </Note>
 
 ## Set up and verify
 
 <Steps>
   <Step title="Get added to a network">
-    Network membership and roles are arranged with your SOLO account manager —
-    there is no self-service signup endpoint. When your organization is added,
-    you receive:
-
-    - a **`network_id`** — the network you'll furnish into or query from, and
-    - one or more **roles** that define what you can do in it.
+    There is no REST endpoint for joining a network. Membership is managed in
+    the SOLO dashboard: SOLO or the network's governor adds your organization,
+    or you ask to join a network listed in the dashboard and its governor
+    approves the request. When your organization is a member, it holds one or
+    more **roles** in that network:
 
     | Role | What it lets you do |
     |---|---|
     | **Furnisher** | Contribute data into the network. |
-    | **Querier** | Run product queries scoped to the network. |
-    | **Governor** | Administer the network's policies and metadata. |
+    | **Querier** | Run product queries against the network. |
+    | **Governor** | Administer the network's policies and membership. Governors can also furnish. |
 
-    Roles grant *capabilities*, not *visibility*. Joining a network — even
-    governing one — does not let you read other members' data. Reading requires
-    [consent](/concepts/identity/consent) from the data subject and
-    [entitlement](/concepts/governance/entitlement) earned by participating.
-    Roles are covered in depth in
-    [Network roles](/concepts/governance/network-roles).
+    Your organization's roles are listed on the network's **Members** tab in
+    the dashboard. Roles grant *capabilities*, not *visibility*: joining a
+    network — even governing one — does not let you read other members' data
+    on its own. What you can read is bounded by the querying policy and your
+    [entitlement](/concepts/governance/entitlement). Roles are covered in depth
+    in [Network roles](/concepts/governance/network-roles).
   </Step>
 
   <Step title="Confirm the API is reachable">
-    Before testing your credentials, confirm you can reach the API at all.
-    `/version` requires no special role and tells you which API versions the
-    deployment serves:
+    `GET /version` needs no credential and confirms you can reach the API. It
+    returns the API versions the deployment serves (`["v1"]`) and the build's
+    version and commit — include those when reporting unexpected behavior.
 
     ```bash
-    curl https://api.solo.one/version \
-      -H "Authorization: Bearer $SOLO_TOKEN"
+    curl https://api.sandbox.solo.one/version
     ```
 
-    ```json Response
-    {
-      "api_versions": ["v1"],
-      "build": {
-        "commit": "9b8a7c6d",
-        "version": "1.42.0"
-      }
-    }
-    ```
-
-    All the endpoints in these guides live under the `v1` prefix listed in
-    `api_versions`. The `build` block identifies the exact deployment — include
-    it when reporting unexpected behavior to SOLO. There's also a
-    `GET /health` probe that returns `{"status": "healthy"}` if the service is
-    up; point your uptime monitoring at it.
+    There's also `GET /health`, which returns `{"status": "healthy"}` when the
+    service is up; point uptime monitoring at it.
   </Step>
 
   <Step title="Verify your network access">
-    The fastest end-to-end check of your token, membership, and `network_id` is
-    an entity search scoped to your network:
+    The quickest end-to-end check of your key, your organization's account, and
+    your `network_id` is an entity search scoped to the network:
 
     ```bash
-    curl -G https://api.solo.one/v1/entities/consumer_identity/search \
+    curl -G https://api.sandbox.solo.one/v1/entities/consumer_identity/search \
       -H "Authorization: Bearer $SOLO_TOKEN" \
       --data-urlencode "network_id=9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21" \
       --data-urlencode "last_name=Doe" \
@@ -104,101 +90,87 @@ using two read-only API calls.
     ]
     ```
 
-    A `200 OK` — even with an empty `[]` body — proves your token is valid and
-    scoped to the network. `network_id` is the only required parameter; the
-    rest narrow the search:
+    A `200 OK` — even with an empty `[]` body — proves your key is accepted
+    and the network is reachable. `network_id` is the only required
+    parameter; the rest narrow the search:
 
-    - `first_name`, `last_name`, `personal_email` — case-insensitive **partial**
-      matches.
+    - `first_name`, `last_name`, `personal_email` — case-insensitive
+      **partial** matches.
     - `social_security_number`, `date_of_birth` — **exact** matches
       (`YYYY-MM-DD` for date of birth).
-    - `limit` — maximum results, 1–100, default 20.
+    - `limit` — maximum results, 1–100, default 20. There is no offset or
+      paging, so narrow your filters if you need to find a specific person.
   </Step>
 </Steps>
 
 ## Inspect the result
 
-Each element of the search response is a consumer core identity visible to you
-within the network:
+Search returns only consumers visible to you in the network you named:
 
 | Field | Meaning |
 |---|---|
-| `id` | The consumer's UUID. Use it as `consumer_identity_id` when linking a consent record to a known profile. |
-| `identifier` | The consumer record's stable string identifier. |
+| `id` | The consumer's profile ID. Use it as `consumer_identity_id` when linking a consent or querying by profile. |
+| `identifier` | The same ID, as a string. |
 | `created_at` / `updated_at` | When the consumer record was created and last modified. |
-| `first_name`, `last_name`, `personal_email`, `date_of_birth`, `social_security_number` | The core identity fields the record was matched on. Any of these may be `null` if not on file. |
+| `first_name`, `last_name`, `personal_email`, `date_of_birth`, `social_security_number` | The consumer's core identity fields. Any of these may be `null` if not on file. |
 
-An empty array is a perfectly healthy response — it means no consumer in this
+An empty array is a healthy response — no consumer visible to you in this
 network matches your filters yet. After you complete
 [Furnishing your first entity](/home/quickstart/furnish-an-entity), the consumer
 you furnish will appear here.
 
-Note what the search does *not* return: certificates, events, or any product
-data. Search is an identity lookup. Reading actual data about a consumer
-always goes through a product query with a consent record — that separation is
-the core of the platform's privacy model.
+Search does *not* return certificates, events, or any product data. Reading
+verification data about a consumer always goes through a product query.
 
-## The network tree
-
-As you scale, you'll encounter **child networks** — narrower trust boundaries
-nested under a parent network, such as the partner networks a sponsor bank
-runs for its fintechs.
-
-The network tree is explained in [Networks](/concepts/governance/networks), and the rules
-for who may change what are covered in
-[Network governance](/concepts/governance/network-governance).
+The business equivalent is `GET /v1/entities/business_identity/search`, which
+filters on `business_legal_name`, `business_dba_name`, `business_email`, and
+`federal_ein`, with the same `network_id` and `limit` rules.
 
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="401 — token expired or invalid">
+  <Accordion title="401 — credential not accepted">
     ```json
-    {
-      "detail": "Authentication required",
-      "error_code": "AUTHENTICATION_REQUIRED"
-    }
+    { "detail": "Invalid or expired token" }
     ```
 
-    Your bearer token is missing, malformed, or expired. Tokens are issued by
-    your SOLO account manager — re-export `SOLO_TOKEN` with a fresh value and
-    confirm the header reads exactly `Authorization: Bearer $SOLO_TOKEN`. See
-    [Authentication](/home/authentication).
+    The key is missing, mistyped, or revoked. Confirm the header reads exactly
+    `Authorization: Bearer $SOLO_TOKEN`, and that the key was created in the
+    sandbox dashboard. A `Could not validate API key` detail means your
+    organization isn't fully set up in this environment yet — contact your SOLO
+    contact. See [Authentication](/home/authentication#troubleshooting).
   </Accordion>
   <Accordion title="422 — missing required parameter">
     ```json
-    {
-      "detail": "query -> network_id: Field required"
-    }
+    { "detail": "query -> network_id: Field required" }
     ```
 
-    `network_id` is required on every search. A `422` always carries a single
-    `detail` string in `location -> field: message` form pointing at the first
-    invalid input — fix that field and retry.
+    `network_id` is required on every search. A `422` carries a single
+    `detail` string naming the first invalid input.
   </Accordion>
   <Accordion title="403 — role doesn't permit the operation">
     ```json
     {
-      "detail": "Permission denied",
+      "detail": "Permission denied: cannot furnish network 9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
       "error_code": "PERMISSION_DENIED"
     }
     ```
 
-    Your token is valid but your role in this network doesn't allow the call —
-    for example, furnishing without the furnisher role. Confirm your roles with
-    your SOLO account manager. See
+    Your key is valid but your organization's role in this network doesn't
+    allow the call — here, furnishing without the furnisher role. Check the
+    network's **Members** tab, and see
     [Network roles](/concepts/governance/network-roles).
   </Accordion>
   <Accordion title="200 with an empty array">
-    Not an error. Your token and membership are fine; the network simply has no
-    consumer matching your filters. Partial-match fields (`first_name`,
-    `last_name`, `personal_email`) are the most forgiving way to probe for
-    data.
+    Not an error. Your key and membership are fine; no consumer visible to you
+    matches your filters. Partial-match fields (`first_name`, `last_name`,
+    `personal_email`) are the most forgiving way to probe for data.
   </Accordion>
 </AccordionGroup>
 
 ## Next steps
 
-With membership verified, pick the workflow that matches your role:
+With access confirmed, pick the workflow that matches your role:
 
 
 <DashboardQuickstartJoinANetwork />
@@ -210,7 +182,7 @@ With membership verified, pick the workflow that matches your role:
     For queriers — read a consolidated certificate back.
   </Card>
   <Card title="Networks" icon="sitemap" href="/concepts/governance/networks">
-    Roles, the network tree, and policy usage in depth.
+    Membership, roles, and policies in depth.
   </Card>
   <Card title="Network roles" icon="user-shield" href="/concepts/governance/network-roles">
     What furnishers, queriers, and governors can each do.

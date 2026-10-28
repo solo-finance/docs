@@ -1,100 +1,102 @@
 ---
 title: 'Business graph'
-description: 'What can actually be verified about a business in the network, and how each branch becomes a reusable trust asset'
+description: 'What can be verified about a business in the network, and how each branch becomes a trust asset'
 icon: 'building'
 ---
 
-The **business graph** is everything a SOLO network can hold about a legal
-entity: a core identity, plus the verification events participants have furnished
-about it. Each branch is a candidate [trust asset](/concepts/trust/trust-assets)
-— an attested verification another institution can reuse instead of repeating
-registry lookups, ownership tracing, and risk screening.
+The **business graph** is what a SOLO network can hold about a legal entity: a
+core identity, plus the verification events participants have furnished about
+it. Each verification branch is a candidate
+[trust asset](/concepts/trust/trust-assets) — an attested verification that an
+authorized participant can build on instead of repeating registry lookups,
+ownership tracing, and risk screening.
 
-This page shows what lives in the graph **today**. Every node maps to a real
-model; branches with no backing model in the current catalog (for example
-business financials/revenue, banking relationships, or tax-return inventories)
-are deliberately absent rather than implied.
+This page shows the main branches that exist **today**. Every node is a real
+data model; branches with no backing model are deliberately absent rather than
+implied.
 
 ## The graph
 
+Node names are the model names used in consent grants (`models`).
+`GET /v1/graph/models` lists the same models — for example `BusinessIdentity`,
+with the resource path `business-identities` — together with every field.
+
 ```text
-Business
-├── Identity                            (business)
-│   ├── business_legal_name, business_dba_name
-│   ├── business_jurisdiction_of_formation
-│   ├── business_entity_type
-│   ├── business_date_of_incorporation
-│   ├── federal_ein / tax identifier
-│   ├── business_website_url, business_email, business_phone
-│   └── employee_count
+business_identity                                   The business
+│   business_legal_name, business_dba_name,
+│   business_jurisdiction_of_formation,
+│   business_registration_identifier_from_jurisdiction_of_formation,
+│   federal_ein, business_entity_type, business_date_of_incorporation,
+│   business_registration_status, business_website_url, business_email,
+│   business_phone, employee_count
 │
-├── Business identity verification      (business_identity_verification_event)
-│   ├── registration_status, registration_identifier
-│   ├── jurisdiction_of_formation
-│   ├── operational_existence_status
-│   ├── tax_id_validation_result, address_verification_result
-│   ├── is_secretary_of_state_match
-│   └── formation_document_artifact (evidence)
+├── address_identity                                type, line_1, line_2, city, state, zip, country
 │
-├── Ownership & control                 (business_ownership_control_verification_event)
-│   ├── beneficial_owners_identified_count
-│   ├── control_persons_identified_count
-│   ├── authorized_representatives_identified_count
-│   ├── beneficial_ownership_determination_method
-│   ├── beneficial_ownership_threshold_applied
-│   ├── control_determination_basis
-│   └── ownership_evidence_artifact (evidence)
+├── business_identity_verification_event            is_identity_verified, registration_status,
+│                                                   registration_identifier, jurisdiction_of_formation,
+│                                                   operational_existence_status, tax_id_validation_result,
+│                                                   address_verification_result, is_secretary_of_state_match,
+│                                                   formation_document_artifact
 │
-├── Risk & compliance                   (business_risk_compliance_event)
-│   ├── sanctions_screening_result
-│   ├── adverse_media_assessment_result
-│   ├── activity_risk_level
-│   ├── restricted_activity_assessment_result
-│   └── primary_activity_classification_code / system
+├── business_ownership_control_verification_event   is_ownership_control_verified,
+│                                                   beneficial_owners_identified_count,
+│                                                   control_persons_identified_count,
+│                                                   authorized_representatives_identified_count,
+│                                                   beneficial_ownership_determination_method,
+│                                                   beneficial_ownership_threshold_applied,
+│                                                   control_determination_basis, ownership_evidence_artifact
 │
-└── Consent                             (business consent)
-    └── scope, expires_at, consented_fields
+├── business_risk_compliance_event                  is_risk_compliance_assessed, sanctions_screening_result,
+│                                                   adverse_media_assessment_result, activity_risk_level,
+│                                                   restricted_activity_assessment_result,
+│                                                   primary_activity_classification_code,
+│                                                   primary_activity_classification_system
+│
+└── business_consent_event                          consent_id, business_legal_name, federal_ein, consented_at
 ```
 
 ## How to read the graph
 
-- **Identity** is the [entity](/concepts/identity/entities) itself — the legal
-  name, jurisdiction, and tax identifier that let contributions from different
-  participants accrue to one business.
-- **Verification branches** are furnished events. A
-  [KYB certificate](/api-overview/querying/kyb-certificate-snapshot) query consolidates the
-  three verification branches — identity, ownership & control, and
-  risk & compliance — into one certificate.
-- **Registration and addresses** are not separate branches; they are fields
-  inside business identity verification (`registration_status`,
-  `business_registered_address`, `business_operating_address`).
-- **Consent** is the permission layer that governs reading any branch.
+- **`business_identity`** is the [entity](/concepts/identity/entities) itself.
+  Its federal EIN and jurisdiction of formation together are the match key
+  that lets contributions from different participants attach to one business.
+- **Verification events** are furnished outcomes. A
+  [KYB certificate](/api-overview/querying/kyb-certificate-snapshot) query
+  consolidates the three verification branches — identity, ownership and
+  control, and risk and compliance — into one certificate.
+- **Addresses** are `address_identity` records attached to the business. The
+  KYB certificate reports the registered and operating addresses inside its
+  business identity verification sub-product.
+- **`business_consent_event`** is the permission record that governs querying
+  the business.
 
 ## Each branch carries provenance
 
-Every populated KYB sub-product carries the `furnishing_entity_id` and
-`attestation_event_id` of the participant whose data backed it, plus an `assertions`
-block recording what was asserted and when. Ownership and identity branches
-reference concrete evidence artifacts (a cap table, articles of organization).
-See [Provenance](/concepts/trust/provenance) for the full lineage model.
+Furnished verification events record the participant that furnished them, and
+can link to that participant's attestation. Every populated KYB sub-product
+surfaces this as `furnishing_entity_id` and `attestation_event_id`, plus an
+`assertions` block recording what was asserted and when. The identity and
+ownership branches also carry evidence artifact fields
+(`formation_document_artifact`, `ownership_evidence_artifact`). See
+[Provenance](/concepts/trust/provenance) for the full lineage model.
 
 <Note>
-  What you can actually read back is the intersection of the network's
-  [querying policy](/concepts/governance/querying-policies) and your
+  What you can actually read back is decided by the network's
+  [querying policy](/concepts/governance/querying-policies) and by
   [entitlement](/concepts/governance/entitlement). The graph describes what
   *can* exist; consent, policy, and entitlement decide what *you* see.
 </Note>
 
-## Reusable trust assets for a business
+## Trust assets for a business
 
-Consolidated through products, the business graph yields reusable assets such
-as:
+Consolidated through products, the business graph yields assets such as:
 
 - **Verified business identity** — registration, jurisdiction, and tax-ID
   validation from a [KYB certificate](/api-overview/querying/kyb-certificate-snapshot).
-- **Verified ownership** — beneficial owners and control persons, evidenced.
-- **Risk & compliance screening** — sanctions, adverse media, and watchlist
-  outcomes.
+- **Verified ownership and control** — beneficial owners and control persons,
+  with the evidence reviewed.
+- **Risk and compliance screening** — sanctions screening, adverse media, and
+  activity-risk outcomes.
 
 ## Related
 

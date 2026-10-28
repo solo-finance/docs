@@ -1,91 +1,125 @@
 ---
 title: 'Quickstart'
-description: 'Get up and running on the SOLO Network in a few minutes'
+description: 'Get sandbox access, then make your first calls against the SOLO Network'
 icon: 'rocket'
 ---
 
-The SOLO Network lets member banks contribute verified data about consumers and
-businesses, and read consolidated views of that data back — all governed by
+The SOLO Network lets member institutions contribute verified data about
+consumers and businesses, and read consolidated results back — governed by
 network membership, [consent](/concepts/identity/consent), and
-[entitlement](/concepts/governance/entitlement). This quickstart sequences the
-three workflows you'll use most, each as a self-contained walkthrough with
-complete requests and responses you can adapt directly.
+[entitlement](/concepts/governance/entitlement). This page gets you
+credentials and the IDs you need; the guides after it each walk through one
+workflow with complete requests and responses.
+
+## Getting access
+
+There is no self-serve signup over the API. Your organization gets a SOLO
+dashboard account and is added to networks there; everything else follows from
+that.
+
+<Steps>
+  <Step title="Get a sandbox dashboard account">
+    Ask your SOLO contact for a sandbox account. SOLO sets up your organization
+    in the sandbox dashboard at
+    [app.sandbox.solo.one](https://app.sandbox.solo.one) and adds it to one or
+    more sandbox networks with the roles you need — furnisher to contribute
+    data, querier to read it.
+  </Step>
+  <Step title="Create an API key">
+    In the sandbox dashboard, open **Settings → API keys** and create a key for
+    your integration. Export it so every example in these guides works as-is:
+
+    ```bash
+    export SOLO_TOKEN="<your sandbox API key>"
+    ```
+
+    See [Authentication](/home/authentication) for how keys work and how to
+    rotate them.
+  </Step>
+  <Step title="Find your network ID and product IDs">
+    - **`network_id`** — in the dashboard, open **Networks** and select your
+      network. Its ID is the last segment of the page URL
+      (`/networks/<network_id>`). The **Members** tab shows your
+      organization's permissions in that network.
+    - **`product_id`** — needed only for the coverage check
+      (`POST /v1/products/check`). Open **Products** in the dashboard and
+      select a product; its **Product ID** is shown at the top of the page.
+    - **`policy_id`** — optional. Each querying policy's **Policy ID** is shown
+      on its page under **Policies**. If you leave it out of a query, the
+      querying policy assigned to the first network you query applies.
+  </Step>
+  <Step title="Make your first call">
+    Search for consumers in your network. A `200` — even with an empty `[]`
+    body — confirms your key, your organization's account, and your
+    `network_id` all work:
+
+    ```bash
+    curl -G https://api.sandbox.solo.one/v1/entities/consumer_identity/search \
+      -H "Authorization: Bearer $SOLO_TOKEN" \
+      --data-urlencode "network_id=9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21" \
+      --data-urlencode "limit=10"
+    ```
+
+    A `401` means the key isn't being accepted — see the
+    [troubleshooting table](/home/authentication#troubleshooting).
+  </Step>
+</Steps>
+
+<Note>
+  Every example in these docs uses the sandbox API,
+  `https://api.sandbox.solo.one`. When you go live, create production keys in
+  the production dashboard (`https://app.solo.one`) and switch the base URL to
+  `https://api.solo.one`.
+</Note>
 
 ## The sequence
 
 Work through the guides in order the first time:
 
-1. **[Join a network](/home/quickstart/join-a-network)** — membership is arranged
-   with your SOLO account manager; this guide shows you how to verify that your
-   token, role, and `network_id` actually work before you build anything.
-2. **[Furnish an entity](/home/quickstart/furnish-an-entity)** — record consent,
-   then contribute KYC certificate data about a consumer into your network.
-3. **[Query a product](/home/quickstart/query-a-product)** — reuse the consent
-   and read a consolidated KYC certificate back, including how to interpret a
-   `200` versus a `204` and the `X-Ref-Id` header.
+1. **[Join a network](/home/quickstart/join-a-network)** — how membership and
+   roles work, and how to confirm your access with read-only calls.
+2. **[Furnish an entity](/home/quickstart/furnish-an-entity)** — record
+   consent, then contribute KYC verification data about a consumer.
+3. **[Query a product](/home/quickstart/query-a-product)** — check whether a
+   certificate can be issued, then read a consolidated KYC certificate back,
+   including how to interpret a `200` versus a `204`.
 
 Furnishing and querying are independent capabilities, but they reinforce each
 other: furnishing data about a consumer earns you
 [entitlement](/concepts/governance/entitlement) to read that consumer's data on
 future queries.
 
-By the end of the sequence you'll have made every call a production
-integration makes: a membership sanity check, a consent record, a furnish
-submission, and a billable product query — and you'll know how to read each
-response, including the empty ones.
-
 ```mermaid
 flowchart LR
-    Join[Join a network] --> Consent[Record consent]
+    Access[Get access] --> Join[Confirm network access]
+    Join --> Consent[Record consent]
     Consent --> Furnish[Furnish an entity]
     Consent --> Query[Query a product]
     Furnish -.earns entitlement.-> Query
 ```
 
-## What you'll need
-
-| Requirement | Where it comes from | Used for |
-|---|---|---|
-| **Network membership + role** | Arranged with your SOLO account manager | Furnisher role to furnish, querier role to query |
-| **Bearer token (SDK token)** | Issued by your SOLO account manager | The `Authorization` header on every request |
-| **`network_id`** | Provided when your organization joins a network | Scoping every consent, search, furnish, and query |
-
-Export your token once so every example in these guides works as-is:
-
-```bash
-export SOLO_TOKEN="your-sdk-token-here"
-```
-
-All endpoints live under `https://api.solo.one/v1` and authenticate with the
-token as a Bearer credential:
-
-```bash
-curl https://api.solo.one/v1/entities/consumer_identity/search \
-  -H "Authorization: Bearer $SOLO_TOKEN"
-```
-
-See [Authentication](/home/authentication) for token claims and lifetimes, and
-[Errors](/home/errors) for the error envelope every endpoint shares.
-
-The walkthroughs use the consumer-side endpoints (`/v1/consent/consumer_identity`,
-`/v1/entities/consumer_identity/search`, `/v1/products/kyc_certificate_snapshot/...`). The
-business-side equivalents — `POST /v1/consent/business_identity`,
-`GET /v1/entities/business_identity/search`, and the KYB certificate under
-`/v1/products/kyb_certificate_snapshot` — follow the same patterns, so everything you
-learn here transfers directly.
+The walkthroughs use the consumer-side endpoints
+(`/v1/consent/consumer_identity`, `/v1/entities/consumer_identity/search`, and
+the KYC certificate's `query`, `query/soft`, and `furnish`). The business-side
+equivalents — `POST /v1/consent/business_identity`,
+`GET /v1/entities/business_identity/search`, and the KYB certificate's
+`POST /v1/products/kyb_certificate_snapshot/query`, `query/soft`, and `furnish`
+— follow the same patterns; the
+[fintech golden path](/home/golden-paths/fintechs#businesses-kyb)
+lists them.
 
 <Note>
-  Every error response uses the same shape: a human-readable `detail` plus a
-  machine-readable `error_code` (for example `AUTHENTICATION_REQUIRED` or
-  `RESOURCE_NOT_FOUND`). Each walkthrough includes a troubleshooting section
-  with the exact failures you're likely to hit.
+  Domain errors share one envelope: a human-readable `detail` plus a
+  machine-readable `error_code` (for example `PERMISSION_DENIED` or
+  `RESOURCE_NOT_FOUND`). Authentication failures and malformed requests use a
+  shorter `{"detail": ...}` body. See [Errors](/home/errors).
 </Note>
 
 ## Choose your path
 
 <CardGroup cols={3}>
   <Card title="Join a network" icon="sitemap" href="/home/quickstart/join-a-network">
-    Verify your token, membership, and role with your first two API calls.
+    Understand membership and roles, and confirm your access.
   </Card>
   <Card title="Furnish your first entity" icon="arrow-up-from-bracket" href="/home/quickstart/furnish-an-entity">
     Record consent, then contribute KYC data about a consumer.
@@ -97,7 +131,6 @@ learn here transfers directly.
 
 <Tip>
   New to the platform's vocabulary? Read the
-  [high-level concepts](/home/overview) first — entities, products, policies,
-  networks, consent, and entitlement in a few minutes. For the full endpoint
-  catalog, see the [API reference](/api-reference/introduction).
+  [high-level concepts](/home/overview) first. For the full endpoint catalog,
+  see the [API reference](/api-reference/introduction).
 </Tip>

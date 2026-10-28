@@ -1,0 +1,120 @@
+---
+title: 'Security & data handling'
+description: 'How the SOLO Network API authenticates callers, scopes access to data, what personal data it returns, and which third parties process data'
+icon: 'shield-halved'
+---
+
+This page describes how the SOLO Network API handles access and data, for
+teams reviewing SOLO as a vendor. It covers what the API does; it is not a
+statement of certifications or contractual commitments.
+
+## Authentication
+
+Every endpoint under `/v1` requires a bearer credential. Only the monitoring
+endpoints `GET /health` and `GET /version` are unauthenticated, and they return
+no customer data.
+
+Credentials are issued through **WorkOS**, SOLO's identity provider:
+
+- **Organization API keys** are the credential for server-to-server use. An
+  authorized user creates and revokes them in the SOLO dashboard under
+  **Settings → API keys**. The API validates each key with WorkOS and accepts
+  only keys owned by an organization. A key acts as its organization — it
+  carries the organization's network memberships and roles, with no narrower
+  scopes. Successful validations are cached briefly (by default up to 60
+  seconds), so a revoked key can keep working for that long.
+- **Dashboard session tokens** are issued when a user signs in to the
+  dashboard. The API verifies their signature against WorkOS's published
+  signing keys and enforces their expiry.
+
+Organizations can configure single sign-on, verified domains, and directory
+sync for dashboard sign-in under **Settings → Identity**.
+
+Authentication failures return `401` with a short `detail` message; see
+[Authentication](/home/authentication).
+
+## Transport
+
+The API (`api.solo.one`, `api.sandbox.solo.one`) and the dashboard
+(`app.solo.one`, `app.sandbox.solo.one`) are served over HTTPS.
+
+## Separate environments
+
+Sandbox and production are separate deployments with separate data. Sandbox
+has its own database. API keys are created in each environment's dashboard and
+should only be used against that environment's API. Use sandbox, with test
+data, for integration work.
+
+## How access to data is scoped
+
+- **Membership.** Your organization is added to networks in the dashboard;
+  there is no API endpoint for joining one. Every call that touches data names
+  the network (`network_id`) or networks (`network_ids`) it operates in.
+  Consent, entity search, and furnish calls return `403` if your organization
+  isn't a member of the `network_id` you send.
+- **Roles.** Furnishing into a network requires the furnisher or governor role
+  in that network; otherwise the call returns `403`.
+- **Search.** Entity search returns only subjects visible to you in the network
+  you name, at most 100 per request, with no paging.
+- **Consent.** A consent is bound to the network it was created in. A query
+  that uses it must include that network, or it returns `404`. A query with an
+  expired consent returns `403`. Consents can't be deleted; to end a consumer
+  consent early, set its `expires_at` with
+  `PUT /v1/consent/consumer_identity/{consent_id}`. Creating a consent requires
+  you to attest that the subject's consent was gathered first.
+- **Profile-ID queries.** A query can name the subject by profile ID instead of
+  a consent; the profile must be visible to you in the queried networks, or the
+  query returns `404`.
+- **Policy and entitlement.** A query returns only the fields the network's
+  querying policy exposes and that your organization is
+  [entitled](/concepts/governance/entitlement) to see through its own
+  participation.
+- **Not-found vs. not-visible.** The API returns `404` both for resources that
+  don't exist and for resources outside your reach; it doesn't reveal which.
+- **Error bodies.** Unexpected server errors return a generic message and a
+  request ID, without internal details.
+
+## Personal data the API returns
+
+The API returns personal data only through the endpoints below, and only
+within the scoping above.
+
+| Endpoint | What it can return |
+| --- | --- |
+| Consumer entity search | Name, personal email, date of birth, and Social Security number of matching consumers |
+| Business entity search | Legal and DBA names, email, entity type, incorporation date, phone, website, federal EIN, and employee count |
+| KYC certificate query | Identity-verification outcomes and their details, which can include identity-document details (type, number, issuing state, issue and expiration dates) and document, biometric, and liveness artifact fields where furnished |
+| KYB certificate query | Business registration, address, ownership and control, and risk and compliance verification outcomes |
+| Screening list queries | Whether the consumer is listed and, if so, the listing's details, date, and the listing institution |
+| Graph reads (`GET /v1/graph/{resource}`) | Fields of the furnished records visible to you, model by model |
+
+Some endpoints deliberately return no personal data values:
+
+- **Consent** create, read, and update responses return the consent's ID,
+  grants, scope, and expiry — not the identity fields you submitted.
+- The **soft checks** (`POST /v1/products/kyc_certificate_snapshot/query/soft`,
+  `POST /v1/products/kyb_certificate_snapshot/query/soft`) return only whether
+  a certificate could be issued and which kinds of data are present or
+  missing.
+- The **coverage check** (`POST /v1/products/check`) returns per-furnisher,
+  per-field yes/no coverage, not the values.
+
+## Third parties that process data
+
+| Third party | Role | When data reaches it |
+| --- | --- | --- |
+| **WorkOS** | Identity: dashboard sign-in, SSO, and API key issuance | When users sign in to the dashboard, and when the API validates a credential you present |
+| **Anthropic** | Language model behind SOLO's AI-assisted features | Only when you use an AI-assisted feature: the furnishing mapping `suggest` and `propose` endpoints, or AI-assisted dashboard tools such as policy suggestions from uploaded documents and extracting records from an uploaded document. Consent, furnish, search, query, soft-check, and coverage-check calls do not send data to it. |
+
+For the mapping `suggest` and `propose` endpoints, only the structure of your
+source data is sent by default. Sample values are sent only when you opt in:
+`mode: "structure_with_sample"` on `suggest`, or
+`share_sample_with_model: true` on `propose`.
+
+This table covers third parties involved in API features. Ask your SOLO contact
+for SOLO's complete subprocessor list.
+
+## Questions
+
+Security and compliance documentation is available on request from your SOLO
+contact.

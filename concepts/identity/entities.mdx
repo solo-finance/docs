@@ -8,22 +8,22 @@ import DashboardIdentityEntities from '/snippets/dashboard/identity-entities.mdx
 
 An **entity** is the subject of a verification: the person or organization you
 are furnishing data about or querying data for. Every furnish and every query in
-the SOLO Network is about exactly one entity — you never operate on data in the
-abstract, only in the context of a specific consumer or business.
+the SOLO Network is about a specific consumer or business — you never operate
+on data in the abstract.
 
 <CardGroup cols={2}>
   <Card title="Consumers" icon="user">
-    Individual people, identified by personal details such as name, date of birth, email, phone, and SSN.
+    Individual people, identified by name, date of birth, email, and SSN.
   </Card>
   <Card title="Businesses" icon="building">
-    Legal entities, identified by details such as legal name, jurisdiction of formation, registration number, and tax identifier.
+    Legal entities, identified by legal name, jurisdiction of formation, registration number, and federal EIN.
   </Card>
 </CardGroup>
 
-The same person or company resolves to a **single profile** in a network. When
-you furnish or query, the network matches the identity you supply to that
-profile, so contributions from different participants accumulate on one subject
-rather than fragmenting into duplicates.
+Each subject is held as a **profile**. When you furnish, the network matches
+the identity you supply to an existing profile on its natural key, so
+contributions from different participants accumulate on one subject rather
+than fragmenting into duplicates.
 
 ## How entities come into existence
 
@@ -32,51 +32,60 @@ of normal participation:
 
 <Steps>
   <Step title="Furnishing data">
-    When you [furnish](/api-overview/furnishing/overview) through a product endpoint
-    (for example `POST /v1/products/kyc_certificate_snapshot/furnish`), the identity in
-    your payload is resolved to an existing profile or a new one is created.
+    When you [furnish](/api-overview/furnishing/overview) — for example with
+    `POST /v1/products/kyc_certificate_snapshot/furnish` — each record is
+    matched to an existing profile on its natural key (SSN **and** date of
+    birth for consumers; federal EIN **and** jurisdiction of formation for
+    businesses). If none matches, a new profile is created.
   </Step>
   <Step title="Creating consent">
-    When you create a [consent](/concepts/identity/consent) record with
-    `POST /v1/consent/consumer_identity`, the identity payload is used to create and link
-    a consumer profile if you don't point at an existing one.
+    When you create a [consent](/concepts/identity/consent) record without
+    pointing at an existing profile, a new profile is created from the
+    consent's identity details.
   </Step>
   <Step title="Linking an existing profile">
-    Consent creation accepts an optional `consumer_identity_id`. If you've already found
-    the subject via search, pass its `id` and the consent links to that profile
-    instead of creating a new one.
+    Consent creation accepts an optional `consumer_identity_id` (or
+    `business_identity_id`). If you've already found the subject via search,
+    pass its `id` and the consent links to that profile instead of creating a
+    new one.
   </Step>
 </Steps>
 
 ## Consumers
 
-A consumer represents a single individual, identified by:
+A consumer profile holds:
 
 | Field | Notes |
 |---|---|
 | `first_name`, `last_name` | Legal name |
-| `date_of_birth` | ISO `YYYY-MM-DD` |
+| `date_of_birth` | ISO `YYYY-MM-DD`. Part of the match key. |
 | `personal_email` | |
-| `phone_number` | |
-| `social_security_number` | Used for high-confidence matching |
+| `social_security_number` | Part of the match key. |
+
+Phone numbers, addresses, identity documents, and verification events are
+separate records attached to the profile — see the
+[consumer graph](/concepts/trust/consumer-graph).
 
 <Tip>
-  You don't need every field to identify a consumer, but more identifiers produce
-  higher-confidence matches. SSN and date of birth are the strongest signals.
+  Furnishing matches a consumer on SSN and date of birth **together**. A record
+  with the right SSN but a different date of birth creates a different
+  profile.
 </Tip>
 
 ## Businesses
 
-A business represents a legal entity, identified by:
+A business profile holds:
 
 | Field | Notes |
 |---|---|
 | `business_legal_name` | Registered legal name |
-| `business_jurisdiction_of_formation` | e.g. a US state |
-| `business_registration_identifier_from_jurisdiction_of_formation` | Registration number issued at formation |
-| `business_tax_identifier_type` / `business_tax_identifier_value` | e.g. `EIN` |
 | `business_dba_name` | Optional "doing business as" name |
-| `business_website_url` | Optional |
+| `business_jurisdiction_of_formation` | e.g. a US state. Part of the match key. |
+| `business_registration_identifier_from_jurisdiction_of_formation` | Registration number issued at formation |
+| `federal_ein` | Federal EIN, as a string. Part of the match key. |
+| `business_entity_type`, `business_date_of_incorporation` | |
+| `business_email`, `business_phone`, `business_website_url` | |
+| `employee_count` | |
 
 ## Searching for entities
 
@@ -88,11 +97,13 @@ search endpoints:
 
 Both endpoints share the same mechanics:
 
-- **`network_id` is required.** Search is always scoped to a single
-  [network](/concepts/governance/networks); you cannot search across networks in one call.
+- **`network_id` is required.** Search is scoped to a single
+  [network](/concepts/governance/networks), and returns only subjects visible
+  to you in that network. Your organization must be a member.
 - **All identity parameters are optional** and combine with AND — every
   criterion you supply must match.
-- **`limit`** caps results between 1 and 100, defaulting to 20.
+- **`limit`** caps results between 1 and 100, defaulting to 20. There is no
+  offset parameter; narrow your criteria rather than paging.
 
 ### Match semantics
 
@@ -108,7 +119,7 @@ Each search parameter has a fixed matching rule:
 | Business | `business_legal_name` | Case-insensitive partial |
 | Business | `business_dba_name` | Case-insensitive partial |
 | Business | `business_email` | Case-insensitive partial |
-| Business | `federal_ein` | Exact (integer) |
+| Business | `federal_ein` | Exact (string) |
 
 Partial matching means `first_name=jan` matches both "Jan" and "Janet";
 exact-match fields like SSN and EIN must be supplied in full.
@@ -116,9 +127,9 @@ exact-match fields like SSN and EIN must be supplied in full.
 ### Searching consumers
 
 ```bash
-curl -G https://api.solo.one/v1/entities/consumer_identity/search \
+curl -G https://api.sandbox.solo.one/v1/entities/consumer_identity/search \
   -H "Authorization: Bearer $SOLO_TOKEN" \
-  --data-urlencode "network_id=9f1c0c2e-…" \
+  --data-urlencode "network_id=9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7" \
   --data-urlencode "first_name=Jane" \
   --data-urlencode "last_name=Doe" \
   --data-urlencode "limit=10"
@@ -159,9 +170,9 @@ Consumer results carry these fields:
 ### Searching businesses
 
 ```bash
-curl -G https://api.solo.one/v1/entities/business_identity/search \
+curl -G https://api.sandbox.solo.one/v1/entities/business_identity/search \
   -H "Authorization: Bearer $SOLO_TOKEN" \
-  --data-urlencode "network_id=9f1c0c2e-…" \
+  --data-urlencode "network_id=9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7" \
   --data-urlencode "business_legal_name=Acme" \
   --data-urlencode "limit=10"
 ```
@@ -180,8 +191,8 @@ curl -G https://api.solo.one/v1/entities/business_identity/search \
     "business_date_of_incorporation": "2015-03-09",
     "business_phone": "+14155550123",
     "business_website_url": "https://acme.example.com",
-    "federal_ein": 123456789,
-    "employee_count": 250
+    "federal_ein": "123456789",
+    "employee_count": "250"
   }
 ]
 ```
@@ -201,14 +212,16 @@ Business results carry these fields:
 | `business_date_of_incorporation` | string \| null | |
 | `business_phone` | string \| null | |
 | `business_website_url` | string \| null | |
-| `federal_ein` | integer \| null | |
-| `employee_count` | number \| null | |
+| `federal_ein` | string \| null | |
+| `employee_count` | string \| null | A decimal number, serialized as a string |
 
 <Note>
   Search returns **core identity fields only** — enough to confirm you have the
-  right subject. It is not a data product: credit and verification data come
-  back through [product queries](/api-overview/querying/overview), gated by consent and
-  entitlement.
+  right subject. It is not a data product: verification data comes back
+  through [product queries](/api-overview/querying/overview), gated by consent
+  and entitlement. Search applies the same
+  [entitlement](/concepts/governance/entitlement) rules as queries, so fields
+  of a profile another organization created can come back empty.
 </Note>
 
 ## From search to consent: find or create
@@ -240,23 +253,22 @@ See [Consent](/concepts/identity/consent) for the full consent API.
 
 ## Provenance: one entity, many furnishers
 
-An entity profile is a **shared subject**, not a record you own. In a healthy
-network, several participants typically furnish data about the same consumer or
-business — one bank contributes identity verification outcomes, another
-contributes fraud events, a third contributes business registration details.
-All of it accrues to the same profile.
+An entity profile is a **shared subject**, not a record you own. Several
+participants can furnish data about the same consumer or business — one
+contributes identity verification outcomes, another fraud events, a third
+business registration details. All of it attaches to the same profile, and
+each record stays attributed to the participant that furnished it.
 
 Two consequences follow:
 
-1. **You don't control the whole profile.** Your furnished fields sit alongside
-   fields contributed by other participants. Updating your own contribution
-   never overwrites theirs.
+1. **You don't control the whole profile.** When your furnish matches an
+   existing profile, the profile keeps its existing identity fields and your
+   verification events are added alongside other participants'. Nothing you
+   furnish overwrites another participant's records.
 2. **What you can read is governed, not automatic.** Sharing a profile with
-   another furnisher does not mean you see their data. A query returns the
-   intersection of what the network's
-   [querying policy](/concepts/governance/querying-policies) exposes and what you are
-   [entitled](/concepts/governance/entitlement) to — entitlement you earn by furnishing or
-   previously querying that entity.
+   another furnisher does not mean you see their data. Your own furnished
+   records are always readable to you; another participant's are readable only
+   under the rules in [Entitlement](/concepts/governance/entitlement).
 
 <Note>
   Identifying an entity tells the network *who* you mean. Consent and entitlement
@@ -264,8 +276,7 @@ Two consequences follow:
   very different query responses for two different participants.
 </Note>
 
-For how each furnisher's contribution stays attributed — and how the network
-chooses which furnisher's verification to reuse — see
+For how each furnisher's contribution stays attributed, see
 [Provenance](/concepts/trust/provenance).
 
 ## Network scoping
@@ -276,7 +287,7 @@ Entities are always handled in the context of a network:
   that network.
 - Consent records are created against a `network_id`, and the same subject
   needs separate consent per network.
-- Furnishes and queries run under a network's policies.
+- Furnishes target one network, and queries read only the networks they name.
 
 If you participate in multiple networks, treat each as a separate scope — an
 entity you can see in one network is not automatically visible in another. See
@@ -295,21 +306,20 @@ entity you can see in one network is not automatically visible in another. See
   </Accordion>
   <Accordion title="What if I get multiple matches?">
     Partial matching on names and emails can surface several candidates.
-    Disambiguate with the exact-match identifiers — SSN or date of birth for
+    Disambiguate with the exact-match identifiers — SSN and date of birth for
     consumers, federal EIN for businesses — before linking a profile to a
-    consent record. When in doubt, omit `consumer_identity_id` and let consent creation
-    work from the identity payload you trust.
+    consent record.
   </Accordion>
   <Accordion title="Can I list entities without any criteria?">
     Yes. All identity parameters are optional, so a request with only
-    `network_id` returns profiles up to `limit` (default 20, max 100). This is
-    useful for an initial look at a network, but for production matching always
-    pass the strongest identifiers you hold.
+    `network_id` returns up to `limit` profiles (default 20, max 100). For
+    production matching, always pass the strongest identifiers you hold.
   </Accordion>
 </AccordionGroup>
 
 
 <DashboardIdentityEntities />
+
 ## Related concepts
 
 <CardGroup cols={2}>
@@ -317,7 +327,7 @@ entity you can see in one network is not automatically visible in another. See
     How to record permission to query a consumer or business.
   </Card>
   <Card title="Entitlement" icon="key" href="/concepts/governance/entitlement">
-    Why you can read a given field about an entity.
+    Why you can read a given record about an entity.
   </Card>
   <Card title="Furnishing" icon="upload" href="/api-overview/furnishing/overview">
     How contributing data creates and enriches entities.

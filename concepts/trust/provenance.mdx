@@ -19,96 +19,92 @@ When a [product query](/api-overview/querying/products) consolidates verificatio
 into a certificate, each populated sub-product is self-describing:
 
 ```json
-"business_identity_verification": {
-  "furnishing_entity_id": "e1d2c3b4-…",
-  "attestation_event_id": "f0a1b2c3-…",
-  "assertions": {
-    "business_identity_verification_assertion": true,
-    "business_identity_verification_performed_timestamp": "2026-05-02T00:00:00Z"
-  },
-  "data": {
-    "business_formation_document_artifact": "articles_of_organization.pdf",
-    "business_identity_verification_sources": ["state_registry"],
-    "business_tax_id_validation_result": "match"
+{
+  "business_identity_verification": {
+    "furnishing_entity_id": "e1d2c3b4-5a69-4788-9a0b-1c2d3e4f5a6b",
+    "attestation_event_id": "f0a1b2c3-d4e5-4f60-8a1b-2c3d4e5f6a7b",
+    "assertions": {
+      "business_identity_verification_assertion": true,
+      "business_identity_verification_performed_timestamp": "2026-05-02T00:00:00Z"
+    },
+    "data": {
+      "business_formation_document_artifact": "articles_of_organization.pdf",
+      "business_identity_verification_sources": ["state_registry"],
+      "business_tax_id_validation_result": "match"
+    }
   }
 }
 ```
 
 | Lineage element | Field | What it tells the reader |
 |---|---|---|
-| **Contributor / verifier** | `furnishing_entity_id` | Which participant furnished and stands behind this verification |
+| **Contributor** | `furnishing_entity_id` | Which participant furnished this verification |
 | **Attestation** | `attestation_event_id` | The attestation record linking that participant to the asserted facts |
-| **Assertion + time** | `assertions.*` and its `…_timestamp` | What was asserted, and when the verification was performed |
-| **Method & sources** | `data.*_sources`, `*_method`, `*_result` | How it was verified (e.g. `primary_government_registry`, `automated_and_manual`, `full_match`) |
-| **Evidence** | artifact/upload fields (e.g. `…_artifact`, `paystub_upload`) | The concrete document behind the assertion |
-| **As-of date** | the certificate's `certificate_as_of_date` | How current the consolidated result is |
+| **Assertion and time** | `assertions.*` and its `…_timestamp` | What was asserted, and when the verification was performed |
+| **Method and sources** | `data` fields such as `…_sources`, `…_method`, `…_result` | How it was verified, and against what |
+| **Evidence** | artifact and upload fields (e.g. `…_artifact`) | The document behind the assertion |
 
-The [coverage check](/api-overview/querying/coverage-check) goes a step further and
-returns a human-readable `furnishing_entity_name` alongside the
-`furnishing_entity_id`, so you can see *which banks* can satisfy a product for a
-subject before you query.
+Each query result also records, in `meta`, the network and the
+[querying policy](/concepts/governance/querying-policies) that shaped it, and
+product query responses carry an `X-Ref-Id` header identifying the query event.
+
+The [coverage check](/api-overview/querying/coverage-check) goes a step further
+and returns a human-readable `furnishing_entity_name` alongside the
+`furnishing_entity_id`, so you can see which participants could satisfy a
+product for a subject before you query.
 
 ## One subject, many furnishers
 
 An entity profile is a **shared subject**, not a record any one participant
-owns. In a healthy network several participants furnish about the same consumer
-or business — one contributes identity verification, another fraud signals, a
-third business registration. All of it accrues to the same profile, and each
-contribution keeps its own attribution.
+owns. Several participants can furnish about the same consumer or business —
+one contributes identity verification, another fraud signals, a third business
+registration. All of it attaches to the same profile, and each contribution
+keeps its own attribution.
 
 Two consequences follow:
 
-1. **You don't own the whole profile.** Your furnished fields sit alongside
-   others'. Updating your contribution never overwrites theirs.
+1. **You don't own the whole profile.** Your furnished records sit alongside
+   others'. Furnishing never overwrites another participant's records.
 2. **What you can read is governed, not automatic.** Sharing a subject with
-   another furnisher does not mean you see their data — a query returns the
-   intersection of the [querying policy](/concepts/governance/querying-policies)
-   and your [entitlement](/concepts/governance/entitlement).
+   another furnisher does not mean you see their data — see
+   [Entitlement](/concepts/governance/entitlement).
 
-## How the network picks which furnisher's verification to reuse
+## How the network picks which verification to use
 
-When multiple furnishers have verified the same thing, the query does not guess.
-The querying policy defines **provenance options** — ordered, filtered
-preferences for which furnished events qualify and in what priority. At
-resolution time the network applies the policy's filters and selects the
-**oldest matching event** for each sub-product across the allowed networks,
-falling back through the policy's priority order until a qualifying verification
-is found.
+When several furnished records could answer for the same model, the query does
+not guess:
+
+1. The [querying policy](/concepts/governance/querying-policies) filters which
+   furnished records qualify, field by field.
+2. Of the qualifying records you're [entitled](/concepts/governance/entitlement)
+   to read, SOLO uses the **oldest** one found in any of the networks you
+   queried.
 
 ```mermaid
 flowchart TB
-    Q[Query] --> Gather["Gather furnished events across network_ids"]
-    Gather --> Filter["Apply policy provenance options + freshness filters"]
-    Filter --> Pick["Select qualifying event per sub-product"]
-    Pick --> Decision{All required sub-products satisfied?}
+    Q[Query] --> Gather["Gather readable furnished records across network_ids"]
+    Gather --> Filter["Apply the querying policy's per-field rules"]
+    Filter --> Pick["Use the oldest qualifying record per model"]
+    Pick --> Decision{Certificate complete?}
     Decision -- yes --> Cert["Issue certificate · 200, with per-source attribution"]
     Decision -- no --> Empty["204 No Content"]
 ```
 
-You can also narrow reuse yourself: pass `furnishing_entity_ids` on a query to
-consider only specific contributors.
-
-## Freshness is part of provenance
-
-A verification is only reusable while it is current enough for the reader's
-policy. Querying policies enforce **freshness windows** (for example, "identity
-corroboration within the last 30 days") using certificate-level fields such as
-`days_since_certificate_as_of_date`. Data outside the window is not reused — the
-query returns `204` rather than handing back a stale answer dressed up as fresh.
-This is why freshness, like attribution, is a first-class part of what makes
-reuse safe.
+You can also narrow which contributors are considered: pass
+`furnishing_entity_ids` on a query to use only those participants' records.
 
 ## Why provenance is exposed on purpose
 
 For most software, exposing internals is a mistake. For SOLO it is the product:
-participants reuse each other's work *because* they can see who did it, how, and
-when. Provenance turns "trust SOLO" into "trust the network, transparently."
+participants build on each other's work *because* they can see who did it, how,
+and when. Provenance turns "trust SOLO" into "trust the network, transparently."
 
 <Note>
   Provenance here means the lineage that exists today — `furnishing_entity_id`,
-  `attestation_event_id`, assertion timestamps, source/method/evidence fields, and
-  policy freshness. It does not include reuse counters, dispute counts, or
-  contributor reputation scores, which are not part of the current platform.
+  `attestation_event_id`, assertion timestamps, source, method, and evidence
+  fields, and the network and policy recorded in each result's `meta`.
+  It does not include reuse counters, dispute counts, or contributor reputation
+  scores, which are not part of the current platform.
 </Note>
 
 ## Related
@@ -118,10 +114,10 @@ when. Provenance turns "trust SOLO" into "trust the network, transparently."
     The reusable unit provenance describes.
   </Card>
   <Card title="Entitlement" icon="key" href="/concepts/governance/entitlement">
-    Why you can read a given field about a subject.
+    Why you can read a given record about a subject.
   </Card>
   <Card title="Querying policies" icon="scale-balanced" href="/concepts/governance/querying-policies">
-    Freshness windows and provenance options.
+    The rules that decide which verifications qualify.
   </Card>
   <Card title="Coverage check" icon="list-radio" href="/api-overview/querying/coverage-check">
     See which furnishers can satisfy a product before you query.

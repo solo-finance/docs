@@ -1,0 +1,208 @@
+---
+title: 'Querying with GraphQL'
+description: 'Filter, paginate and read nested records furnished to your networks'
+icon: 'magnifying-glass'
+---
+
+Every read of furnished data starts from `furnished(networkIds:)`, which sets
+the networks the query can see. The examples below read the consumer
+furnished in [Furnishing with GraphQL](/api-overview/graphql/furnishing).
+
+## Search and paginate
+
+Find consumers by last name, newest first, with each one's most recent
+document capture and the institution that furnished it:
+
+```graphql
+query ConsumersByLastName($networkIds: [UUID!], $lastName: String!) {
+  furnished(networkIds: $networkIds) {
+    consumerIdentitiesConnection(
+      first: 20
+      filter: { field: { lastName: { exact: $lastName } } }
+      order: [{ field: { createdAt: DESC } }]
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          id
+          identifier
+          firstName
+          lastName
+          documentCaptureEvents(limit: 1, order: [{ field: { documentCaptureTimestamp: DESC } }]) {
+            documentType
+            documentCaptureTimestamp
+            attestationEvent {
+              furnishingEntity {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```json Variables
+{
+  "networkIds": ["9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21"],
+  "lastName": "Alvarez"
+}
+```
+
+```json Response
+{
+  "data": {
+    "furnished": {
+      "consumerIdentitiesConnection": {
+        "totalCount": 1,
+        "pageInfo": { "hasNextPage": false, "endCursor": "YXJyYXljb25uZWN0aW9uOjA=" },
+        "edges": [
+          {
+            "node": {
+              "id": "Q29uc3VtZXJJZGVudGl0eU9iamVjdDphN2M1YTk2Yw==",
+              "identifier": "a7c5a96c-9242-4fd6-b29c-f67c3f46b4ea",
+              "firstName": "Maria",
+              "lastName": "Alvarez",
+              "documentCaptureEvents": [
+                {
+                  "documentType": "drivers_license",
+                  "documentCaptureTimestamp": "2026-06-01",
+                  "attestationEvent": { "furnishingEntity": { "name": "Acme Community Bank" } }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+To fetch the next page, pass `pageInfo.endCursor` as `after`.
+
+## Read one consumer and their records
+
+Read a consumer by global ID with their addresses, emails and confirmed fraud
+attributes. Nested lists take the same `filter`, `order`, `limit` and `offset`
+arguments as root collections:
+
+```graphql
+query ConsumerProfile($networkIds: [UUID!], $id: ID!) {
+  furnished(networkIds: $networkIds) {
+    node(id: $id) {
+      ... on ConsumerIdentityObject {
+        firstName
+        lastName
+        addressIdentities {
+          line1
+          city
+          state
+          zip
+          addressCaptureEvents {
+            isAddressCaptured
+            addressCaptureTimestamp
+          }
+        }
+        emailIdentities {
+          emailAddress
+        }
+        fraudVerificationEvents(filter: { field: { confirmedFraudIndicator: { exact: true } } }) {
+          fraudAttributeLabel
+          fraudEventDate
+        }
+      }
+    }
+  }
+}
+```
+
+```json Variables
+{
+  "networkIds": ["9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21"],
+  "id": "Q29uc3VtZXJJZGVudGl0eU9iamVjdDphN2M1YTk2Yw=="
+}
+```
+
+```json Response
+{
+  "data": {
+    "furnished": {
+      "node": {
+        "firstName": "Maria",
+        "lastName": "Alvarez",
+        "addressIdentities": [
+          {
+            "line1": "2150 W Fulton St",
+            "city": "Chicago",
+            "state": "IL",
+            "zip": "60612",
+            "addressCaptureEvents": [{ "isAddressCaptured": true, "addressCaptureTimestamp": "2026-06-01" }]
+          }
+        ],
+        "emailIdentities": [{ "emailAddress": "maria.alvarez@example.com" }],
+        "fraudVerificationEvents": [{ "fraudAttributeLabel": "device_id", "fraudEventDate": "2026-05-28" }]
+      }
+    }
+  }
+}
+```
+
+## Combine filters
+
+Filters nest with `all`, `any` and `not`, and `object` filters on a related
+object. `object` reaches the single objects a record points to, such as the
+consumer an event belongs to, not lists of children; to filter by child
+records, query the child collection and read its parent. Events have root
+collections too, so this finds confirmed fraud attributes recorded since May
+for consumers whose last name starts with "Al":
+
+```graphql
+query RecentConfirmedFraud($networkIds: [UUID!], $since: String!) {
+  furnished(networkIds: $networkIds) {
+    fraudVerificationEvents(
+      limit: 50
+      order: [{ field: { fraudEventDate: DESC } }]
+      filter: {
+        all: [
+          { field: { confirmedFraudIndicator: { exact: true } } }
+          { field: { fraudEventDate: { gte: $since } } }
+          { object: { consumerIdentity: { field: { lastName: { iStartsWith: "al" } } } } }
+        ]
+      }
+    ) {
+      fraudAttributeLabel
+      fraudEventDate
+      consumerIdentity {
+        identifier
+        firstName
+        lastName
+      }
+    }
+  }
+}
+```
+
+```json Variables
+{
+  "networkIds": ["9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21"],
+  "since": "2026-05-01"
+}
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="GraphQL API" icon="diagram-project" href="/api-overview/graphql/overview">
+    Endpoint, authentication, scope and billing.
+  </Card>
+  <Card title="Furnishing with GraphQL" icon="upload" href="/api-overview/graphql/furnishing">
+    Write identities and nested records.
+  </Card>
+</CardGroup>

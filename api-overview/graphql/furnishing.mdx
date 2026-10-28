@@ -1,0 +1,185 @@
+---
+title: 'Furnishing with GraphQL'
+description: 'Upsert a consumer or business together with every record you verified, in one mutation'
+icon: 'upload'
+---
+
+The `furnish` mutation writes an identity and the records attached to it in
+one call. You describe the consumer to find, and everything to add under them;
+SOLO matches what already exists and creates the rest. It's the GraphQL
+equivalent of `POST /v1/products/kyc_certificate_snapshot/furnish`, but it
+reaches every model in the graph, not only the ones a product uses.
+
+Your organization needs the furnisher or governor role in the network you
+furnish into.
+
+## Furnish a consumer with nested records
+
+This mutation furnishes Maria Alvarez with a captured driver's license, a
+device ID confirmed in a fraud attempt, her home address with its capture
+event, and her email address:
+
+```graphql
+mutation FurnishConsumer($networkId: UUID!, $input: FurnishConsumerIdentityUpsert!) {
+  furnish {
+    consumerIdentity(networkId: $networkId, input: $input) {
+      id
+      identifier
+      firstName
+      lastName
+      documentCaptureEvents {
+        documentType
+        documentCaptureTimestamp
+      }
+      fraudVerificationEvents {
+        confirmedFraudIndicator
+        fraudAttributeLabel
+      }
+      addressIdentities {
+        line1
+        city
+        addressCaptureEvents {
+          isAddressCaptured
+        }
+      }
+      emailIdentities {
+        emailAddress
+      }
+    }
+  }
+}
+```
+
+```json Variables
+{
+  "networkId": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
+  "input": {
+    "where": { "socialSecurityNumber": "123-45-6780", "dateOfBirth": "1988-03-14" },
+    "create": {
+      "firstName": "Maria",
+      "lastName": "Alvarez",
+      "documentCaptureEvents": [
+        {
+          "create": {
+            "isDocumentCaptured": true,
+            "documentType": "drivers_license",
+            "documentCaptureMethod": "mobile_live_capture",
+            "documentCaptureTimestamp": "2026-06-01"
+          }
+        }
+      ],
+      "fraudVerificationEvents": [
+        {
+          "create": {
+            "confirmedFraudIndicator": true,
+            "fraudAttributeLabel": "device_id",
+            "fraudAttributeContent": "dvc_7f3a9c21e84b",
+            "fraudEventDate": "2026-05-28"
+          }
+        }
+      ],
+      "addressIdentities": [
+        {
+          "upsert": {
+            "where": { "line1": "2150 W Fulton St", "city": "Chicago", "state": "IL", "zip": "60612" },
+            "create": {
+              "addressCaptureEvents": [
+                { "create": { "isAddressCaptured": true, "addressCaptureTimestamp": "2026-06-01" } }
+              ]
+            }
+          }
+        }
+      ],
+      "emailIdentities": [
+        { "upsert": { "where": { "emailAddress": "maria.alvarez@example.com" }, "create": {} } }
+      ]
+    }
+  }
+}
+```
+
+```json Response
+{
+  "data": {
+    "furnish": {
+      "consumerIdentity": {
+        "id": "Q29uc3VtZXJJZGVudGl0eU9iamVjdDphN2M1YTk2Yw==",
+        "identifier": "a7c5a96c-9242-4fd6-b29c-f67c3f46b4ea",
+        "firstName": "Maria",
+        "lastName": "Alvarez",
+        "documentCaptureEvents": [
+          { "documentType": "drivers_license", "documentCaptureTimestamp": "2026-06-01" }
+        ],
+        "fraudVerificationEvents": [
+          { "confirmedFraudIndicator": true, "fraudAttributeLabel": "device_id" }
+        ],
+        "addressIdentities": [
+          { "line1": "2150 W Fulton St", "city": "Chicago", "addressCaptureEvents": [{ "isAddressCaptured": true }] }
+        ],
+        "emailIdentities": [{ "emailAddress": "maria.alvarez@example.com" }]
+      }
+    }
+  }
+}
+```
+
+## How matching works
+
+- **`where` finds, `create` makes.** The consumer is looked up on the fields
+  in `where`. If nothing matches, it's created from `where` plus `create`.
+- **SSN and date of birth match across networks.** A `where` with both
+  `socialSecurityNumber` and `dateOfBirth` finds the consumer wherever they
+  were furnished, so the same person is one consumer across the network. Other
+  `where` fields only match rows you can already read.
+- **Matched rows are never modified.** If Maria already exists, her name stays
+  as it was and the nested records are added to her.
+- **Events are always created; identities are upserted.** Nested events, such
+  as `documentCaptureEvents`, take `create` and are always added. Nested
+  identities, such as `addressIdentities` and `emailIdentities`, take `upsert`
+  and are matched on their own `where` first. An `upsert` with an empty
+  `create` adds the identity only if it doesn't exist.
+- **Furnishing isn't idempotent for events.** Sending the same mutation twice
+  matches the same consumer, address and email, but adds the events again.
+
+Every record created is attested as furnished by your organization: a
+certificate that uses it reports your organization as its
+`furnishing_entity_id`.
+
+## Businesses
+
+`furnish { businessIdentity(networkId:, input:) }` works the same way for
+businesses. A `where` with both `federalEin` and
+`businessJurisdictionOfFormation` matches across networks:
+
+```graphql
+mutation FurnishBusiness($networkId: UUID!, $input: FurnishBusinessIdentityUpsert!) {
+  furnish {
+    businessIdentity(networkId: $networkId, input: $input) {
+      identifier
+      businessLegalName
+      federalEin
+    }
+  }
+}
+```
+
+```json Variables
+{
+  "networkId": "9f1c0c2e-3d5b-4a89-b1e2-7f6a8c0d4e21",
+  "input": {
+    "where": { "federalEin": "12-3456789", "businessJurisdictionOfFormation": "DE" },
+    "create": { "businessLegalName": "Northwind Supply Co." }
+  }
+}
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Querying with GraphQL" icon="magnifying-glass" href="/api-overview/graphql/querying">
+    Read back what you furnished.
+  </Card>
+  <Card title="How furnishing works" icon="arrows-rotate" href="/api-overview/furnishing/overview">
+    The REST, file and SFTP furnishing channels.
+  </Card>
+</CardGroup>

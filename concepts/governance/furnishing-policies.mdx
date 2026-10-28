@@ -15,8 +15,12 @@ way in.
 As a furnisher you never name a mapping yourself. Every record in a
 [JSONL file](/api-overview/furnishing/file-upload) carries a `_type`, and the
 network sends the record to each active mapping that claims that type.
-Mappings are authored and managed by the network's
-[governor](/concepts/governance/network-roles).
+
+Mappings are set up in the dashboard. A
+[furnisher or governor](/concepts/governance/network-roles) of the network
+creates a mapping, usually for its own feed; the mapping's creator, or any
+governor of the network, configures and activates it; and a governor assigns
+it to the network.
 
 ```mermaid
 flowchart LR
@@ -50,9 +54,10 @@ SOLO-maintained default pipeline, identified by its `source_default_slug`:
 |---|---|
 | `jsonl_mapping_default` | Consumer records — identity plus KYC verification events |
 | `jsonl_mapping_business_default` | Business records — identity plus KYB verification events |
+| `jsonl_furnish_projection` | Records of any shape, mapped onto the data graph by a single mapping document; used by feeds set up from the dashboard's **Furnish** dialog |
 
-The governor authors two mapping documents, in the mapping's **Mapping** tab in
-the dashboard:
+The mapping's author configures two mapping documents, in the mapping's
+**Mapping** tab in the dashboard:
 
 | Document | What it controls |
 |---|---|
@@ -60,7 +65,10 @@ the dashboard:
 | **Tree mapping** | Which verification events the record becomes, and which record fields fill each event's fields. |
 
 The dashboard verifies both documents against the source schema; a mapping
-can't be activated until they verify.
+can't be activated until they verify. To check a mapping document from your own
+tooling first, use the
+[mapping dry-run endpoints](/api-overview/furnishing/overview#mapping-dry-run-tools),
+which verify and trace a document without saving anything.
 
 ## Lifecycle
 
@@ -85,7 +93,7 @@ flowchart LR
 | `schema_version` | Version of the pipeline document schema the mapping conforms to. |
 | `source_default_slug` | Which default pipeline the mapping is derived from. |
 | `is_active` | Whether the mapping currently receives records. |
-| `mapping_metadata` | Routing and authoring metadata, including the claimed record type. |
+| `mapping_metadata` | Routing and authoring metadata. Its `selector` is the routing rule that names the claimed record type — a clause matching the record's `/_type` against a value such as `kyc_certificate`. |
 
 ## Reading policies via the API
 
@@ -95,9 +103,9 @@ happens in the dashboard.
 ### List policies in a network
 
 ```bash
-curl -G https://api.solo.one/v1/networks/policies/furnishing \
+curl -G https://api.sandbox.solo.one/v1/networks/policies/furnishing \
   -H "Authorization: Bearer $SOLO_TOKEN" \
-  --data-urlencode "network_id=9f1c0c2e-…" \
+  --data-urlencode "network_id=9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7" \
   --data-urlencode "limit=20" \
   --data-urlencode "offset=0"
 ```
@@ -107,17 +115,14 @@ curl -G https://api.solo.one/v1/networks/policies/furnishing \
 ```json
 [
   {
-    "id": "4f6e2a90-…",
-    "entity_id": "7c2d91e4-…",
-    "network_id": "9f1c0c2e-…",
+    "id": "4f6e2a90-8b1d-4c3e-a7f5-6d2e9c0b1a48",
+    "entity_id": "7c2d91e4-5a6b-4c8d-9e0f-1a2b3c4d5e6f",
+    "network_id": "9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7",
     "name": "Coastal KYC intake",
     "version": 1,
-    "schema_version": "1",
+    "schema_version": "1.1",
     "source_default_slug": "jsonl_mapping_default",
     "is_active": true,
-    "mapping_metadata": {
-      "selector": { "path": "/_type", "op": "eq", "value": "kyc_certificate" }
-    },
     "created_at": "2025-12-12T18:03:11Z",
     "updated_at": "2025-12-30T09:41:00Z"
   }
@@ -127,9 +132,9 @@ curl -G https://api.solo.one/v1/networks/policies/furnishing \
 ### Read a single policy
 
 ```bash
-curl -G https://api.solo.one/v1/networks/policies/furnishing/4f6e2a90-… \
+curl -G https://api.sandbox.solo.one/v1/networks/policies/furnishing/4f6e2a90-8b1d-4c3e-a7f5-6d2e9c0b1a48 \
   -H "Authorization: Bearer $SOLO_TOKEN" \
-  --data-urlencode "network_id=9f1c0c2e-…"
+  --data-urlencode "network_id=9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7"
 ```
 
 The `network_id` query parameter scopes the lookup; a policy that exists but
@@ -140,7 +145,7 @@ isn't visible in that network returns `404` `RESOURCE_NOT_FOUND`.
 | Concept | Relationship |
 |---|---|
 | [Querying policies](/concepts/governance/querying-policies) | The read-side counterpart. A network typically has both: mappings shaping intake, querying policies capping reads. |
-| [Entitlement](/concepts/governance/entitlement) | Furnishing is what *earns* a furnisher read access to the subjects it contributed. |
+| [Entitlement](/concepts/governance/entitlement) | Records a furnisher contributes are always readable by that furnisher. |
 | [Networks](/concepts/governance/networks) | Mappings belong to a network and only receive records furnished into it. |
 | [Furnishing](/api-overview/furnishing/overview) | The furnisher-facing view: send records with a `_type`, and the mapping applies itself. |
 

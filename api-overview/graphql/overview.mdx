@@ -1,0 +1,96 @@
+---
+title: 'GraphQL API'
+description: 'Read the network graph and furnish nested records with one GraphQL endpoint'
+icon: 'diagram-project'
+---
+
+The REST API covers products: consent, certificates, screening lists and
+coverage. The GraphQL API exposes the data graph underneath them. You can read
+any model furnished to your networks with filters, ordering and nested
+relations, and furnish an identity together with everything recorded about it
+in a single mutation.
+
+| | Endpoint |
+|---|---|
+| Sandbox | `https://api.sandbox.solo.one/graphql` |
+| Production | `https://api.solo.one/graphql` |
+
+## Authentication
+
+GraphQL takes the same credentials as REST: an organization API key or a
+dashboard session token in the `Authorization` header. See
+[Authentication](/home/authentication).
+
+```bash
+curl -X POST https://api.sandbox.solo.one/graphql \
+  -H "Authorization: Bearer $SOLO_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ smokePing }"}'
+```
+
+A missing or invalid credential returns `401` before the query runs.
+
+## The schema
+
+The schema supports introspection, so any GraphQL client can load it from the
+endpoint; there's no hosted GraphiQL in sandbox or production. Names are
+camelCase, so the REST field `consumer_identity_id` corresponds to a
+consumer's `identifier` here.
+
+| Root | What it reads or writes |
+|---|---|
+| `furnished(networkIds:)` | The data furnished to those networks: consumer and business identities and every event and record attached to them |
+| `networks(ids:)` | Your networks' own configuration: the networks, their members, policies and products |
+| `node(id:)` | Any object by its global ID |
+| `meta` | SOLO's catalogs, such as products and field definitions |
+| `furnish` (mutation) | Upsert a consumer or business identity with nested records |
+
+Every object has two IDs: `id` is its global Relay ID, which `node(id:)`
+accepts, and `identifier` is its UUID.
+
+## Reading data
+
+- **Scope.** Reads under `furnished(networkIds:)` only see rows in those
+  networks, and you must be a member of each. Leave `networkIds` out to use
+  every network you belong to. Within that scope you read the records your
+  organization furnished, records the networks' governors furnished, and
+  records from institutions that granted you access through consent.
+- **Filtering.** List fields take a `filter` built from `field` (a lookup on
+  one field, such as `{ lastName: { exact: "Alvarez" } }`), `object` (a filter
+  on a related object), and `all`, `any` and `not` to combine them.
+- **Ordering.** `order` takes a list such as
+  `[{ field: { createdAt: DESC } }]`.
+- **Pagination.** Root collections come in two forms: `consumerIdentities`
+  takes `limit` and `offset`, and `consumerIdentitiesConnection` takes
+  `first` and `after` and returns `edges`, `pageInfo` and `totalCount`. Nested
+  lists take `limit` and `offset`.
+
+See [Querying with GraphQL](/api-overview/graphql/querying) for worked
+examples.
+
+## Billing
+
+Reads under `furnished` and `networks` are recorded as billable query events.
+The exception is `furnished(networkIds: [...], isEntitled: true)`, which isn't
+billed and returns only rows you're already entitled to through an earlier
+product query or furnish. Furnishing a consumer entitles you to the consumer's
+profile, not to every record under it, so nested lists in an entitled read can
+come back empty.
+
+## Errors
+
+A request that reaches GraphQL returns `200` with an `errors` array when a
+field fails, alongside whatever `data` resolved. Unexpected server errors are
+reported without internal detail; quote the `X-Request-ID` response header
+when you contact support.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Querying" icon="magnifying-glass" href="/api-overview/graphql/querying">
+    Filter, paginate and read nested records.
+  </Card>
+  <Card title="Furnishing" icon="upload" href="/api-overview/graphql/furnishing">
+    Upsert an identity and its records in one mutation.
+  </Card>
+</CardGroup>

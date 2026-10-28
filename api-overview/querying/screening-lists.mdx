@@ -1,42 +1,60 @@
 ---
 title: 'Screening Lists'
-description: 'Bank-specific bad actor and cross-bank financial crimes watch lists'
+description: 'The Bank-Specific Bad Actor List and the 314(b) Cross-Bank Financial Crimes Watch List'
 icon: 'list-check'
 ---
 
 SOLO offers two **screening list** products in the Fraud & Financial Crime
-category. Both answer a narrow question — *is this consumer on a list?* — and
-return a listing indicator plus a small set of context fields. Unlike
-[certificates](/api-overview/querying/kyc-certificate-snapshot), screening list queries never
-issue a reusable artifact; they are point-in-time checks.
+category. Both answer a narrow question (*is this consumer listed?*) and return
+a listing indicator plus the details of the most recent listing. Unlike
+[certificates](/api-overview/querying/kyc-certificate-snapshot), screening list
+queries never issue a reusable artifact; they are point-in-time checks.
 
-| | Bank-Specific Bad Actor List | Cross-Bank Financial Crimes Watch List |
+| | Bank-Specific Bad Actor List | 314(b) Cross-Bank Financial Crimes Watch List |
 |---|---|---|
-| **What it is** | A sponsor-bank-scoped list of specific individuals who, as prior customers of one or more of the bank's fintech partners, violated one or more specific documented bank policies. | A cross-bank shared consortium that extends beyond one sponsor-bank network and focuses on sharing suspicious financial-crimes activity. Governed by banks as defined by 31 CFR 1020.100(d) under 314(b) permissible purpose. |
-| **Scope** | Your sponsor bank's network only — results never cross network boundaries. | All participating banks — visibility spans the consortium. |
-| **Use case** | Bad Actor Screening — catching repeat offenders re-applying within the same bank's networks. | Watch List Screening — surfacing inter-bank financial-crimes signals. |
+| **What it is** | A sponsor-bank-scoped list of specific individuals who, as prior customers of one or more of the bank's fintech partners, violated one or more documented bank policies. | A list shared across participating banks, beyond a single sponsor-bank network, for suspected financial-crimes activity. |
+| **Designed for** | A single sponsor bank's network. | A network shared by several banks. |
+| **Use case** | Bad actor screening: catching repeat offenders re-applying within the same bank's networks. | Watch list screening: surfacing financial-crimes reports from other participating banks. |
 | **Subject** | Consumer | Consumer |
 | **Query path** | `POST /v1/products/bank_specific_bad_actor_list/query` | `POST /v1/products/cross_bank_financial_crimes_watch_list/query` |
 
-The key difference is **who can see what**. The bad actor list is scoped to one
-sponsor bank: a consumer flagged in Bank A's network is invisible to Bank B.
-The watch list is the opposite by design — it exists so that suspicious
-financial-crimes activity observed at one bank is visible to the others, under
-the 314(b) information-sharing framework.
+Both lists work the same way: a query sees only the listings furnished to the
+networks named in its `network_ids`. Which institutions can see a listing
+therefore follows from which networks it was furnished to: a listing furnished
+to Bank A's network is not visible to a query that names only Bank B's network.
 
-Both lists are **query-only** over the API. The events behind them are
-contributed by network participants through governed furnishing flows.
+Both lists are **query-only** over the API. Listings are contributed by
+participating institutions through the
+[furnishing pipeline](/api-overview/furnishing/overview).
+
+<Note>
+  Participation in the 314(b) Cross-Bank Financial Crimes Watch List is intended
+  for financial institutions that have filed a 314(b) notice with FinCEN. Each
+  participant is responsible for its own regulatory obligations, including how
+  it shares, uses, and acts on the information.
+</Note>
 
 ## Querying
 
-Both endpoints take the standard [query request](/api-overview/querying/overview):
-a `consent_id` (or `consumer_identity_id` for permissible-purpose lookups) plus the
-`network_ids` scope, with optional `policy_id` and `furnishing_entity_ids`.
+Both endpoints take the standard [query request](/api-overview/querying/overview#anatomy-of-a-query):
+
+| Field | Type | Required | Purpose |
+|---|---|---|---|
+| `consent_id` | string | one of¹ | Consent token identifying the consumer. |
+| `consumer_identity_id` | UUID | one of¹ | Direct consumer profile reference, as an alternative to `consent_id`. |
+| `network_ids` | UUID[] | yes | The networks whose listings to check. |
+| `furnishing_entity_ids` | UUID[] | no | Only consider listings from these institutions. |
+
+¹ Exactly one of `consent_id` or `consumer_identity_id`; both or neither
+returns `400 VALIDATION_ERROR`. Lists are consumer-only.
+
+The subject is identified only by the consent or the profile id. You don't send
+SSN, date of birth, or other identifying attributes on the query.
 
 ### Bank-Specific Bad Actor List
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/bank_specific_bad_actor_list/query \
+curl -X POST https://api.sandbox.solo.one/v1/products/bank_specific_bad_actor_list/query \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -45,43 +63,55 @@ curl -X POST https://api.solo.one/v1/products/bank_specific_bad_actor_list/query
   }'
 ```
 
+A clean result:
+
 ```json
 {
   "provenance_event_id": "7b2d9c4e-…",
   "consumer_identity_id": "c2a4e8d0-…",
-  "furnishing_entity_id": null,
   "is_listed": false,
-  "bad_actor_list_placement_date": null,
-  "bad_actor_list_reason_code": null
+  "furnishing_entity_id": null,
+  "furnishing_entity_name": null,
+  "bad_actor_reason_code": null,
+  "bad_actor_reason_definition": null,
+  "bad_actor_list_placement_date": null
+}
+```
+
+When the consumer is listed, the detail fields describe the most recent
+listing:
+
+```json
+{
+  "provenance_event_id": "7b2d9c4e-…",
+  "consumer_identity_id": "c2a4e8d0-…",
+  "is_listed": true,
+  "furnishing_entity_id": "e1d2c3b4-…",
+  "furnishing_entity_name": "First Example Bank",
+  "bad_actor_reason_code": "account_abuse",
+  "bad_actor_reason_definition": "Opened multiple accounts to exploit promotional offers",
+  "bad_actor_list_placement_date": "2025-11-04"
 }
 ```
 
 | Response field | Type | Meaning |
 |---|---|---|
-| `provenance_event_id` | UUID | The billable provenance event id — also in the `X-Ref-Id` header. |
-| `consumer_identity_id` | UUID | The resolved subject. |
-| `furnishing_entity_id` | UUID, nullable | The participant whose listing backed the result, when listed. |
-| `is_listed` | boolean | Whether the consumer appears on the list. |
-| `bad_actor_list_placement_date` | date, nullable | When the consumer was placed on the list. |
-| `bad_actor_list_reason_code` | string, nullable | The documented policy-violation reason (e.g. `account_abuse`, `fraud`, `policy_violation`). |
+| `provenance_event_id` | UUID | The billable query event id, also in the `X-Ref-Id` header. |
+| `consumer_identity_id` | UUID | The resolved consumer. |
+| `is_listed` | boolean | Whether any bad actor listing for the consumer is visible in the queried networks. |
+| `furnishing_entity_id` | UUID, nullable | The institution that placed the most recent listing. `null` when not listed. |
+| `furnishing_entity_name` | string, nullable | That institution's name. `null` when not listed. |
+| `bad_actor_reason_code` | string, nullable | Reason code of the most recent listing: `account_abuse`, `fraud`, or `policy_violation`. `null` when not listed. |
+| `bad_actor_reason_definition` | string, nullable | The documented bank policy the consumer violated. `null` when not listed. |
+| `bad_actor_list_placement_date` | date, nullable | When the most recent listing was placed. `null` when not listed. |
 
-When the consumer is listed, the context fields are populated:
+The most recent listing is the one with the latest placement date; listings
+without a placement date rank last, and ties go to the most recently furnished.
 
-```json
-{
-  "provenance_event_id": "7b2d9c4e-…",
-  "consumer_identity_id": "c2a4e8d0-…",
-  "furnishing_entity_id": "e1d2c3b4-…",
-  "is_listed": true,
-  "bad_actor_list_placement_date": "2025-11-04",
-  "bad_actor_list_reason_code": "account_abuse"
-}
-```
-
-### Cross-Bank Financial Crimes Watch List
+### 314(b) Cross-Bank Financial Crimes Watch List
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_list/query \
+curl -X POST https://api.sandbox.solo.one/v1/products/cross_bank_financial_crimes_watch_list/query \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -90,94 +120,85 @@ curl -X POST https://api.solo.one/v1/products/cross_bank_financial_crimes_watch_
   }'
 ```
 
+A clean result:
+
 ```json
 {
   "provenance_event_id": "7b2d9c4e-…",
   "consumer_identity_id": "c2a4e8d0-…",
-  "furnishing_entity_id": null,
   "is_listed": false,
-  "entity_level_adverse_action_eligible_indicator": null,
-  "watch_list_placement_date": null
+  "furnishing_entity_id": null,
+  "furnishing_entity_name": null,
+  "event_date": null,
+  "event_category": null,
+  "signal_level": null
+}
+```
+
+When the consumer is listed, the detail fields describe the most recent report:
+
+```json
+{
+  "provenance_event_id": "7b2d9c4e-…",
+  "consumer_identity_id": "c2a4e8d0-…",
+  "is_listed": true,
+  "furnishing_entity_id": "e1d2c3b4-…",
+  "furnishing_entity_name": "First Example Bank",
+  "event_date": "2026-02-19",
+  "event_category": "money_laundering",
+  "signal_level": "high"
 }
 ```
 
 | Response field | Type | Meaning |
 |---|---|---|
-| `provenance_event_id` | UUID | The billable provenance event id — also in the `X-Ref-Id` header. |
-| `consumer_identity_id` | UUID | The resolved subject. |
-| `furnishing_entity_id` | UUID, nullable | The participant whose listing backed the result, when listed. |
-| `is_listed` | boolean | Whether the consumer appears on the watch list. |
-| `entity_level_adverse_action_eligible_indicator` | boolean, nullable | Whether the signal is eligible to support adverse action at the entity level. |
-| `watch_list_placement_date` | date, nullable | When the consumer was placed on the watch list. |
+| `provenance_event_id` | UUID | The billable query event id, also in the `X-Ref-Id` header. |
+| `consumer_identity_id` | UUID | The resolved consumer. |
+| `is_listed` | boolean | Whether any watch list report for the consumer is visible in the queried networks. |
+| `furnishing_entity_id` | UUID, nullable | The bank that reported the most recent event. `null` when not listed. |
+| `furnishing_entity_name` | string, nullable | That bank's name. `null` when not listed. |
+| `event_date` | date, nullable | Date of the most recent reported event. `null` when not listed. |
+| `event_category` | string, nullable | Category of the most recent event: `money_laundering`, `terrorist_financing`, or `fraud`. `null` when not listed. |
+| `signal_level` | string, nullable | Strength of the most recent signal: `high`, `medium`, or `low`. `null` when not listed. |
+
+The most recent report is the one with the latest event date; reports without
+an event date rank last, and ties go to the most recently furnished.
 
 <Note>
-  Screening list queries always return `200 OK` — a clean result is expressed as
-  `"is_listed": false`, not as a `204`. (The `204` semantics on the
-  [certificate endpoints](/api-overview/querying/kyc-certificate-snapshot#when-you-get-a-204)
-  signal that *no certificate could be created*; a list check always produces a
-  usable answer.) Both queries are billable events and carry the
-  [`X-Ref-Id` header](/api-overview/querying/overview#the-x-ref-id-header).
+  Screening list queries always return `200 OK`. A clean result is expressed as
+  `"is_listed": false`, not as a `204`. Both queries are billable events and
+  carry the [`X-Ref-Id` header](/api-overview/querying/overview#the-x-ref-id-header).
 </Note>
-
-## How matching works
-
-Subjects are matched against the lists using the consumer identity behind your
-[consent](/concepts/identity/consent) record. Each list defines its match
-inputs — SSN and date of birth are mandatory; name, phone, and email refine the
-match:
-
-| Match input | API name | Type | Required |
-|---|---|---|---|
-| Social Security Number | `social_security_number` | String | Yes |
-| Date of Birth | `date_of_birth` | Date | Yes |
-| First Name | `first_name` | String | No |
-| Last Name | `last_name` | String | No |
-| Phone Number | `phone_number` | String | No |
-| Email | `personal_email` | String | No |
-
-These inputs are identical for both lists.
 
 ## Field reference
 
-The list events behind each product, as defined in the product schema. *Field*
-is the display name, *API name* is the `field_name` used in policies, and
-*Source model* is the underlying table.
+The listing fields behind each product. *Field* is the display name and
+*API name* is the `field_name` used across the platform; each appears in the
+query response under the same name.
 
-### Bank-Specific Bad Actor List — BadActorEvent
+### Bank-Specific Bad Actor List: BadActorEvent
 
-| Field | API name | Type | Source model |
-|---|---|---|---|
-| Bad Actor Reason Code | `bad_actor_reason_code` | String | `bad_actor_event` |
-| Bad Actor Reason Definition | `bad_actor_reason_definition` | String | `bad_actor_event` |
-| Bad Actor List Placement Date | `bad_actor_list_placement_date` | Date | `bad_actor_event` |
+| Field | API name | Type |
+|---|---|---|
+| Bad Actor Reason Code | `bad_actor_reason_code` | String |
+| Bad Actor Reason Definition | `bad_actor_reason_definition` | String |
+| Bad Actor List Placement Date | `bad_actor_list_placement_date` | Date |
 
-Reason codes are drawn from a documented set — `account_abuse`, `fraud`, and
-`policy_violation` — and each listing carries the bank's definition of the
-violated policy in `bad_actor_reason_definition`.
+### 314(b) Cross-Bank Financial Crimes Watch List fields
 
-### Cross-Bank Financial Crimes Watch List — FinancialCrimesWatchEvent
+| Field | API name | Type |
+|---|---|---|
+| Event Date | `event_date` | Date |
+| Event Category | `event_category` | String |
+| Signal Level | `signal_level` | String |
 
-| Field | API name | Type | Source model |
-|---|---|---|---|
-| Event Date | `event_date` | Date | `financial_crimes_watch_event` |
-| Event Category | `event_category` | String | `financial_crimes_watch_event` |
-| Signal Level | `signal_level` | String | `financial_crimes_watch_event` |
-
-Event categories include `money_laundering`, `terrorist_financing`, and
-`fraud`; signal levels are `high`, `medium`, or `low`. A network's
-[querying policy](/concepts/governance/querying-policies) can restrict which
-categories and signal levels a query considers — for example, only
-`high`-signal events.
-
-## Compliance posture
+## Using a listing
 
 <Warning>
-  Watch-list signals are screening inputs, not adjudications. Whether a listing
-  can support adverse action depends on your program's compliance framework —
-  the cross-bank list operates under 314(b) permissible purpose, and the
-  `entity_level_adverse_action_eligible_indicator` field exists precisely
-  because not every signal qualifies. Route hits to your compliance review
-  process.
+  A listing reflects what a participating institution furnished. It is a
+  screening input, not a determination. Route hits to your compliance review
+  process; decisions based on a listing, including any adverse action, are
+  your institution's.
 </Warning>
 
 ## Related

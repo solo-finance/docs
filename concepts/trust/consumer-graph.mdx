@@ -1,105 +1,106 @@
 ---
 title: 'Consumer graph'
-description: 'What can actually be verified about a consumer in the network, and how each branch becomes a reusable trust asset'
+description: 'What can be verified about a consumer in the network, and how each branch becomes a trust asset'
 icon: 'user'
 ---
 
-The **consumer graph** is everything a SOLO network can hold about a person: a
-core identity, plus the verification events participants have furnished about
-them. Each branch is a candidate [trust asset](/concepts/trust/trust-assets) —
-an attested verification another institution can reuse instead of repeating.
+The **consumer graph** is what a SOLO network can hold about a person: a core
+identity, plus the records and verification events participants have furnished
+about them. Each verification branch is a candidate
+[trust asset](/concepts/trust/trust-assets) — an attested verification that an
+authorized participant can build on instead of repeating.
 
-This page shows what lives in the graph **today**. Every node maps to a real
-model; branches with no backing model (for example consumer assets, liabilities,
-or bank-account inventories) are deliberately absent rather than implied.
+This page shows the main branches that exist **today**. Every node is a real
+data model; branches with no backing model are deliberately absent rather than
+implied.
 
 ## The graph
 
+Node names are the model names used in consent grants (`models`).
+`GET /v1/graph/models` lists the same models — for example `ConsumerIdentity`,
+with the resource path `consumer-identities` — together with every field.
+
 ```text
-Consumer
-├── Identity                         (consumer)
-│   ├── first_name, last_name
-│   ├── date_of_birth
-│   ├── personal_email
-│   ├── phone_number
-│   └── social_security_number
+consumer_identity                         The person
+│   first_name, last_name, date_of_birth, personal_email, social_security_number
 │
-├── Identity verification — KYC      (KYC certificate sub-products)
-│   ├── Document capture & review    (document_capture_event, identity_document)
-│   ├── Biometric capture & review   (biometric_capture_event)
-│   ├── Liveness capture & review    (liveness_check_event)
-│   ├── Address capture & verification (address_capture_event)
-│   └── Identity corroboration       (identity_corroboration_event)
-│       └── is_ssn_match, is_name_match, is_dob_match, kyc_decision
+├── email_identity                        email_address
+├── phone_number_identity                 phone_number
+│   └── phone_number_verification_event   phone_verified, phone_carrier_name,
+│                                         phone_age_days, phone_risk_score
+├── address_identity                      line_1, line_2, city, state, zip, country
+│   └── address_capture_event             is_address_verified, address_verification_outcome,
+│                                         address_match_quality, address_verification_method_type
 │
-├── Address verification             (address_capture_event)
-│   └── address_verification_outcome, address_match_quality, address_verification_method_type
+├── identity_document_identity            type, number, issuing_state, issuing_country,
+│                                         expiration_date, upload
+├── document_capture_event                is_document_captured, document_type,
+│                                         document_capture_method, is_document_attribute_reviewed
+├── biometric_capture_event               is_biometric_captured, biometric_capture_method,
+│                                         biometric_comparison_outcome
+├── liveness_check_event                  is_liveness_captured, check_result, capture_method_type
+├── identity_corroboration_event          is_ssn_match, is_name_match, is_dob_match,
+│                                         identity_corroboration_outcome, kyc_decision
 │
-├── Income                           (income_verification_event)
-│   ├── base_salary, monthly_income
-│   ├── bonus_commission_income, overtime_income
-│   ├── debt_to_income_ratio
-│   └── paystub_upload (evidence)
+├── income_verification_event             is_income_verified, base_salary, monthly_income,
+│                                         debt_to_income_ratio, paystub_gross_pay_amount
+├── employment_verification_event         is_employment_verified, employer_name, job_title,
+│                                         employment_status, length_of_employment_months
 │
-├── Employment                       (employment_verification_event)
-│   ├── employer_name, job_title
-│   ├── employment_status, employment_type
-│   ├── employment_start_date, length_of_employment_months
-│   └── employer_letter_of_employment_upload (evidence)
+├── fraud_verification_event              confirmed_fraud_indicator, fraud_attribute_label,
+│                                         fraud_loss_event_category, fraud_event_date
+├── bad_actor_event                       bad_actor_list_placement_date, bad_actor_reason_code
+├── financial_crimes_watch_event          event_category, event_date, signal_level
 │
-├── Phone                            (phone_number_verification)
-│   └── phone_carrier_name, phone_age_days, phone_risk_score
-│
-├── Fraud signals                    (fraud_verification_event)
-│   ├── confirmed_fraud_indicator
-│   ├── fraud_attribute_label, fraud_loss_event_category
-│   └── fraud_event_date
-│
-└── Consent                          (consumer consent)
-    └── scope, expires_at, consented_fields
+└── consumer_consent_event                scope, expires_at, consented_fields
 ```
 
 ## How to read the graph
 
-- **Identity** is the [entity](/concepts/identity/entities) itself — the
-  matching keys (SSN, date of birth) that let contributions from different
-  participants accrue to one person.
-- **Verification branches** are furnished events. The richest is **KYC**, which
-  a [KYC certificate](/api-overview/querying/kyc-certificate-snapshot) query consolidates
-  into up to nine sub-products. Income, employment, phone, and fraud are
-  separate verification-event models that can also be furnished about a
-  consumer.
-- **Consent** is not data *about* the consumer so much as the permission layer
-  that governs reading any of it.
+- **`consumer_identity`** is the [entity](/concepts/identity/entities) itself.
+  Its SSN and date of birth together are the match key that lets
+  contributions from different participants attach to one person.
+- **Identity records** — email, phone, address, identity document — are
+  attached to the person, and some carry their own verification events (a
+  phone number's verification, an address's capture and verification).
+- **Verification events** are furnished outcomes. The KYC events — document,
+  biometric, liveness, address, and identity corroboration — are what a
+  [KYC certificate](/api-overview/querying/kyc-certificate-snapshot) query
+  consolidates into up to nine sub-products. Income, employment, and fraud
+  verification are separate models that can also be furnished.
+- **Screening events** — `bad_actor_event` and `financial_crimes_watch_event`
+  — back the [screening list](/api-overview/querying/screening-lists)
+  products.
+- **`consumer_consent_event`** is not data *about* the consumer so much as the
+  permission record that governs querying them.
 
 ## Each branch carries provenance
 
-A branch only becomes a reusable trust asset because its lineage travels with
-it. Certificate sub-products always carry the `furnishing_entity_id` and
-`attestation_event_id` of the participant whose data backed them, plus an `assertions`
-block recording what was asserted and when. Evidence is concrete — a paystub
-upload behind an income event, a captured document behind identity
-verification. See [Provenance](/concepts/trust/provenance) for the full lineage
-model.
+A verification event becomes a reusable trust asset because its lineage travels
+with it. Furnished events record the participant that furnished them, and can
+link to that participant's attestation. Certificate sub-products surface this as
+`furnishing_entity_id` and `attestation_event_id`, plus an `assertions` block
+recording what was asserted and when. Some records also carry a reference to
+the evidence behind them, such as an identity document's `upload`. See
+[Provenance](/concepts/trust/provenance) for the full lineage model.
 
 <Note>
-  What you can actually read back is the intersection of the network's
-  [querying policy](/concepts/governance/querying-policies) and your
+  What you can actually read back is decided by the network's
+  [querying policy](/concepts/governance/querying-policies) and by
   [entitlement](/concepts/governance/entitlement). The graph describes what
   *can* exist; consent, policy, and entitlement decide what *you* see.
 </Note>
 
-## Reusable trust assets for a consumer
+## Trust assets for a consumer
 
-Consolidated through products, the consumer graph yields reusable assets such
-as:
+Consolidated through products, the consumer graph yields assets such as:
 
 - **Verified identity** — a [KYC certificate](/api-overview/querying/kyc-certificate-snapshot)
   consolidating document, biometric, liveness, address, and corroboration
   evidence.
 - **Verified address** — address capture and verification outcomes.
-- **Fraud screening** — [screening list](/api-overview/querying/screening-lists)
-  results drawn from furnished fraud signals.
+- **Screening** — [screening list](/api-overview/querying/screening-lists)
+  results drawn from furnished bad-actor and financial-crimes watch events.
 
 ## Related
 

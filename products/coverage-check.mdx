@@ -1,75 +1,67 @@
 ---
 title: 'Coverage Check'
-description: 'Non-billable pre-flight of field coverage before running a query'
+description: 'Non-billable, per-furnisher view of which product fields are on file for a subject'
 icon: 'list-radio'
 ---
 
-The **coverage check** is a non-billable, read-only pre-flight for product
-queries. Given a product, a subject, and a network + policy scope, it reports —
-**per furnisher** — which of the policy's required fields are covered by data
-already furnished to the network. It answers *"if I run this query now, can it
-succeed?"* without issuing a certificate, recording a query event, or creating a
-billable event.
+The **coverage check** is a non-billable, read-only utility. Given a product, a
+subject, and a set of networks, it reports **per furnishing institution**
+which of the product's fields that institution has furnished for the subject,
+and whether the subject's consent covers them. It does not issue a
+certificate, return subject data values, or create a billable query event.
 
 | | |
 |---|---|
 | **Category** | Utility (not a product query) |
-| **Use case** | Pre-flight a query, avoid predictable `204`s |
+| **Use case** | See who holds what data for a subject before querying |
 | **Subject** | Consumer or business (matches the checked product) |
 | **Family** | Non-billable check |
 | **Operation** | `POST /v1/products/check` |
 
 One endpoint serves every product: pass the `product_id` of the product you
-intend to query.
+want to check.
 
-## Why it exists
+<Warning>
+  The response names the furnishing institutions in the queried networks and
+  shows which of them hold data on the subject (`hit`). Treat it with the same
+  care as any other information about the subject.
+</Warning>
 
-A product query that resolves but cannot satisfy the policy returns
-[`204 No Content`](/api-overview/querying/overview#200-vs-204-here-is-data-vs-nothing-usable)
-— and that resolved query is still a billable event. The coverage check lets you
-avoid predictable `204`s for free.
+## Coverage check vs soft check
 
-```mermaid
-sequenceDiagram
-    participant App as Your app
-    participant API as SOLO API
-    App->>API: POST /v1/products/check (non-billable)
-    API-->>App: per-furnisher coverage
-    alt coverage complete
-        App->>API: POST /v1/products/{product}/query (billable)
-        API-->>App: 200 + certificate
-    else coverage incomplete
-        App->>App: skip query / adjust UX / pick another policy
-    end
-```
+The coverage check answers *"who has furnished which fields?"*. It counts any
+furnished value and does not apply the querying policy's filters (such as
+freshness windows), so a complete coverage row does not mean a certificate
+query will succeed.
+
+To ask *"would this certificate query issue a certificate right now?"*, use the
+certificate soft check instead:
+`POST /v1/products/{kyc,kyb}_certificate_snapshot/query/soft`. It runs the
+real query logic as a non-billable dry run. See
+[Soft check before you query](/api-overview/querying/kyc-certificate-snapshot#soft-check-before-you-query).
 
 ## At a glance
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/check \
+curl -X POST https://api.sandbox.solo.one/v1/products/check \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "product_id": "3e8a1d5f-…",
     "consent_id": "a3f0b9c7-…",
-    "policy_id": "5e7d2a14-…",
     "network_ids": ["9f1c0c2e-…"]
   }'
 ```
 
-A `200 OK` returns one entry per furnisher that has relevant data, each with a
-`complete` flag and a per-model, per-field breakdown of which requirements are
-`met`. The `field_name` values trace directly to each product's field reference.
-
-<Warning>
-  The coverage check is a *soft* check. It does not issue a certificate, return
-  subject data, record a query event, or guarantee the subsequent query returns
-  `200` — data can change between the check and the query.
-</Warning>
+A `200 OK` returns one entry per member institution of the queried networks.
+Each entry has a `hit` flag (does this institution hold any data for the
+subject?), a `complete` flag (has it furnished every field?), and a per-model,
+per-field breakdown of which fields are `met` and `consented`. The
+`field_name` values match each product's field reference.
 
 <Card title="Full request & response schema" icon="book" href="/api-overview/querying/coverage-check">
-  The complete coverage check deep dive — full request fields, the response
-  shape, and when to use it.
+  The complete coverage check deep dive: request fields, the response shape,
+  and when to use it.
 </Card>
 
 ## Related
@@ -79,6 +71,6 @@ A `200 OK` returns one entry per furnisher that has relevant data, each with a
     The full product catalog.
   </Card>
   <Card title="Querying" icon="magnifying-glass" href="/api-overview/querying/overview">
-    The billable query the coverage check pre-flights.
+    The billable product queries.
   </Card>
 </CardGroup>

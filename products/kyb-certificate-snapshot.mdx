@@ -1,15 +1,18 @@
 ---
-title: 'KYB Certificate'
+title: 'KYB Certificate Snapshot'
 description: 'Reusable business-verification certificate for business onboarding'
 icon: 'building'
 ---
 
-The **KYB Certificate** is a reusable Know Your Business attestation that
-packages UBO (ultimate beneficial owner), incorporation, and business-identity
-evidence into a single certificate. Rather than each institution repeating
-registry lookups, ownership tracing, and risk screening for the same business, a
-query assembles the verification work already furnished by network participants
-into one network-issued result.
+The **KYB Certificate Snapshot** is a reusable Know Your Business certificate
+that packages business-identity, ownership & control (including beneficial
+owners), and risk/compliance evidence into a single certificate. A query
+assembles the verification work that network participants have already
+furnished for a business into one network-issued result.
+
+The certificate supports, and does not replace, your institution's own business
+due-diligence program. Whether and how far to rely on a certificate remains
+your institution's decision.
 
 | | |
 |---|---|
@@ -17,44 +20,47 @@ into one network-issued result.
 | **Use case** | Customer onboarding |
 | **Subject** | Business |
 | **Family** | Certificate (issues a `certificate_id`) |
-| **Operations** | `POST /v1/products/kyb_certificate_snapshot/query`, `POST /v1/products/kyb_certificate_snapshot/furnish` |
+| **Operations** | `POST /v1/products/kyb_certificate_snapshot/query`, `POST /v1/products/kyb_certificate_snapshot/query/soft`, `POST /v1/products/kyb_certificate_snapshot/furnish` |
 
 ## What's in the certificate
 
-A KYB certificate consolidates three **sub-products**, each a block in the query
-response with its own `assertions` (what was attested, and when) and `data` (the
-supporting attributes):
+A KYB certificate consists of three **sub-products**, each a block in the query
+response with its own `assertions` (what was attested, and when) and `data`
+(the supporting attributes). A certificate is issued only when all three
+resolve.
 
-| Sub-product | Response key | What it attests |
+| Sub-product | Response key | What it carries |
 |---|---|---|
-| Business identity verification | `business_identity_verification` | The legal entity exists and is what it claims — registration, jurisdiction, tax ID validation, operational existence. |
-| Ownership & control verification | `business_ownership_control_verification` | Beneficial owners, control persons, and authorized representatives were identified and evidenced. |
-| Risk & compliance assessment | `business_risk_compliance_assessment` | Sanctions, adverse media, restricted-activity, and activity-risk screening were performed. |
+| Business identity verification | `business_identity_verification` | Registration status, entity type, jurisdiction of formation, tax ID validation result, operational existence, address verification result. |
+| Ownership & control verification | `business_ownership_control_verification` | How beneficial owners, control persons, and authorized representatives were determined, how many were identified, and the evidence reviewed. |
+| Risk & compliance assessment | `business_risk_compliance_assessment` | Sanctions screening, adverse media, restricted-activity, and activity-risk results, with the screening scope applied. |
 
-Every populated sub-product carries the `furnishing_entity_id` of the
-participant whose data backed it and the `attestation_event_id` of their attestation.
+Each sub-product is resolved independently and carries the
+`furnishing_entity_id` and `attestation_event_id` of the furnished record that
+backed it.
 
 ## At a glance
 
 ```bash
-curl -X POST https://api.solo.one/v1/products/kyb_certificate_snapshot/query \
+curl -X POST https://api.sandbox.solo.one/v1/products/kyb_certificate_snapshot/query \
   -H "Authorization: Bearer $SOLO_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "consent_id": "a3f0b9c7-…",
-    "policy_id": "5e7d2a14-…",
     "network_ids": ["9f1c0c2e-…"]
   }'
 ```
 
-A `200 OK` means a certificate was issued — the response carries a
-`certificate_id`, the billable `provenance_event_id`, and a `result` block with each
-sub-product (sub-products without qualifying data are `null`). A `204 No Content`
-means the available data did not satisfy the policy.
+A `200 OK` means a certificate was issued: the response carries a
+`certificate_id`, the billable `provenance_event_id`, and a `result` block with
+all three sub-products. A `204 No Content` means the furnished data could not
+satisfy the policy; it is still a billable query. To find out first without
+being billed, call `POST /v1/products/kyb_certificate_snapshot/query/soft` with
+the same body.
 
 <Card title="Full field reference & response schema" icon="book" href="/api-overview/querying/kyb-certificate-snapshot">
-  The complete KYB certificate deep dive — every model, the full response
-  example, how it resolves per network, and the `204` rules.
+  The complete KYB certificate deep dive: the full response, how it resolves
+  across networks, the `204` rules, furnishing, and the field reference.
 </Card>
 
 ## Related
@@ -64,6 +70,6 @@ means the available data did not satisfy the policy.
     The full product catalog.
   </Card>
   <Card title="Coverage check" icon="list-radio" href="/products/coverage-check">
-    Check field coverage before running a billable query.
+    See which institutions have furnished which fields for a subject.
   </Card>
 </CardGroup>
