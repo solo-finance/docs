@@ -308,7 +308,7 @@ curl -X POST https://api.sandbox.solo.one/v1/products/kyc_certificate_snapshot/q
 | Field | Meaning |
 |---|---|
 | `issuable` | Whether the same query, run now, would issue a certificate (`200`) rather than return `204`. |
-| `missing_data_paths` | Data fields selected by the explicit `policy_id` that would be empty in the certificate. Always empty when no `policy_id` is passed. |
+| `missing_data_paths` | The sub-products that didn't resolve (for example `liveness_capture`), plus any data fields selected by an explicit `policy_id` that would be empty. Empty when `issuable` is `true`. |
 | `matched_models` | The product models whose capture-side sub-product resolved (for example `DocumentCaptureEvent` for `document_capture`). Review sub-products are not listed separately; if one would be absent, `issuable` is `false`. |
 
 The soft check uses the same subject resolution as the query, so it returns the

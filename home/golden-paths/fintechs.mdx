@@ -196,8 +196,9 @@ two sponsor banks. The applicant is applying through Bank One's program
   other fintechs furnished aren't readable.
 - **Which policy applies.** With no `policy_id`, the default policy of the
   first network in `network_ids` applies to all of them; with none assigned,
-  the product's own rules apply. To use another policy your sponsor bank made
-  available to you, pass its `policy_id`.
+  the product's own rules apply. To use a policy your sponsor bank assigned to
+  your organization, pass its `policy_id`; naming any other policy returns
+  `404`.
 - **What's billed.** The soft check is free; the query is billable.
 
 ## Businesses (KYB)

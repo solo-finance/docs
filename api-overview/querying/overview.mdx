@@ -61,7 +61,7 @@ rules** to read.
 | `consent_id` | string | one of¹ | Consent token identifying the subject. See [Consent](/concepts/identity/consent). |
 | `consumer_identity_id` / `business_identity_id` | UUID | one of¹ | Direct profile reference, as an alternative to `consent_id`. Consumer products take `consumer_identity_id`; the KYB certificate takes `business_identity_id`. |
 | `network_ids` | UUID[] | yes | One or more networks to read across. The first network anchors the result. |
-| `policy_id` | UUID | no | The [querying policy](/concepts/governance/querying-policies) to apply across every network in `network_ids`. If omitted, the policy currently assigned to the **first** network in `network_ids` is applied; if that network has none, the product's catalog defaults apply. Screening lists accept but don't apply a policy. |
+| `policy_id` | UUID | no | The [querying policy](/concepts/governance/querying-policies) to apply across every network in `network_ids`. If omitted, the policy currently assigned to the **first** network in `network_ids` is applied; if that network has none, the product's catalog defaults apply. If passed, it must be a policy of the first network in `network_ids` that's available to you: the network's current default, one your sponsor bank assigned to your organization, or, if you govern the network, any of its policies. Certificate queries only. |
 | `furnishing_entity_ids` | UUID[] | no | Limit the read to data from these furnishing institutions. When omitted or empty, all furnishers are considered. |
 
 ¹ Provide exactly one: a `consent_id` *or* a direct profile id. Sending both,
@@ -284,7 +284,7 @@ Domain errors use the standard envelope
 | `400 Bad Request` | `VALIDATION_ERROR` | Both a `consent_id` and a direct profile id were sent, or neither. |
 | `401` / `403` | none | The authentication layer rejected the bearer token. These use the short `{"detail": "…"}` shape; see [Authentication](/home/authentication). |
 | `403 Forbidden` | `PERMISSION_DENIED` | The consent has expired. |
-| `404 Not Found` | `RESOURCE_NOT_FOUND` | The consent, consumer, business, product, or an explicit `policy_id` could not be resolved, or the consent belongs to a network not in `network_ids`. |
+| `404 Not Found` | `RESOURCE_NOT_FOUND` | The consent, consumer, business or product could not be resolved, an explicit `policy_id` doesn't exist or isn't available to you, or the consent belongs to a network not in `network_ids`. |
 | `422 Unprocessable Entity` | none | The body failed schema validation (e.g. `network_ids` missing or empty). The short `{"detail": "<field path>: <message>"}` shape names the field. |
 | `500 Internal Server Error` | `INTERNAL_ERROR`, `OPERATION_FAILED`, or `UNKNOWN_ERROR` | Server-side failure. Quote the `request_id` to support. |
 

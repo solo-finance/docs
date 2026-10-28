@@ -179,7 +179,8 @@ Some responses use a **short shape** — just `{"detail": "..."}` with no
 
     A product query returns `404` when its consent belongs to a network that
     isn't in `network_ids`, when a `consumer_identity_id` isn't visible to you
-    in those networks, or when an explicit `policy_id` doesn't exist.
+    in those networks, or when an explicit `policy_id` doesn't exist or isn't
+    available to you.
 
     <Note>
       `404` also covers resources that exist but are outside the networks you

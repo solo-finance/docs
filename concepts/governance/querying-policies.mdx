@@ -206,9 +206,17 @@ curl -X POST https://api.sandbox.solo.one/v1/products/kyc_certificate_snapshot/q
 - **`policy_id`** (optional) — the policy to apply. One policy is applied
   across every network in `network_ids`.
 
-**With `policy_id`**, that policy is applied whether or not it is active or
-assigned. A `policy_id` that doesn't exist or that you can't access fails the
-query with `404 RESOURCE_NOT_FOUND`. When you name a policy explicitly, a
+**With `policy_id`**, the policy must belong to the first network in
+`network_ids` and be available to you:
+
+- its active default for today,
+- an active policy assigned to your organization with a member window
+  covering today, or
+- if your organization governs the network, any of its policies, drafts
+  included.
+
+Any other `policy_id`, including one that doesn't exist, fails the query with
+`404 RESOURCE_NOT_FOUND`. When you name a policy explicitly, a
 certificate is issued only if every data field the policy selects is
 populated; otherwise the query returns `204 No Content`.
 
@@ -276,7 +284,7 @@ Errors use the standard envelope (see [Errors](/home/errors)):
 
 | Situation | Result |
 |---|---|
-| A query names a `policy_id` that doesn't exist or that you can't access | `404` `RESOURCE_NOT_FOUND` |
+| A query names a `policy_id` that doesn't exist or isn't available to you | `404` `RESOURCE_NOT_FOUND` |
 | A query lists a network your organization isn't a member of | `403` `PERMISSION_DENIED` |
 | Malformed body (missing field, bad UUID) | `422`, short shape with `detail` only |
 | A configuration names an option that doesn't belong to its field, or leaves a several-option field with none selected | Rejected; nothing is saved |

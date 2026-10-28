@@ -189,7 +189,7 @@ whether a KYC certificate can be issued for a consumer — and then query it.
   returns `404`.
 - **Expired consent.** A query with a consent whose `expires_at` has passed
   returns `403`.
-- **`policy_id`** is optional. If you send one that doesn't exist, the query
+- **`policy_id`** is optional. If you send one, it must be a policy of the first network in `network_ids` that's available to you: the network's current default, one your sponsor bank assigned to your organization, or, if you govern the network, any of its policies; any other
   returns `404`. If you omit it, the querying policy assigned to the first
   network in `network_ids` applies to every network in the query;
   `result.meta.policy_id` tells you which policy was used.
@@ -283,7 +283,8 @@ with the same request. Queries that use it then return `403`.
   <Accordion title="404 — consent, consumer, or policy not found">
     Common causes: the consent was created in a network that isn't in
     `network_ids`; the `consent_id` doesn't exist; the `consumer_identity_id`
-    isn't visible to you in those networks; or the `policy_id` doesn't exist.
+    isn't visible to you in those networks; or the `policy_id` doesn't exist or
+    isn't available to you.
     Check the consent with `GET /v1/consent/consumer_identity/{consent_id}`
     using the network it was created in.
   </Accordion>
