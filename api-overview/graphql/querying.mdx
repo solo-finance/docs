@@ -71,7 +71,7 @@ query ConsumersByLastName($networkIds: [UUID!], $lastName: String!) {
               "lastName": "Alvarez",
               "documentCaptureEvents": [
                 {
-                  "documentType": "drivers_license",
+                  "documentType": "identity_document",
                   "documentCaptureTimestamp": "2026-06-01",
                   "attestationEvent": { "furnishingEntity": { "name": "Acme Community Bank" } }
                 }
@@ -147,7 +147,7 @@ query ConsumerProfile($networkIds: [UUID!], $id: ID!) {
           }
         ],
         "emailIdentities": [{ "emailAddress": "maria.alvarez@example.com" }],
-        "fraudVerificationEvents": [{ "fraudAttributeLabel": "device_id", "fraudEventDate": "2026-05-28" }]
+        "fraudVerificationEvents": [{ "fraudAttributeLabel": "ipv4_address", "fraudEventDate": "2026-05-28" }]
       }
     }
   }

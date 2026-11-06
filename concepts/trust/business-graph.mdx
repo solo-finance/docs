@@ -52,6 +52,19 @@ business_identity                                   The business
 │                                                   primary_activity_classification_code,
 │                                                   primary_activity_classification_system
 │
+├── business_certification_event                    is_w9_certified, is_subject_to_backup_withholding,
+│                                                   are_terms_accepted, is_electronic_records_consent_given
+├── application_session_event                       application_started_at, ip_address, program_name
+│   └── expected_account_activity_component         account_purpose, source_of_funds,
+│                                                   expected_monthly_transaction_volume, expected_payment_methods
+│
+├── court_record_search_event                       search_result, record_types_searched, records_found_count
+├── court_record_identity                           record_type, case_number, court_name, filing_date
+│   └── court_record_snapshot                       case_status, disposition, judgment_amount
+├── lien_filing_identity                            filing_type, filing_number, filing_jurisdiction,
+│   │                                               secured_party_name, collateral_description
+│   └── lien_filing_snapshot                        filing_status, lien_amount, lapse_date
+│
 └── business_consent_event                          consent_id, business_legal_name, federal_ein, consented_at
 ```
 

@@ -62,7 +62,7 @@ mutation FurnishConsumer($networkId: UUID!, $input: FurnishConsumerIdentityUpser
         {
           "create": {
             "isDocumentCaptured": true,
-            "documentType": "drivers_license",
+            "documentType": "identity_document",
             "documentCaptureMethod": "mobile_live_capture",
             "documentCaptureTimestamp": "2026-06-01"
           }
@@ -72,7 +72,7 @@ mutation FurnishConsumer($networkId: UUID!, $input: FurnishConsumerIdentityUpser
         {
           "create": {
             "confirmedFraudIndicator": true,
-            "fraudAttributeLabel": "device_id",
+            "fraudAttributeLabel": "ipv4_address",
             "fraudAttributeContent": "dvc_7f3a9c21e84b",
             "fraudEventDate": "2026-05-28"
           }
@@ -108,10 +108,10 @@ mutation FurnishConsumer($networkId: UUID!, $input: FurnishConsumerIdentityUpser
         "firstName": "Maria",
         "lastName": "Alvarez",
         "documentCaptureEvents": [
-          { "documentType": "drivers_license", "documentCaptureTimestamp": "2026-06-01" }
+          { "documentType": "identity_document", "documentCaptureTimestamp": "2026-06-01" }
         ],
         "fraudVerificationEvents": [
-          { "confirmedFraudIndicator": true, "fraudAttributeLabel": "device_id" }
+          { "confirmedFraudIndicator": true, "fraudAttributeLabel": "ipv4_address" }
         ],
         "addressIdentities": [
           { "line1": "2150 W Fulton St", "city": "Chicago", "addressCaptureEvents": [{ "isAddressCaptured": true }] }

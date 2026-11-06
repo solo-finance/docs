@@ -3323,11 +3323,6 @@ components:
           - type: boolean
           - type: 'null'
           title: Is Name Match
-        ssn_verified:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Ssn Verified
         name_verified:
           anyOf:
           - type: boolean
@@ -3788,6 +3783,13 @@ components:
             type: array
           - type: 'null'
           title: Identity Corroboration Events
+        ssn_verification_events:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SsnVerificationEventInput'
+            type: array
+          - type: 'null'
+          title: Ssn Verification Events
         address_identities:
           anyOf:
           - items:
@@ -4789,6 +4791,51 @@ components:
         underlying data. Soft checks always return an HTTP 200 body so clients can
 
         read ``matched_models`` / ``missing_data_paths`` when ``issuable`` is false.'
+    SsnVerificationEventInput:
+      properties:
+        ssn_verification_timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ssn Verification Timestamp
+        ssn_verification_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ssn Verification Method
+        ssn_verification_outcome:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ssn Verification Outcome
+        is_ssn_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Ssn Match
+        is_name_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Name Match
+        is_dob_match:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Dob Match
+        is_ssn_holder_reported_deceased:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Ssn Holder Reported Deceased
+        ssn_verified:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ssn Verified
+      additionalProperties: true
+      type: object
+      title: SsnVerificationEventInput
     ValidationError:
       properties:
         loc:

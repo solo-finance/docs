@@ -147,7 +147,7 @@ curl -X POST https://api.sandbox.solo.one/v1/products/kyc_certificate_snapshot/f
         "date_of_birth": "1990-01-15",
         "social_security_number": "123-45-6789",
         "document_capture_events": [
-          { "is_document_captured": true, "document_type": "drivers_license" }
+          { "is_document_captured": true, "document_type": "identity_document" }
         ]
       }
     ]
@@ -168,7 +168,7 @@ sub-product:
     "document_capture": {
       "furnishing_entity_id": "7c2d91e4-5a6b-4c8d-9e0f-1a2b3c4d5e6f",
       "assertions": { "document_capture_assertion": true },
-      "data": { "document_type": "drivers_license" }
+      "data": { "document_type": "identity_document" }
     }
   }
 }

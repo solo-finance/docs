@@ -22,12 +22,14 @@ with the resource path `consumer-identities` — together with every field.
 
 ```text
 consumer_identity                         The person
-│   first_name, last_name, date_of_birth, personal_email, social_security_number
+│   first_name, last_name, date_of_birth, personal_email, social_security_number,
+│   has_social_security_number, country_of_citizenship
 │
 ├── email_identity                        email_address
 ├── phone_number_identity                 phone_number
-│   └── phone_number_verification_event   phone_verified, phone_carrier_name,
-│                                         phone_age_days, phone_risk_score
+│   └── phone_number_verification_event   phone_possession_check_outcome,
+│                                         phone_identity_binding_outcome, phone_line_type,
+│                                         phone_carrier_name, phone_age_days
 ├── address_identity                      line_1, line_2, city, state, zip, country
 │   └── address_capture_event             is_address_verified, address_verification_outcome,
 │                                         address_match_quality, address_verification_method_type
@@ -41,16 +43,31 @@ consumer_identity                         The person
 ├── liveness_check_event                  is_liveness_captured, check_result, capture_method_type
 ├── identity_corroboration_event          is_ssn_match, is_name_match, is_dob_match,
 │                                         identity_corroboration_outcome, kyc_decision
+├── ssn_verification_event                ssn_verification_outcome, ssn_verified,
+│                                         is_ssn_holder_reported_deceased
+├── consumer_risk_compliance_event        sanctions_screening_result, is_pep, lists_screened
 │
 ├── income_verification_event             is_income_verified, base_salary, monthly_income,
 │                                         debt_to_income_ratio, paystub_gross_pay_amount
 ├── employment_verification_event         is_employment_verified, employer_name, job_title,
 │                                         employment_status, length_of_employment_months
+├── deposit_switch_event                  employer_name, payroll_provider, allocation_type,
+│                                         destination_account_type, switch_status
 │
 ├── fraud_verification_event              confirmed_fraud_indicator, fraud_attribute_label,
 │                                         fraud_loss_event_category, fraud_event_date
 ├── bad_actor_event                       bad_actor_list_placement_date, bad_actor_reason_code
 ├── financial_crimes_watch_event          event_category, event_date, signal_level
+├── court_record_search_event             search_result, record_types_searched, records_found_count
+├── court_record_identity                 record_type, case_number, court_name, filing_date
+│   └── court_record_snapshot             case_status, disposition, judgment_amount
+│
+├── application_session_event             application_started_at, ip_address, applied_by,
+│                                         applied_by_basis
+├── consumer_delegate_relationship_identity  delegate_type, delegation_scope, delegation_duration,
+│   │                                     granted_at, expires_at, revoked_at
+│   └── agent_identity                    agent_provider, agent_name_as_presented,
+│                                         agent_identification_method
 │
 └── consumer_consent_event                scope, expires_at, consented_fields
 ```
