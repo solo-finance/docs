@@ -570,6 +570,9 @@ paths:
       tags:
       - KYC Certificate Snapshot
       summary: Query consolidated KYC certificate data for a consumer
+      description: 'When the available data does not satisfy the policy requirements,
+        no certificate is created: ``certificate_id`` is null, ``missing_data_paths``
+        names what was missing, and ``result`` carries no resolved values.'
       operationId: kyc_certificate_snapshot_query_v1_products_kyc_certificate_snapshot_query_post
       requestBody:
         content:
@@ -584,9 +587,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/KYCCertificateSnapshotQueryOutput'
-        '204':
-          description: No certificate could be created — the available data did not
-            satisfy the policy requirements.
         '422':
           description: Validation Error
           content:
@@ -3917,6 +3917,16 @@ components:
         result:
           $ref: '#/components/schemas/KYCCertificateSnapshotNetworkResult'
           description: Consolidated certificate resolution across all queried networks.
+        missing_data_paths:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Missing Data Paths
+          description: 'Set when no certificate could be issued: the certificate sub-products
+            and policy-required data paths the available data left empty, as the soft
+            check reports them. The result then carries no resolved values.'
       type: object
       required:
       - consumer_identity_id
