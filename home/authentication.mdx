@@ -50,8 +50,9 @@ identity provider:
 API keys belong to your **organization**, not to a user. A request made with a
 key acts as your organization's account on the network, with all of the
 organization's network memberships and roles — keys have no narrower scopes of
-their own. The same key is also what authenticates
-[SFTP uploads](/api-overview/sftp/getting-started).
+their own. API keys don't work over SFTP:
+[SFTP uploads](/api-overview/sftp/getting-started) sign in with SSH keys
+registered under **Settings → SFTP keys**.
 
 <Warning>
   Treat API keys as secrets. Never commit them to source control, embed them in

@@ -4,26 +4,32 @@ description: 'Send your first JSONL file to the SOLO Network over SFTP'
 icon: 'rocket'
 ---
 
-This guide walks you through your first SFTP upload end-to-end — from getting credentials to confirming that the network ingested your data.
+This guide walks you through your first SFTP upload end-to-end — from registering an SSH key to confirming that the network ingested your data.
 
 ## What you'll need
 
 <Steps>
-  <Step title="An organization API key">
-    SFTP uses the same organization API key as the REST API. Create one in the SOLO dashboard under **Settings → API keys** (see [Authentication](/home/authentication)). The key string itself is the SFTP password.
+  <Step title="A SOLO dashboard account">
+    You register SSH keys in the SOLO dashboard. Start in sandbox: sign in at [app.sandbox.solo.one](https://app.sandbox.solo.one) (see [Getting access](/home/quickstart#getting-access)).
+  </Step>
+  <Step title="An SSH key pair">
+    SFTP sign-in uses an SSH key, not a password. Use an `ssh-ed25519` key, or `ssh-rsa` of at least 2048 bits. Create one for the system that will upload:
+
+    ```bash
+    ssh-keygen -t ed25519 -f ~/.ssh/solo_sftp -C "nightly-export"
+    ```
+
+    This writes the private key to `~/.ssh/solo_sftp` and the public key to `~/.ssh/solo_sftp.pub`. Only the public key is shared with SOLO.
 
     <Warning>
-      Treat the API key like any other credential. Store it in a secrets manager and never commit it to source control. The key — not the username — is what grants access: anyone holding it can upload, and call the API, as your organization.
+      Treat the private key like any other credential. Store it in a secrets manager and never commit it to source control. Anyone holding a registered private key can upload as your organization.
     </Warning>
-  </Step>
-  <Step title="An email-form username">
-    The SFTP username is an email address, such as your work email. It selects the environment through an optional plus-tag; it isn't used to authenticate you or to decide which organization your uploads belong to — the API key does both.
   </Step>
   <Step title="The network id">
     The network you're furnishing into. Each SFTP feed's detail page in the dashboard shows it. Your organization must be a furnisher or governor of that network.
   </Step>
   <Step title="An SFTP client">
-    Anything that speaks SFTP works — the `sftp` command from OpenSSH, [FileZilla](https://filezilla-project.org/), [Cyberduck](https://cyberduck.io/), or a library such as Python's [Paramiko](https://www.paramiko.org/).
+    Anything that speaks SFTP with SSH key authentication works — the `sftp` command from OpenSSH, [FileZilla](https://filezilla-project.org/), [Cyberduck](https://cyberduck.io/), or a library such as Python's [Paramiko](https://www.paramiko.org/).
   </Step>
 </Steps>
 
@@ -31,64 +37,78 @@ This guide walks you through your first SFTP upload end-to-end — from getting 
 
 We recommend doing your first upload against **sandbox**. Sandbox is a separate environment from production: nothing you upload there reaches production data, so it's the right place to learn the format and verify your pipeline.
 
-You select an environment with a plus-tag on the local part of the email:
+Each environment has its own SFTP server and its own dashboard, where you register that environment's keys:
 
-| Environment | Username format                     | Example                          |
-|-------------|-------------------------------------|----------------------------------|
-| Sandbox     | `email+sandbox@domain.com`          | `alice+sandbox@yourbank.com`     |
-| Production  | `email@domain.com` (no tag)         | `alice@yourbank.com`             |
+| Environment | SFTP host                   | Dashboard                                             |
+|-------------|-----------------------------|-------------------------------------------------------|
+| Sandbox     | `sftp.api.sandbox.solo.one` | [app.sandbox.solo.one](https://app.sandbox.solo.one) |
+| Production  | `sftp.api.solo.one`         | [app.solo.one](https://app.solo.one)                 |
 
-Usernames are case-insensitive — `Alice@YourBank.com` and `alice@yourbank.com` are the same.
+Both servers listen on port 22.
 
-## Step 2 — Connect
+## Step 2 — Register your SSH key
 
-The SFTP host is the same for every environment:
+<Steps>
+  <Step title="Open the SFTP keys page">
+    In the dashboard, open **Settings → SFTP keys**.
+  </Step>
+  <Step title="Add the public key">
+    Enter a label that names the system using the key, paste the contents of `~/.ssh/solo_sftp.pub` — the whole line, starting `ssh-ed25519` — and select **Add key**.
+  </Step>
+  <Step title="Wait for it to sync">
+    The key is listed as **Pending** until the server accepts it, usually within a minute, and then as **Synced**. The page updates on its own while a key is pending.
+  </Step>
+  <Step title="Note your username">
+    Once your first key syncs, the **Connection** section of the page shows your SFTP username. Every key your organization registers signs in with this same username.
+  </Step>
+</Steps>
 
-```
-sftp.solo.one:22
-```
+## Step 3 — Connect
+
+Connect with the username from Step 2 and the private key that matches the registered public key:
 
 <CodeGroup>
 
 ```bash sftp (CLI)
-sftp alice+sandbox@yourbank.com@sftp.solo.one
-# When prompted, paste your organization API key as the password.
+sftp -i ~/.ssh/solo_sftp <username>@sftp.api.sandbox.solo.one
 ```
 
 ```python Python (paramiko)
 import paramiko
 
-transport = paramiko.Transport(("sftp.solo.one", 22))
-transport.connect(
-    username="alice+sandbox@yourbank.com",
-    password="<your organization API key>",
+client = paramiko.SSHClient()
+client.load_system_host_keys()  # the server's host key must already be in known_hosts
+client.connect(
+    "sftp.api.sandbox.solo.one",
+    port=22,
+    username="<username from Settings → SFTP keys>",
+    key_filename="/path/to/solo_sftp",
 )
-sftp = paramiko.SFTPClient.from_transport(transport)
+sftp = client.open_sftp()
 # ... upload here ...
 sftp.close()
-transport.close()
+client.close()
 ```
 
 ```text ~/.ssh/config
 Host solo-sftp-sandbox
-    HostName sftp.solo.one
-    User alice+sandbox@yourbank.com
+    HostName sftp.api.sandbox.solo.one
+    User <username from Settings → SFTP keys>
     Port 22
+    IdentityFile ~/.ssh/solo_sftp
 ```
 
 </CodeGroup>
 
+The first time you connect from a machine, your SSH client asks you to confirm the server's host key. Accept it to add the server to `known_hosts`; libraries such as Paramiko expect it to be there already.
+
 On a successful connection you'll land at the root of your organization's upload area.
 
-<Warning>
-  Your SFTP session is **upload-only**: you can `put` files and create directories, but `ls`, `get`, overwriting, and deleting are not permitted. Don't be surprised when a directory listing is denied — that's policy, not a fault. Verification happens in the dashboard (Step 5), not over SFTP.
-</Warning>
-
 <Tip>
-  If the server rejects you immediately, the most common causes are (1) the API key has been revoked or isn't an organization key, (2) your organization isn't provisioned in SOLO yet, or (3) the plus-tag is misspelled — use `+sandbox` for sandbox, or no tag for production. Re-check the username and key, then reach out to your account manager if it persists.
+  If the server rejects you with `Permission denied (publickey)`, the most common causes are (1) the key is still **Pending**, (2) the key was registered in the other environment's dashboard, (3) the username doesn't exactly match the one on the **SFTP keys** page, or (4) your client is offering a different key — pass the private key explicitly with `-i`. Reach out to your account manager if it persists.
 </Tip>
 
-## Step 3 — Write a JSONL file
+## Step 4 — Write a JSONL file
 
 Every upload is a [JSONL file](/api-overview/furnishing/file-upload): UTF-8 text with one JSON object per line. Each record carries a `_type` naming the kind of record it is — that's how the network decides which mappings receive it.
 
@@ -107,9 +127,9 @@ A few things to know about the format ([full reference](/api-overview/furnishing
 - **Identifiers are strings.** Write SSNs and tax identifiers as `"012345678"`, never as numbers — a number drops the leading zero.
 - **Filenames** — use a new filename for every upload (a date or batch number works well).
 
-## Step 4 — Upload
+## Step 5 — Upload
 
-Put the file in `network_{network_id}/jsonl_furnish_data/`, where `{network_id}` is the network the records go to:
+Put the file in `network_{network_id}/jsonl_furnish_data/`, where `{network_id}` is the network the records go to. Create the folders the first time you upload to a network:
 
 <CodeGroup>
 
@@ -129,16 +149,16 @@ for directory in (network_dir, f"{network_dir}/jsonl_furnish_data"):
         sftp.mkdir(directory)
     except OSError:
         pass  # already exists
-sftp.put("first_upload.jsonl", f"/{network_dir}/jsonl_furnish_data/first_upload.jsonl", confirm=False)
+sftp.put("first_upload.jsonl", f"/{network_dir}/jsonl_furnish_data/first_upload.jsonl")
 ```
 
 </CodeGroup>
 
 <Tip>
-  Sessions can't overwrite or delete existing files, so re-using a name from a previous drop will be rejected. Pass `confirm=False` in Paramiko — its post-upload check lists the file, which upload-only sessions don't allow.
+  Uploading under a name that already exists replaces that file, and the new copy is ingested again. Use a new filename for every drop.
 </Tip>
 
-## Step 5 — Verify ingestion
+## Step 6 — Verify ingestion
 
 Ingestion starts automatically once the upload completes and runs in the background. Each file has 30 minutes to finish; split very large exports into several files.
 
@@ -151,16 +171,19 @@ Check the result in the [SOLO dashboard](https://app.sandbox.solo.one) (or [prod
 ## Common first-upload issues
 
 <AccordionGroup>
-  <Accordion title="Authentication failed / Permission denied at login">
-    Confirm the username is an email address (with `+sandbox` for sandbox), and the password is the literal organization API key string — no `Bearer` prefix, no quotes. A revoked key is refused; one revoked moments ago may still be accepted for up to a minute while a previous successful check is cached.
+  <Accordion title="The dashboard won't accept the key">
+    Paste the public key (the `.pub` file), not the private key, as a single line starting with `ssh-ed25519` or `ssh-rsa`. RSA keys must be at least 2048 bits. A key that's already registered is refused, and an organization can register at most 10 keys — remove one you no longer use first.
   </Accordion>
-  <Accordion title='"Permission denied" on ls, get, or overwrite'>
-    Working as intended — SFTP access is upload-only. You can `put` new files and create directories; everything else is denied. Use the dashboard to inspect what you've uploaded, and use a new filename rather than overwriting an old one.
+  <Accordion title="No username on the SFTP keys page">
+    The username appears once your first key syncs. While a key is **Pending** the page keeps checking; wait a minute and look again.
+  </Accordion>
+  <Accordion title="Permission denied (publickey)">
+    Confirm the key shows **Synced** in this environment's dashboard, the username matches the **SFTP keys** page exactly, and your client is using the matching private key (`sftp -i ~/.ssh/solo_sftp …`). Keys registered in sandbox don't work against production, and the reverse.
   </Accordion>
   <Accordion title='"Host key verification failed"'>
-    The first time you connect from a new machine your SSH client doesn't know the server's host key yet. Either accept the fingerprint at the prompt, or pre-populate your `known_hosts`:
+    Your SSH client doesn't know the server's host key yet. Connect once with the `sftp` command and accept the fingerprint at the prompt, or add it to `known_hosts` before connecting:
     ```bash
-    ssh-keyscan sftp.solo.one >> ~/.ssh/known_hosts
+    ssh-keyscan sftp.api.sandbox.solo.one >> ~/.ssh/known_hosts
     ```
   </Accordion>
   <Accordion title="File uploaded but no upload appears in the dashboard">

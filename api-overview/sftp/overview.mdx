@@ -19,19 +19,24 @@ monthly batch drops.
 
 ## Connecting
 
-Connect to `sftp.solo.one` on port 22. The password is your organization's
-**API key** — the same kind of organization API key you use for the REST API
-(see [Authentication](/home/authentication)). The username is an email address,
-which also selects the environment:
+Each environment has its own SFTP server, on port 22:
+
+| Environment | SFTP host | Register keys in |
+|---|---|---|
+| Sandbox | `sftp.api.sandbox.solo.one` | [app.sandbox.solo.one](https://app.sandbox.solo.one) |
+| Production | `sftp.api.solo.one` | [app.solo.one](https://app.solo.one) |
+
+You sign in with an **SSH key**, not a password:
+
+1. In the SOLO dashboard, open **Settings → SFTP keys**, give the key a label,
+   paste the public half of an SSH key pair, and select **Add key**.
+2. The key is listed as **Pending** until the server accepts it — usually
+   within a minute — and then as **Synced**. Once your first key syncs, the
+   same page shows your SFTP **username**.
+3. Connect with that username and the matching private key.
 
 ```bash
-sftp alice@yourbank.com@sftp.solo.one
-```
-
-For the sandbox environment, append `+sandbox` to the local part of the email:
-
-```bash
-sftp alice+sandbox@yourbank.com@sftp.solo.one
+sftp -i ~/.ssh/solo_sftp <username>@sftp.api.sandbox.solo.one
 ```
 
 Or using an SFTP library:
@@ -41,76 +46,71 @@ Or using an SFTP library:
 ```python Python (paramiko)
 import paramiko
 
-transport = paramiko.Transport(("sftp.solo.one", 22))
-transport.connect(
-    username="alice+sandbox@yourbank.com",
-    password="<your organization API key>",
+client = paramiko.SSHClient()
+client.load_system_host_keys()  # the server's host key must already be in known_hosts
+client.connect(
+    "sftp.api.sandbox.solo.one",
+    port=22,
+    username="<username from Settings → SFTP keys>",
+    key_filename="/path/to/solo_sftp",
 )
-sftp = paramiko.SFTPClient.from_transport(transport)
+sftp = client.open_sftp()
 
 network_dir = "network_9f1c0c2e-7a44-4f1e-9d2a-08b6f3a1c5d7"
 sftp.put(
     "consumers_aug.jsonl",
     f"/{network_dir}/jsonl_furnish_data/consumers_aug.jsonl",
-    confirm=False,
 )
 
 sftp.close()
-transport.close()
+client.close()
 ```
 
 ```bash SSH config
 # ~/.ssh/config
-Host solo-sftp
-    HostName sftp.solo.one
-    User alice+sandbox@yourbank.com
+Host solo-sftp-sandbox
+    HostName sftp.api.sandbox.solo.one
+    User <username from Settings → SFTP keys>
     Port 22
+    IdentityFile ~/.ssh/solo_sftp
 ```
 
 </CodeGroup>
 
-### How authentication works
+### How access works
 
-Every connection is checked against the API key, not a stored password:
-
-1. The username is parsed into an email address and an optional environment
-   tag: `+sandbox` selects sandbox, and no tag selects production. Usernames
-   are case-insensitive, and an unrecognized tag is rejected.
-2. The password is validated as an organization API key with SOLO's identity
-   provider. Revoked, malformed, or user-owned keys are rejected.
-3. The organization that owns the key — not anything in the username — decides
-   which SOLO organization the session uploads as. The organization must
-   already exist in SOLO.
-
-The username isn't used to authenticate you or to choose your organization; it
-only needs to be in email form and to carry the right environment tag.
+- **Keys belong to your organization.** Every key registered on the
+  **SFTP keys** page signs in as the same SFTP username, and that user can
+  reach only your organization's upload area. An organization can register up
+  to 10 keys, so give each system that uploads its own key.
+- **Accepted keys** are `ssh-ed25519`, or `ssh-rsa` of at least 2048 bits,
+  pasted as one OpenSSH public key line (`ssh-ed25519 AAAA… comment`).
+- **Removing a key** in the dashboard revokes it on the server shortly after.
+  Removing your last key removes your organization's SFTP access until you add
+  another.
+- **Each environment is separate.** Register keys in each environment's
+  dashboard, and use the username that environment's **SFTP keys** page shows.
+- **API keys don't work over SFTP.** Organization API keys
+  ([Authentication](/home/authentication)) are for the REST API only.
 
 <Note>
-  Because access derives from the **API key**, the key is the credential that
-  matters: anyone holding it can upload as your organization and call the REST
-  API as your organization. Revoking the key cuts off SFTP access, though a
-  recently accepted key can keep signing in for up to a minute while that
-  result is cached.
+  Anyone holding a registered private key can upload as your organization.
+  Keep private keys in a secrets manager, and remove a key in the dashboard as
+  soon as the system that uses it is retired or compromised.
 </Note>
-
-<Warning>
-  SFTP sessions are **upload-only**. You can `put` files and create
-  directories, but listing, downloading, overwriting, and deleting are not
-  permitted. Upload each file under a name you haven't used before, and use
-  the SOLO dashboard — not the SFTP session — to confirm what was ingested.
-</Warning>
 
 ## Directory layout
 
-Put each file in the `jsonl_furnish_data/` folder of the network it furnishes
-into:
+You land at the root of your organization's upload area. Put each file in the
+`jsonl_furnish_data/` folder of the network it furnishes into:
 
 ```
 network_{network_id}/jsonl_furnish_data/{filename}.jsonl
 ```
 
 Each SFTP feed's detail page in the dashboard shows the network id to use.
-Files placed anywhere else are not ingested.
+Create the two folders the first time you upload to a network. Files placed
+anywhere else are not ingested.
 
 <Warning>
   Always use the per-network folder. A file placed directly in a top-level
@@ -118,6 +118,12 @@ Files placed anywhere else are not ingested.
   **governs**: if it governs several, SOLO picks one for you, and if it governs
   none, ingestion fails.
 </Warning>
+
+Your session can read as well as write in your organization's upload area, so
+you can list and download the files you've uploaded. Use a new filename for
+every upload: uploading under a name that already exists replaces that file,
+and the new copy is ingested again. Use the SOLO dashboard, not the SFTP
+session, to see what was ingested.
 
 ## What happens on upload
 
@@ -179,17 +185,15 @@ onboarding events over REST in real time.
 
 ## Environments
 
-Use plus-addressing on the email username to target an environment:
+| Environment | SFTP host |
+|---|---|
+| Sandbox | `sftp.api.sandbox.solo.one` |
+| Production | `sftp.api.solo.one` |
 
-| Environment | Username format | Example |
-|---|---|---|
-| Production | `email@domain.com` (no tag) | `alice@yourbank.com` |
-| Sandbox | `email+sandbox@domain.com` | `alice+sandbox@yourbank.com` |
-
-Sandbox and production are separate environments: nothing uploaded to sandbox
-reaches production. Start in sandbox — the
-[getting-started guide](/api-overview/sftp/getting-started) walks through a first
-upload end to end.
+Sandbox and production are separate environments, with separate servers, SSH
+keys, and data: nothing uploaded to sandbox reaches production. Start in
+sandbox — the [getting-started guide](/api-overview/sftp/getting-started) walks
+through a first upload end to end.
 
 ## Who can upload
 

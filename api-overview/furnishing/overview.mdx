@@ -36,7 +36,7 @@ transport, batch size, and how much automation you want to build.
 
 | | REST furnish | Dashboard upload | SFTP drops |
 |---|---|---|---|
-| **Endpoint / transport** | `POST /v1/products/kyc_certificate_snapshot/furnish`, `POST /v1/products/kyb_certificate_snapshot/furnish` | The SOLO dashboard | SFTP server (`sftp.solo.one`) |
+| **Endpoint / transport** | `POST /v1/products/kyc_certificate_snapshot/furnish`, `POST /v1/products/kyb_certificate_snapshot/furnish` | The SOLO dashboard | SFTP server (`sftp.api.solo.one`; `sftp.api.sandbox.solo.one` in sandbox), signed in with SSH keys |
 | **Payload** | JSON records in the request body | A [JSONL file](/api-overview/furnishing/file-upload), or other formats through the **Furnish** dialog | JSONL files dropped into `jsonl_furnish_data/` |
 | **Failure handling** | A failing record fails the whole request | Each record succeeds or fails on its own | Each record succeeds or fails on its own |
 | **Processing** | Synchronous — the response reflects the furnish | Asynchronous — tracked on the Uploads page | Asynchronous — ingestion starts when the upload lands |
