@@ -85,7 +85,7 @@ two read-only calls.
         "last_name": "Doe",
         "personal_email": "jane.doe@example.com",
         "date_of_birth": "1990-01-15",
-        "social_security_number": "123-45-6789"
+        "social_security_number": "***-**-6789"
       }
     ]
     ```
@@ -112,7 +112,7 @@ Search returns only consumers visible to you in the network you named:
 | `id` | The consumer's profile ID. Use it as `consumer_identity_id` when linking a consent or querying by profile. |
 | `identifier` | The same ID, as a string. |
 | `created_at` / `updated_at` | When the consumer record was created and last modified. |
-| `first_name`, `last_name`, `personal_email`, `date_of_birth`, `social_security_number` | The consumer's core identity fields. Any of these may be `null` if not on file. |
+| `first_name`, `last_name`, `personal_email`, `date_of_birth`, `social_security_number` | The consumer's core identity fields. Any of these may be `null` if not on file. `social_security_number` shows only its last four digits (`***-**-6789`); search on the full number. |
 
 An empty array is a healthy response — no consumer visible to you in this
 network matches your filters yet. After you complete
